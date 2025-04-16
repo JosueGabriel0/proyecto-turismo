@@ -39,11 +39,11 @@ public class Resena {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionResena = java.time.LocalDateTime.now();
+        fechaCreacionResena = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionResena = java.time.LocalDateTime.now();
+        fechaModificacionResena = LocalDateTime.now();
     }
 }

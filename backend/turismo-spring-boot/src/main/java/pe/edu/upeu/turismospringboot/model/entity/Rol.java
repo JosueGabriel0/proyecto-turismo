@@ -28,11 +28,11 @@ public class Rol {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionRol = java.time.LocalDateTime.now();
+        fechaCreacionRol = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionRol = java.time.LocalDateTime.now();
+        fechaModificacionRol = LocalDateTime.now();
     }
 }

@@ -34,11 +34,11 @@ public class Persona {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionPersona = java.time.LocalDateTime.now();
+        fechaCreacionPersona = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionPersona = java.time.LocalDateTime.now();
+        fechaModificacionPersona = LocalDateTime.now();
     }
 }

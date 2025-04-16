@@ -5,7 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "categoria")
@@ -28,11 +29,11 @@ public class Categoria {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionCategoria = java.time.LocalDateTime.now();
+        fechaCreacionCategoria = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionCategoria = java.time.LocalDateTime.now();
+        fechaModificacionCategoria = LocalDateTime.now();
     }
 }

@@ -5,7 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "hotel")
@@ -36,11 +37,11 @@ public class Hotel {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionHotel = java.time.LocalDateTime.now();
+        fechaCreacionHotel = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionHotel = java.time.LocalDateTime.now();
+        fechaModificacionHotel = LocalDateTime.now();
     }
 }

@@ -33,11 +33,11 @@ public class Noticia {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionNoticia = java.time.LocalDateTime.now();
+        fechaCreacionNoticia = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionNoticia = java.time.LocalDateTime.now();
+        fechaModificacionNoticia = LocalDateTime.now();
     }
 }

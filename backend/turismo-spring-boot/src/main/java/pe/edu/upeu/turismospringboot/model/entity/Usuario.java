@@ -41,7 +41,7 @@ public class Usuario {
     @JsonManagedReference
     private List<BitacoraAcceso> bitacoraAccesoList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Noticia> noticias = new ArrayList<>();
 
@@ -50,11 +50,11 @@ public class Usuario {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionUsuario = java.time.LocalDateTime.now();
+        fechaCreacionUsuario = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionUsuario = java.time.LocalDateTime.now();
+        fechaModificacionUsuario = LocalDateTime.now();
     }
 }

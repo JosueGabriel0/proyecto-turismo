@@ -29,11 +29,11 @@ public class BitacoraAcceso {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionBitacoraAcceso = java.time.LocalDateTime.now();
+        fechaCreacionBitacoraAcceso = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionBitacoraAcceso = java.time.LocalDateTime.now();
+        fechaModificacionBitacoraAcceso = LocalDateTime.now();
     }
 }

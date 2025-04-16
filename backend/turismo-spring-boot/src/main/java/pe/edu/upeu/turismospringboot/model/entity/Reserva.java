@@ -38,11 +38,11 @@ public class Reserva {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionReserva = java.time.LocalDateTime.now();
+        fechaCreacionReserva = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionReserva = java.time.LocalDateTime.now();
+        fechaModificacionReserva = LocalDateTime.now();
     }
 }

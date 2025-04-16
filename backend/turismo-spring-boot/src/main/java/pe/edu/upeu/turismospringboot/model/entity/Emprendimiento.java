@@ -41,11 +41,11 @@ public class Emprendimiento {
 
     @PrePersist
     public void onCreate(){
-        fechaCreacionEmprendimiento = java.time.LocalDateTime.now();
+        fechaCreacionEmprendimiento = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate(){
-        fechaModificacionEmprendimiento = java.time.LocalDateTime.now();
+        fechaModificacionEmprendimiento = LocalDateTime.now();
     }
 }
