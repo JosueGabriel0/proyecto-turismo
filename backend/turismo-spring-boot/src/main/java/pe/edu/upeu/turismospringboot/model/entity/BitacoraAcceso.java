@@ -23,4 +23,17 @@ public class BitacoraAcceso {
     private LocalDateTime fechaHora;
     private String direccionIp;
     private boolean exito;
+
+    private LocalDateTime fechaCreacionBitacoraAcceso;
+    private LocalDateTime fechaModificacionBitacoraAcceso;
+
+    @PrePersist
+    public void onCreate(){
+        fechaCreacionBitacoraAcceso = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate(){
+        fechaModificacionBitacoraAcceso = java.time.LocalDateTime.now();
+    }
 }

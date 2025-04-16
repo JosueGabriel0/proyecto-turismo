@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "resena")
@@ -32,4 +33,17 @@ public class Resena {
     @JoinColumn(name = "id_emprendimiento", nullable = true)
     @JsonBackReference
     private Emprendimiento emprendimiento;
+
+    private LocalDateTime fechaCreacionResena;
+    private LocalDateTime fechaModificacionResena;
+
+    @PrePersist
+    public void onCreate(){
+        fechaCreacionResena = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate(){
+        fechaModificacionResena = java.time.LocalDateTime.now();
+    }
 }

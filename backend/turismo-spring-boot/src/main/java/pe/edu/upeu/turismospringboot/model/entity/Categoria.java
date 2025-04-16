@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -21,4 +22,17 @@ public class Categoria {
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<LugarTuristico> lugares = new ArrayList<>();
+
+    private LocalDateTime fechaCreacionCategoria;
+    private LocalDateTime fechaModificacionCategoria;
+
+    @PrePersist
+    public void onCreate(){
+        fechaCreacionCategoria = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate(){
+        fechaModificacionCategoria = java.time.LocalDateTime.now();
+    }
 }

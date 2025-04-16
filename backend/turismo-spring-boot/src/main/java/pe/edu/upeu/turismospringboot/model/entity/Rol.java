@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,4 +22,17 @@ public class Rol {
     @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Usuario> usuarios = new ArrayList<>();
+
+    private LocalDateTime fechaCreacionRol;
+    private LocalDateTime fechaModificacionRol;
+
+    @PrePersist
+    public void onCreate(){
+        fechaCreacionRol = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate(){
+        fechaModificacionRol = java.time.LocalDateTime.now();
+    }
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import pe.edu.upeu.turismospringboot.model.enums.EstadoReserva;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reserva")
@@ -31,4 +32,17 @@ public class Reserva {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoReserva estado; // Ej: "pendiente", "confirmada", "cancelada"
+
+    private LocalDateTime fechaCreacionReserva;
+    private LocalDateTime fechaModificacionReserva;
+
+    @PrePersist
+    public void onCreate(){
+        fechaCreacionReserva = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate(){
+        fechaModificacionReserva = java.time.LocalDateTime.now();
+    }
 }

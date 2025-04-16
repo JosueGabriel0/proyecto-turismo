@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -29,4 +30,17 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Reserva> reservas = new ArrayList<>();
+
+    private LocalDateTime fechaCreacionHotel;
+    private LocalDateTime fechaModificacionHotel;
+
+    @PrePersist
+    public void onCreate(){
+        fechaCreacionHotel = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate(){
+        fechaModificacionHotel = java.time.LocalDateTime.now();
+    }
 }

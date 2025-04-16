@@ -27,4 +27,17 @@ public class Noticia {
     @JoinColumn(name = "id_autor", nullable = false)
     @JsonBackReference
     private Usuario autor;
+
+    private LocalDateTime fechaCreacionNoticia;
+    private LocalDateTime fechaModificacionNoticia;
+
+    @PrePersist
+    public void onCreate(){
+        fechaCreacionNoticia = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate(){
+        fechaModificacionNoticia = java.time.LocalDateTime.now();
+    }
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "persona")
@@ -27,4 +28,17 @@ public class Persona {
     @OneToOne(mappedBy = "persona", cascade = CascadeType.ALL)
     @JsonBackReference
     private Usuario usuario;
+
+    private LocalDateTime fechaCreacionPersona;
+    private LocalDateTime fechaModificacionPersona;
+
+    @PrePersist
+    public void onCreate(){
+        fechaCreacionPersona = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate(){
+        fechaModificacionPersona = java.time.LocalDateTime.now();
+    }
 }

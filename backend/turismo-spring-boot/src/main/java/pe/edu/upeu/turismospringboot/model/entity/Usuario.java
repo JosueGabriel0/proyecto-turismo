@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import pe.edu.upeu.turismospringboot.model.enums.EstadoCuenta;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,4 +44,17 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Noticia> noticias = new ArrayList<>();
+
+    private LocalDateTime fechaCreacionUsuario;
+    private LocalDateTime fechaModificacionUsuario;
+
+    @PrePersist
+    public void onCreate(){
+        fechaCreacionUsuario = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate(){
+        fechaModificacionUsuario = java.time.LocalDateTime.now();
+    }
 }
