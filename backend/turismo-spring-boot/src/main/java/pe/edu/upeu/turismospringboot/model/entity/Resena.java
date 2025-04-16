@@ -1,0 +1,32 @@
+package pe.edu.upeu.turismospringboot.model.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "resena")
+@Data
+public class Resena {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idResena;
+
+    private String nombreUsuario;
+    private String comentario;
+
+    @Column(nullable = false)
+    private int calificacion; // 1 a 5
+
+    private LocalDate fecha;
+
+    @ManyToOne
+    @JoinColumn(name = "id_lugar", nullable = true)
+    private LugarTuristico lugar;
+
+    @ManyToOne
+    @JoinColumn(name = "id_emprendimiento", nullable = true)
+    private Emprendimiento emprendimiento;
+}
