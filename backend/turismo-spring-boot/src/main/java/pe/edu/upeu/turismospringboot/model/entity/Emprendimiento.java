@@ -1,7 +1,12 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "emprendimiento")
@@ -19,8 +24,14 @@ public class Emprendimiento {
 
     @ManyToOne
     @JoinColumn(name = "id_lugar", nullable = false)
+    @JsonBackReference
     private LugarTuristico lugar;
 
     @OneToOne(mappedBy = "emprendimiento", cascade = CascadeType.ALL)
+    @JsonBackReference
     private Hotel hotel;
+
+    @OneToMany(mappedBy = "emprendimiento", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Resena> resenas = new ArrayList<>();
 }

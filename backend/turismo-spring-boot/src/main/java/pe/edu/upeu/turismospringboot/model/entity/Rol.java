@@ -1,5 +1,6 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -18,5 +19,6 @@ public class Rol {
     private String nombre;
 
     @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Usuario> usuarios = new ArrayList<>();
 }

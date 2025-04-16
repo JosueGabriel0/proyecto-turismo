@@ -1,0 +1,26 @@
+package pe.edu.upeu.turismospringboot.model.entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "bitacora_acceso")
+@Data
+public class BitacoraAcceso {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idBitacora;
+
+    @ManyToOne
+    @JoinColumn(name = "id_usuario", nullable = false)
+    @JsonBackReference
+    private Usuario usuario;
+
+    private LocalDateTime fechaHora;
+    private String direccionIp;
+    private boolean exito;
+}

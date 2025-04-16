@@ -1,5 +1,6 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,9 +25,11 @@ public class Resena {
 
     @ManyToOne
     @JoinColumn(name = "id_lugar", nullable = true)
+    @JsonBackReference
     private LugarTuristico lugar;
 
     @ManyToOne
     @JoinColumn(name = "id_emprendimiento", nullable = true)
+    @JsonBackReference
     private Emprendimiento emprendimiento;
 }

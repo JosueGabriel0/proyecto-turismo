@@ -1,5 +1,6 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import pe.edu.upeu.turismospringboot.model.enums.EstadoReserva;
@@ -17,6 +18,7 @@ public class Reserva {
 
     @ManyToOne
     @JoinColumn(name = "id_hotel", nullable = false)
+    @JsonBackReference
     private Hotel hotel;
 
     private String nombreCliente;

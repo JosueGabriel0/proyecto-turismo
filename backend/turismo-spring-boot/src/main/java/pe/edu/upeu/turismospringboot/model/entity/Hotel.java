@@ -1,5 +1,6 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,8 +23,10 @@ public class Hotel {
 
     @OneToOne
     @JoinColumn(name = "id_emprendimiento", nullable = false)
+    @JsonManagedReference
     private Emprendimiento emprendimiento;
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Reserva> reservas = new ArrayList<>();
 }
