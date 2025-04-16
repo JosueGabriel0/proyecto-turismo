@@ -20,10 +20,10 @@ public class Usuario {
     private Long idUsuario;
 
     @Column(nullable = false, unique = true)
-    private String email;
+    private String username;
 
     @Column(nullable = false)
-    private String clave;
+    private String password;
 
     private EstadoCuenta estado;
 
