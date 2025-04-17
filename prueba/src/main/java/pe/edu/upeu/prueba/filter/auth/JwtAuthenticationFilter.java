@@ -1,4 +1,5 @@
-package pe.edu.upeu.turismospringboot.filter;
+package pe.edu.upeu.prueba.filter.auth;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +14,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import pe.edu.upeu.turismospringboot.service.auth.JwtService;
+import pe.edu.upeu.prueba.service.auth.JwtService;
 
 import java.io.IOException;
 
@@ -27,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
+       
         final String token = getTokenFromRequest(request);
         final String username;
 
@@ -46,9 +47,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtService.isTokenValid(token, userDetails))
             {
                 UsernamePasswordAuthenticationToken authToken= new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
@@ -56,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         }
-
+        
         filterChain.doFilter(request, response);
     }
 
@@ -72,5 +73,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
 
-
+    
 }

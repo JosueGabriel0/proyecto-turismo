@@ -1,13 +1,16 @@
-package pe.edu.upeu.turismospringboot.model.entity;
+package pe.edu.upeu.prueba.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import pe.edu.upeu.turismospringboot.model.enums.EstadoCuenta;
+import pe.edu.upeu.prueba.model.enums.EstadoCuenta;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

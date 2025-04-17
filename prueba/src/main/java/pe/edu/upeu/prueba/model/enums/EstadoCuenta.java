@@ -1,4 +1,4 @@
-package pe.edu.upeu.turismospringboot.model.enums;
+package pe.edu.upeu.prueba.model.enums;
 
 public enum EstadoCuenta {
     ACTIVO,

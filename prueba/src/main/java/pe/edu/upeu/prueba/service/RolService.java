@@ -1,6 +1,6 @@
-package pe.edu.upeu.turismospringboot.service;
+package pe.edu.upeu.prueba.service;
 
-import pe.edu.upeu.turismospringboot.model.entity.Rol;
+import pe.edu.upeu.prueba.model.entity.Rol;
 
 import java.util.List;
 

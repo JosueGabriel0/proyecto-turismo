@@ -1,10 +1,10 @@
-package pe.edu.upeu.turismospringboot.service.impl;
+package pe.edu.upeu.prueba.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.edu.upeu.turismospringboot.model.entity.Rol;
-import pe.edu.upeu.turismospringboot.repository.RolRepository;
-import pe.edu.upeu.turismospringboot.service.RolService;
+import pe.edu.upeu.prueba.model.entity.Rol;
+import pe.edu.upeu.prueba.repository.RolRepository;
+import pe.edu.upeu.prueba.service.RolService;
 
 import java.util.List;
 
