@@ -7,6 +7,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import pe.edu.upeu.turismospringboot.model.entity.Usuario;
 
 import java.security.Key;
 import java.util.Date;
@@ -20,7 +21,22 @@ public class JwtService {
     private static final String SECRET_KEY="586E3272357538782F413F4428472B4B6250655368566B597033733676397924";
 
     public String getToken(UserDetails user) {
-        return getToken(new HashMap<>(), user);
+        Map<String, Object> extraClaims = new HashMap<>();
+
+        // Suponiendo que solo tenés un rol (si tenés más de uno, podés ponerlos en una lista)
+        String role = user.getAuthorities().stream()
+                .findFirst()
+                .map(auth -> auth.getAuthority())
+                .orElse("USUARIO");
+
+        extraClaims.put("role", role);
+
+        if(user instanceof Usuario){
+            Usuario usuario = (Usuario) user;
+            extraClaims.put("idUsuario", usuario.getIdUsuario());
+        }
+
+        return getToken(extraClaims, user);
     }
 
     private String getToken(Map<String,Object> extraClaims, UserDetails user) {
@@ -74,4 +90,8 @@ public class JwtService {
         return getExpiration(token).before(new Date());
     }
 
+    public String getRoleFromToken(String token) {
+        // Extraer el claim "role" del token
+        return getClaim(token, claims -> claims.get("role", String.class));
+    }
 }

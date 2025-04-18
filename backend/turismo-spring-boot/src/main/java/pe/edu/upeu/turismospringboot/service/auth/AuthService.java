@@ -40,7 +40,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         // Buscar el rol
-        Rol rol = rolRepository.findByNombre("USUARIO")
+        Rol rol = rolRepository.findByNombre("ROLE_USUARIO")
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
         // Crear persona

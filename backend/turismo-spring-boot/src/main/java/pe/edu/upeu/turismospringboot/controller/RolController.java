@@ -12,7 +12,7 @@ import pe.edu.upeu.turismospringboot.service.RolService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rol")
+@RequestMapping("/admin/rol")
 public class RolController {
     @Autowired
     private RolService rolService;

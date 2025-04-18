@@ -17,5 +17,6 @@ public class UsuarioCompletoDto {
     private String telefono;
     private String direccion;
     private String correoElectronico;
+    private String fotoPerfil;
     private LocalDate fechaNacimiento;
 }

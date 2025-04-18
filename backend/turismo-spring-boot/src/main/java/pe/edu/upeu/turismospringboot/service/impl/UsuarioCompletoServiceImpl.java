@@ -48,6 +48,7 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
         personaCreada.setTelefono(usuarioCompleto.getTelefono());
         personaCreada.setDireccion(usuarioCompleto.getDireccion());
         personaCreada.setCorreoElectronico(usuarioCompleto.getCorreoElectronico());
+        personaCreada.setFotoPerfil(usuarioCompleto.getFotoPerfil());
         personaCreada.setFechaNacimiento(usuarioCompleto.getFechaNacimiento());
         personaRepository.save(personaCreada);
 
@@ -86,6 +87,7 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
         persona.setTelefono(usuarioCompleto.getTelefono());
         persona.setDireccion(usuarioCompleto.getDireccion());
         persona.setCorreoElectronico(usuarioCompleto.getCorreoElectronico());
+        persona.setFotoPerfil(usuarioCompleto.getFotoPerfil());
         persona.setFechaNacimiento(usuarioCompleto.getFechaNacimiento());
 
         Rol rolEncontrado = rolRepository.findByNombre(usuarioCompleto.getNombreRol()).orElseThrow(() -> new RuntimeException("Rol no encontrado"));

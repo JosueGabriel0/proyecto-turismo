@@ -31,9 +31,9 @@ public class UsuarioDataLoader implements CommandLineRunner {
         if (usuarioRepository.findByUsername("admin").isEmpty()) {
 
             // Crear rol si no existe
-            Rol rolAdmin = rolRepository.findByNombre("ADMIN").orElseGet(() -> {
+            Rol rolAdmin = rolRepository.findByNombre("ROLE_ADMIN").orElseGet(() -> {
                 Rol nuevoRol = new Rol();
-                nuevoRol.setNombre("ADMIN");
+                nuevoRol.setNombre("ROLE_ADMIN");
                 return rolRepository.save(nuevoRol);
             });
 

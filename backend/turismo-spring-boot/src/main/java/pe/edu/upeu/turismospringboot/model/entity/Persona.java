@@ -24,6 +24,7 @@ public class Persona {
     private String telefono;
     private String direccion;
     private String correoElectronico;
+    private String fotoPerfil;
     private LocalDate fechaNacimiento;
 
     @OneToOne(mappedBy = "persona", cascade = CascadeType.ALL)

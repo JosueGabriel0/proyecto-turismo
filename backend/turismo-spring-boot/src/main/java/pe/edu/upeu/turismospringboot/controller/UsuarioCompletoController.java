@@ -12,7 +12,7 @@ import pe.edu.upeu.turismospringboot.service.UsuarioCompletoService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/usuarioCompleto")
+@RequestMapping("/admin/usuarioCompleto")
 public class UsuarioCompletoController {
     @Autowired
     private UsuarioCompletoService usuarioCompletoService;

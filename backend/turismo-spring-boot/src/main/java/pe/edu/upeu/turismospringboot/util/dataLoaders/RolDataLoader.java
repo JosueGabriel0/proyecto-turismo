@@ -2,7 +2,6 @@ package pe.edu.upeu.turismospringboot.util.dataLoaders;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import pe.edu.upeu.turismospringboot.model.entity.Rol;
@@ -17,17 +16,22 @@ public class RolDataLoader implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        crearRolSiNoExiste("ADMIN");
-        crearRolSiNoExiste("USUARIO");
+        boolean adminCreado = crearRolSiNoExiste("ROLE_ADMIN");
+        boolean usuarioCreado = crearRolSiNoExiste("ROLE_USUARIO");
+
+        if (!adminCreado && !usuarioCreado) {
+            System.out.println("ℹ️ Los roles ya están cargados en la base de datos.");
+        }
     }
 
-    private void crearRolSiNoExiste(String nombreRol) {
-        rolRepository.findByNombre(nombreRol).orElseGet(() -> {
+    private boolean crearRolSiNoExiste(String nombreRol) {
+        if (rolRepository.findByNombre(nombreRol).isEmpty()) {
             Rol nuevoRol = new Rol();
             nuevoRol.setNombre(nombreRol);
             rolRepository.save(nuevoRol);
-            System.out.println("Rol '" + nombreRol + "' creado.");
-            return nuevoRol;
-        });
+            System.out.println("✅ Rol '" + nombreRol + "' creado.");
+            return true;
+        }
+        return false;
     }
 }
