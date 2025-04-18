@@ -51,6 +51,7 @@ public class AuthService {
         persona.setNumeroDocumento(request.getNumeroDocumento());
         persona.setTelefono(request.getTelefono());
         persona.setDireccion(request.getDireccion());
+        persona.setCorreoElectronico(request.getCorreoElectronico());
         persona.setFechaNacimiento(request.getFechaNacimiento());
 
         personaRepository.save(persona); // persistimos la persona

@@ -34,10 +34,10 @@ public class Usuario implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name = "id_rol", nullable = false)
-    @JsonBackReference
+    @JsonManagedReference
     private Rol rol;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_persona", unique = true)
     @JsonManagedReference
     private Persona persona;

@@ -23,6 +23,7 @@ public class Persona {
     private String numeroDocumento;
     private String telefono;
     private String direccion;
+    private String correoElectronico;
     private LocalDate fechaNacimiento;
 
     @OneToOne(mappedBy = "persona", cascade = CascadeType.ALL)

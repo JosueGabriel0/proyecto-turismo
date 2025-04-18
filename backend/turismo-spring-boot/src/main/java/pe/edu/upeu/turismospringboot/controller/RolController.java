@@ -1,8 +1,11 @@
 package pe.edu.upeu.turismospringboot.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.upeu.turismospringboot.model.dto.RolDto;
 import pe.edu.upeu.turismospringboot.model.entity.Rol;
 import pe.edu.upeu.turismospringboot.service.RolService;
 
@@ -25,14 +28,13 @@ public class RolController {
     }
 
     @PostMapping
-    public ResponseEntity<Rol> guardarRol(@RequestBody Rol rol){
-        return ResponseEntity.ok(rolService.guardarRol(rol));
+    public ResponseEntity<Rol> guardarRol(@RequestBody RolDto rolDto){
+        return ResponseEntity.ok(rolService.guardarRol(rolDto));
     }
 
     @PutMapping("/{idRol}")
-    public ResponseEntity<Rol> actualizarRol(@PathVariable Long idRol, @RequestBody Rol rol){
-        rol.setIdRol(idRol);
-        return ResponseEntity.ok(rolService.actualizarRol(rol));
+    public ResponseEntity<Rol> actualizarRol(@PathVariable Long idRol, @RequestBody RolDto rolDto){
+        return ResponseEntity.ok(rolService.actualizarRol(idRol, rolDto));
     }
 
     @DeleteMapping("/{idRol}")
@@ -40,8 +42,10 @@ public class RolController {
         try {
             rolService.eliminarRolPorId(idRol);
             return ResponseEntity.ok("Rol eliminado exitosamente");
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body("Error al eliminar el rol");
+        }catch (EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol no encontrado");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el rol");
         }
     }
 }

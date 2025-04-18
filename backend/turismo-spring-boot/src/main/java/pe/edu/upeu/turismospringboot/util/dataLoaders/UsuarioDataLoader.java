@@ -43,6 +43,9 @@ public class UsuarioDataLoader implements CommandLineRunner {
             persona.setApellidos("Principal");
             persona.setTipoDocumento("DNI");
             persona.setNumeroDocumento("12345678");
+            persona.setTelefono("1234567890");
+            persona.setDireccion("Jr. callefalsa");
+            persona.setCorreoElectronico("usuario@gmail.com");
             persona.setFechaNacimiento(LocalDate.of(1990, 1, 1));
             personaRepository.save(persona);
 

@@ -1,21 +1,15 @@
-package pe.edu.upeu.turismospringboot.model.dto.auth;
+package pe.edu.upeu.turismospringboot.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class RegisterRequest {
+public class UsuarioCompletoDto {
     private String username;
     private String password;
-
-    // Persona
+    private String estadoCuenta;
+    private String nombreRol;
     private String nombres;
     private String apellidos;
     private String tipoDocumento;
