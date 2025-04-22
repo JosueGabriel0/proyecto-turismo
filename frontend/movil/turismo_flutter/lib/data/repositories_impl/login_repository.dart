@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:turismo_flutter/core/constants/constants.dart';
 import '../models/login_dto.dart';
 import '../models/login_response.dart';
 
 class LoginRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: "http://172.25.160.1:8080"));
+  final Dio _dio = Dio(BaseOptions(baseUrl: baseUrlDev));
 
   Future<LoginResponse> login(LoginDto dto) async {
     try {

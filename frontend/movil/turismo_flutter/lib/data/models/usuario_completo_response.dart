@@ -1,9 +1,14 @@
 import 'dart:convert';
+import 'package:turismo_flutter/data/models/usuario_completo_dto.dart';
 
-List<UsuarioCompletoResponse> usuarioCompletoResponseFromJson(String str) => List<UsuarioCompletoResponse>.from(json.decode(str).map((x) => UsuarioCompletoResponse.fromJson(x)));
+List<UsuarioCompletoResponse> usuarioCompletoResponseFromList(List<dynamic> list) =>
+    list.map((x) => UsuarioCompletoResponse.fromJson(x)).toList();
 
-UsuarioCompletoResponse usuarioFromJson(String str) => UsuarioCompletoResponse.fromJson(json.decode(str));
-String usuarioCompletoResponseToJson(List<UsuarioCompletoResponse> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+UsuarioCompletoResponse usuarioFromJson(String str) =>
+    UsuarioCompletoResponse.fromJson(json.decode(str));
+
+String usuarioCompletoResponseToJson(List<UsuarioCompletoResponse> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class UsuarioCompletoResponse {
   int idUsuario;
@@ -15,7 +20,7 @@ class UsuarioCompletoResponse {
   List<dynamic> bitacoraAccesoList;
   List<dynamic> noticias;
   DateTime fechaCreacionUsuario;
-  dynamic fechaModificacionUsuario;
+  DateTime? fechaModificacionUsuario;
   bool enabled;
   bool accountNonLocked;
   List<Authority> authorities;
@@ -32,7 +37,7 @@ class UsuarioCompletoResponse {
     required this.bitacoraAccesoList,
     required this.noticias,
     required this.fechaCreacionUsuario,
-    required this.fechaModificacionUsuario,
+    this.fechaModificacionUsuario,
     required this.enabled,
     required this.accountNonLocked,
     required this.authorities,
@@ -47,10 +52,12 @@ class UsuarioCompletoResponse {
     estado: json["estado"],
     rol: Rol.fromJson(json["rol"]),
     persona: Persona.fromJson(json["persona"]),
-    bitacoraAccesoList: List<dynamic>.from(json["bitacoraAccesoList"].map((x) => x)),
-    noticias: List<dynamic>.from(json["noticias"].map((x) => x)),
+    bitacoraAccesoList: List<dynamic>.from(json["bitacoraAccesoList"] ?? []),
+    noticias: List<dynamic>.from(json["noticias"] ?? []),
     fechaCreacionUsuario: DateTime.parse(json["fechaCreacionUsuario"]),
-    fechaModificacionUsuario: json["fechaModificacionUsuario"],
+    fechaModificacionUsuario: json["fechaModificacionUsuario"] != null
+        ? DateTime.tryParse(json["fechaModificacionUsuario"])
+        : null,
     enabled: json["enabled"],
     accountNonLocked: json["accountNonLocked"],
     authorities: List<Authority>.from(json["authorities"].map((x) => Authority.fromJson(x))),
@@ -68,21 +75,69 @@ class UsuarioCompletoResponse {
     "bitacoraAccesoList": List<dynamic>.from(bitacoraAccesoList.map((x) => x)),
     "noticias": List<dynamic>.from(noticias.map((x) => x)),
     "fechaCreacionUsuario": fechaCreacionUsuario.toIso8601String(),
-    "fechaModificacionUsuario": fechaModificacionUsuario,
+    "fechaModificacionUsuario": fechaModificacionUsuario?.toIso8601String(),
     "enabled": enabled,
     "accountNonLocked": accountNonLocked,
     "authorities": List<dynamic>.from(authorities.map((x) => x.toJson())),
     "accountNonExpired": accountNonExpired,
     "credentialsNonExpired": credentialsNonExpired,
   };
+
+  UsuarioCompletoDto toDtoWithUsername(String nuevoUsername) {
+    return UsuarioCompletoDto(
+      username: nuevoUsername,
+      password: password,
+      estadoCuenta: estado,
+      nombreRol: rol.nombre,
+      nombres: persona.nombres,
+      apellidos: persona.apellidos,
+      tipoDocumento: persona.tipoDocumento,
+      numeroDocumento: persona.numeroDocumento,
+      telefono: persona.telefono,
+      direccion: persona.direccion,
+      correoElectronico: persona.correoElectronico,
+      fotoPerfil: persona.fotoPerfil ?? "",
+      fechaNacimiento: persona.fechaNacimiento,
+    );
+  }
+
+  UsuarioCompletoDto toDto(
+      String nuevoUsername,
+      String nuevaPassword,
+      String nuevoEstadoCuenta,
+      String nuevoNombreRol,
+      String nuevosNombres,
+      String nuevosApellidos,
+      String nuevoTipoDocumento,
+      String nuevoNumeroDocumento,
+      String nuevoTelefono,
+      String nuevaDireccion,
+      String nuevoCorreoElectronico,
+      String nuevaFotoPerfil,
+      DateTime nuevaFechaNacimiento,
+      ) {
+    return UsuarioCompletoDto(
+      username: nuevoUsername,
+      password: nuevaPassword,
+      estadoCuenta: nuevoEstadoCuenta,
+      nombreRol: nuevoNombreRol,
+      nombres: nuevosNombres,
+      apellidos: nuevosApellidos,
+      tipoDocumento: nuevoTipoDocumento,
+      numeroDocumento: nuevoNumeroDocumento,
+      telefono: nuevoTelefono,
+      direccion: nuevaDireccion,
+      correoElectronico: nuevoCorreoElectronico,
+      fotoPerfil: nuevaFotoPerfil,
+      fechaNacimiento: nuevaFechaNacimiento,
+    );
+  }
 }
 
 class Authority {
   String authority;
 
-  Authority({
-    required this.authority,
-  });
+  Authority({required this.authority});
 
   factory Authority.fromJson(Map<String, dynamic> json) => Authority(
     authority: json["authority"],
@@ -102,10 +157,10 @@ class Persona {
   String telefono;
   String direccion;
   String correoElectronico;
-  dynamic fotoPerfil;
+  String? fotoPerfil;
   DateTime fechaNacimiento;
   DateTime fechaCreacionPersona;
-  dynamic fechaModificacionPersona;
+  DateTime? fechaModificacionPersona;
 
   Persona({
     required this.idPersona,
@@ -116,10 +171,10 @@ class Persona {
     required this.telefono,
     required this.direccion,
     required this.correoElectronico,
-    required this.fotoPerfil,
+    this.fotoPerfil,
     required this.fechaNacimiento,
     required this.fechaCreacionPersona,
-    required this.fechaModificacionPersona,
+    this.fechaModificacionPersona,
   });
 
   factory Persona.fromJson(Map<String, dynamic> json) => Persona(
@@ -134,7 +189,9 @@ class Persona {
     fotoPerfil: json["fotoPerfil"],
     fechaNacimiento: DateTime.parse(json["fechaNacimiento"]),
     fechaCreacionPersona: DateTime.parse(json["fechaCreacionPersona"]),
-    fechaModificacionPersona: json["fechaModificacionPersona"],
+    fechaModificacionPersona: json["fechaModificacionPersona"] != null
+        ? DateTime.tryParse(json["fechaModificacionPersona"])
+        : null,
   );
 
   Map<String, dynamic> toJson() => {
@@ -149,7 +206,7 @@ class Persona {
     "fotoPerfil": fotoPerfil,
     "fechaNacimiento": "${fechaNacimiento.year.toString().padLeft(4, '0')}-${fechaNacimiento.month.toString().padLeft(2, '0')}-${fechaNacimiento.day.toString().padLeft(2, '0')}",
     "fechaCreacionPersona": fechaCreacionPersona.toIso8601String(),
-    "fechaModificacionPersona": fechaModificacionPersona,
+    "fechaModificacionPersona": fechaModificacionPersona?.toIso8601String(),
   };
 }
 
@@ -157,26 +214,28 @@ class Rol {
   int idRol;
   String nombre;
   DateTime fechaCreacionRol;
-  dynamic fechaModificacionRol;
+  DateTime? fechaModificacionRol;
 
   Rol({
     required this.idRol,
     required this.nombre,
     required this.fechaCreacionRol,
-    required this.fechaModificacionRol,
+    this.fechaModificacionRol,
   });
 
   factory Rol.fromJson(Map<String, dynamic> json) => Rol(
     idRol: json["idRol"],
     nombre: json["nombre"],
     fechaCreacionRol: DateTime.parse(json["fechaCreacionRol"]),
-    fechaModificacionRol: json["fechaModificacionRol"],
+    fechaModificacionRol: json["fechaModificacionRol"] != null
+        ? DateTime.tryParse(json["fechaModificacionRol"])
+        : null,
   );
 
   Map<String, dynamic> toJson() => {
     "idRol": idRol,
     "nombre": nombre,
     "fechaCreacionRol": fechaCreacionRol.toIso8601String(),
-    "fechaModificacionRol": fechaModificacionRol,
+    "fechaModificacionRol": fechaModificacionRol?.toIso8601String(),
   };
 }

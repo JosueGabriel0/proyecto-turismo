@@ -1,14 +1,30 @@
+import 'package:turismo_flutter/data/models/usuario_completo_dto.dart';
 import 'package:turismo_flutter/data/models/usuario_completo_response.dart';
 import 'package:turismo_flutter/data/repositories_impl/usuario_repository.dart';
 
 class UsuarioService {
-  final UsuarioRepository _repository = UsuarioRepository();
+  final UsuarioRepository _repository;
 
-  Future<List<UsuarioCompletoResponse>> obtenerUsuarios(String token) async {
-    return await _repository.getUsuariosCompletos(token);
+  UsuarioService({UsuarioRepository? repository})
+      : _repository = repository ?? UsuarioRepository();
+
+  Future<List<UsuarioCompletoResponse>> obtenerUsuarios() {
+    return _repository.getUsuariosCompletos();
   }
 
-  Future<UsuarioCompletoResponse> obtenerUsuarioPorId(String token, int idUsuario) async {
-    return await _repository.getUsuarioPorId(idUsuario, token);
+  Future<UsuarioCompletoResponse> obtenerUsuarioPorId(int idUsuario) {
+    return _repository.getUsuarioPorId(idUsuario);
+  }
+
+  Future<UsuarioCompletoResponse> crearUsuario(UsuarioCompletoDto dto) {
+    return _repository.createUsuario(dto);
+  }
+
+  Future<UsuarioCompletoResponse> actualizarUsuario(int idUsuario, UsuarioCompletoDto dto) {
+    return _repository.updateUsuario(idUsuario, dto);
+  }
+
+  Future<void> eliminarUsuario(int idUsuario) {
+    return _repository.deleteUsuario(idUsuario);
   }
 }

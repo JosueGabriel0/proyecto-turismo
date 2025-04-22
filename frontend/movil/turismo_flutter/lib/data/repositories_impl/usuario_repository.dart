@@ -1,14 +1,18 @@
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:turismo_flutter/core/constants/constants.dart';
+import 'package:turismo_flutter/data/models/usuario_completo_dto.dart';
 import 'package:turismo_flutter/data/models/usuario_completo_response.dart';
 
 class UsuarioRepository {
   final Dio _dio;
 
-  // Constructor que permite pasar la URL base de manera flexible.
-  UsuarioRepository({String baseUrl = "http://172.25.160.1:8080"})
+  UsuarioRepository({String baseUrl = baseUrlDev})
       : _dio = Dio(BaseOptions(baseUrl: baseUrl));
 
-  Future<List<UsuarioCompletoResponse>> getUsuariosCompletos(String token) async {
+  Future<List<UsuarioCompletoResponse>> getUsuariosCompletos() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
     try {
       final response = await _dio.get(
         "/admin/usuarioCompleto",
@@ -19,9 +23,12 @@ class UsuarioRepository {
         ),
       );
 
-      // Verificar que la respuesta tiene los datos esperados
       if (response.data is List) {
-        return usuarioCompletoResponseFromJson(response.data);
+        return response.data
+            .map<UsuarioCompletoResponse>(
+              (e) => UsuarioCompletoResponse.fromJson(e),
+        )
+            .toList();
       } else {
         throw Exception("La respuesta no tiene el formato esperado");
       }
@@ -30,7 +37,9 @@ class UsuarioRepository {
     }
   }
 
-  Future<UsuarioCompletoResponse> getUsuarioPorId(int id, String token) async {
+  Future<UsuarioCompletoResponse> getUsuarioPorId(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
     try {
       final response = await _dio.get(
         "/admin/usuarioCompleto/$id",
@@ -41,7 +50,6 @@ class UsuarioRepository {
         ),
       );
 
-      // Verificar que la respuesta tiene los datos esperados
       if (response.data is Map<String, dynamic>) {
         return UsuarioCompletoResponse.fromJson(response.data);
       } else {
@@ -49,6 +57,67 @@ class UsuarioRepository {
       }
     } on DioException catch (e) {
       throw Exception("Error al obtener el usuario por ID: ${e.response?.data ?? e.message}");
+    }
+  }
+
+  Future<UsuarioCompletoResponse> createUsuario(UsuarioCompletoDto usuarioCompletoDto) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    try {
+      final response = await _dio.post(
+        "/admin/usuarioCompleto",
+        data: usuarioCompletoDto.toJson(),
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return UsuarioCompletoResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw Exception("Error al crear el usuario: ${e.response?.data ?? e.message}");
+    }
+  }
+
+  Future<UsuarioCompletoResponse> updateUsuario(int idUsuario, UsuarioCompletoDto usuarioCompletoDto) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    try {
+      final response = await _dio.put(
+        "/admin/usuarioCompleto/$idUsuario",
+        data: usuarioCompletoDto.toJson(),
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.data is Map<String, dynamic>) {
+        return UsuarioCompletoResponse.fromJson(response.data);
+      } else {
+        throw Exception("La respuesta no tiene el formato esperado");
+      }
+    } on DioException catch (e) {
+      throw Exception("Error al actualizar el usuario: ${e.response?.data ?? e.message}");
+    }
+  }
+
+  Future<void> deleteUsuario(int idUsuario) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    try {
+      await _dio.delete(
+        "/admin/usuarioCompleto/$idUsuario",
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+    } on DioException catch (e) {
+      throw Exception("Error al eliminar el usuario: ${e.response?.data ?? e.message}");
     }
   }
 }

@@ -42,7 +42,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
         final usuarioService = UsuarioService();
 
         // Llama al servicio para obtener los datos del usuario desde el backend
-        final usuario = await usuarioService.obtenerUsuarioPorId(token, idUsuario);
+        final usuario = await usuarioService.obtenerUsuarioPorId(idUsuario);
 
         // Aquí solo asignas los datos a las variables locales (_userName y _userEmail)
         setState(() {
