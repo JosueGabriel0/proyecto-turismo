@@ -1,6 +1,9 @@
 package pe.edu.upeu.turismospringboot.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
+import pe.edu.upeu.turismospringboot.config.LocalDateDeserializer;
 
 import java.time.LocalDate;
 
@@ -18,5 +21,6 @@ public class UsuarioCompletoDto {
     private String direccion;
     private String correoElectronico;
     private String fotoPerfil;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate fechaNacimiento;
 }

@@ -1,14 +1,11 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "resena")
 @Data
 public class Resena {
 
@@ -16,22 +13,18 @@ public class Resena {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idResena;
 
-    private String nombreUsuario;
+    @Column(nullable = false)
     private String comentario;
 
     @Column(nullable = false)
-    private int calificacion; // 1 a 5
-
-    private LocalDate fecha;
+    private int calificacion;  // Calificación en una escala, por ejemplo, 1 a 5
 
     @ManyToOne
-    @JoinColumn(name = "id_lugar", nullable = true)
-    @JsonBackReference
-    private LugarTuristico lugar;
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 
     @ManyToOne
-    @JoinColumn(name = "id_emprendimiento", nullable = true)
-    @JsonBackReference
+    @JoinColumn(name = "emprendimiento_id", nullable = false)
     private Emprendimiento emprendimiento;
 
     private LocalDateTime fechaCreacionResena;

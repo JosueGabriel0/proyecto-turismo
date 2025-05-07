@@ -1,1 +1,0 @@
-const String baseUrlDev = "http://172.27.64.1:8080";

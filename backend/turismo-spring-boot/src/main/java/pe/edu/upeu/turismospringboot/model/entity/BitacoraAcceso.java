@@ -7,7 +7,6 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "bitacora_acceso")
 @Data
 public class BitacoraAcceso {
 

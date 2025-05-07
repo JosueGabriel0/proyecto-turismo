@@ -1,16 +1,12 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "emprendimiento")
 @Data
 public class Emprendimiento {
 
@@ -18,23 +14,24 @@ public class Emprendimiento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idEmprendimiento;
 
+    @Column(nullable = false, length = 100)
     private String nombre;
+
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
-    private String contacto;
+
     private String imagenUrl;
 
     @ManyToOne
-    @JoinColumn(name = "id_lugar", nullable = false)
-    @JsonBackReference
-    private LugarTuristico lugar;
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Categoria categoria;
 
-    @OneToOne(mappedBy = "emprendimiento", cascade = CascadeType.ALL)
-    @JsonBackReference
-    private Hotel hotel;
+    @OneToMany(mappedBy = "emprendimiento", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reserva> reservas;
 
-    @OneToMany(mappedBy = "emprendimiento", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private List<Resena> resenas = new ArrayList<>();
+    private Double latitud;
+
+    private Double longitud;
 
     private LocalDateTime fechaCreacionEmprendimiento;
     private LocalDateTime fechaModificacionEmprendimiento;

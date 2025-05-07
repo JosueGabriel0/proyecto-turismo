@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "usuario")
 @Data
 public class Usuario implements UserDetails {
 
@@ -49,6 +48,12 @@ public class Usuario implements UserDetails {
     @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Noticia> noticias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Resena> resenas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reserva> reservas = new ArrayList<>();
 
     private LocalDateTime fechaCreacionUsuario;
     private LocalDateTime fechaModificacionUsuario;

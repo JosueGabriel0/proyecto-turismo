@@ -1,15 +1,12 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import pe.edu.upeu.turismospringboot.model.enums.EstadoReserva;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reserva")
 @Data
 public class Reserva {
 
@@ -17,21 +14,26 @@ public class Reserva {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idReserva;
 
-    @ManyToOne
-    @JoinColumn(name = "id_hotel", nullable = false)
-    @JsonBackReference
-    private Hotel hotel;
+    @Column(nullable = false)
+    private LocalDateTime fechaHoraReserva;  // Fecha y hora cuando se realiza la reserva
 
-    private String nombreCliente;
-    private String emailCliente;
+    @Column(nullable = false)
+    private LocalDateTime fechaHoraInicio;  // Fecha y hora de inicio de la reserva
 
-    private LocalDate fechaCheckin;
-    private LocalDate fechaCheckout;
-    private LocalDate fechaReserva;
+    @Column(nullable = false)
+    private LocalDateTime fechaHoraFin;  // Fecha y hora de finalización de la reserva
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoReserva estado; // Ej: "pendiente", "confirmada", "cancelada"
+    private EstadoReserva estado;  // Estado de la reserva (pendiente, confirmada, cancelada, etc.)
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "emprendimiento_id", nullable = false)
+    private Emprendimiento emprendimiento;
 
     private LocalDateTime fechaCreacionReserva;
     private LocalDateTime fechaModificacionReserva;

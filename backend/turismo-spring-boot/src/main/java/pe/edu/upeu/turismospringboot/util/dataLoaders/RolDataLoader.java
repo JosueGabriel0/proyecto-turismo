@@ -18,8 +18,9 @@ public class RolDataLoader implements CommandLineRunner {
     public void run(String... args) {
         boolean adminCreado = crearRolSiNoExiste("ROLE_ADMIN");
         boolean usuarioCreado = crearRolSiNoExiste("ROLE_USUARIO");
+        boolean emprendedorCreado = crearRolSiNoExiste("ROLE_EMPRENDEDOR");
 
-        if (!adminCreado && !usuarioCreado) {
+        if (!adminCreado && !usuarioCreado && !emprendedorCreado) {
             System.out.println("ℹ️ Los roles ya están cargados en la base de datos.");
         }
     }
