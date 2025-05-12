@@ -3,10 +3,12 @@ package pe.edu.upeu.turismospringboot.util.dataLoaders;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import pe.edu.upeu.turismospringboot.model.entity.Rol;
 import pe.edu.upeu.turismospringboot.repository.RolRepository;
 
+@Order(1)
 @Component
 @RequiredArgsConstructor
 public class RolDataLoader implements CommandLineRunner {

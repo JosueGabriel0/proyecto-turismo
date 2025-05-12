@@ -1,51 +1,51 @@
+import 'package:turismo_flutter/features/admin/data/models/categoria_response.dart';
 import 'package:turismo_flutter/features/admin/data/models/emprendimiento_response.dart';
 
 class FamiliaResponse {
-  int id;
+  int idFamilia;
   String nombre;
   String descripcion;
   String imagenUrl;
-  String lugar;
-  List<EmprendimientoResponse> emprendimientos;
-  DateTime fechaCreacionFamilia;
-  DateTime fechaModificacionFamilia;
+  List<CategoriaResponse>? categorias;
+  String fechaCreacionFamilia;
+  String? fechaModificacionFamilia;
 
   FamiliaResponse({
-    required this.id,
+    required this.idFamilia,
     required this.nombre,
     required this.descripcion,
     required this.imagenUrl,
-    required this.lugar,
-    required this.emprendimientos,
+    required this.categorias,
     required this.fechaCreacionFamilia,
     required this.fechaModificacionFamilia,
   });
 
   factory FamiliaResponse.fromJson(Map<String, dynamic> json) {
+    print("JSON familia recibida: $json");
     return FamiliaResponse(
-      id: json['id'],
+      idFamilia: json['idFamilia'],
       nombre: json['nombre'],
       descripcion: json['descripcion'],
       imagenUrl: json['imagenUrl'],
-      lugar: json['lugar'],
-      emprendimientos: (json['emprendimientos'] as List)
-          .map((e) => EmprendimientoResponse.fromJson(e))
-          .toList(),
-      fechaCreacionFamilia: DateTime.parse(json['fechaCreacionFamilia']),
-      fechaModificacionFamilia: DateTime.parse(json['fechaModificacionFamilia']),
+      categorias: json['categorias'] != null
+          ? (json['categorias'] as List)
+          .map((e) => CategoriaResponse.fromJson(e))
+          .toList()
+          : [],
+      fechaCreacionFamilia: json['fechaCreacionFamilia'],
+      fechaModificacionFamilia: json['fechaModificacionFamilia'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'idFamilia': idFamilia,
       'nombre': nombre,
       'descripcion': descripcion,
       'imagenUrl': imagenUrl,
-      'lugar': lugar,
-      'emprendimientos': emprendimientos.map((e) => e.toJson()).toList(),
-      'fechaCreacionFamilia': fechaCreacionFamilia.toIso8601String(),
-      'fechaModificacionFamilia': fechaModificacionFamilia.toIso8601String(),
+      'emprendimientos': categorias?.map((e) => e?.toJson()).toList(),
+      'fechaCreacionFamilia': fechaCreacionFamilia,
+      'fechaModificacionFamilia': fechaModificacionFamilia,
     };
   }
 }

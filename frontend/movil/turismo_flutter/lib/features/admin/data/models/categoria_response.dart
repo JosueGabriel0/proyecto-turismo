@@ -1,29 +1,38 @@
+import 'emprendimiento_response.dart';
+
 class CategoriaResponse {
   int idCategoria;
   String nombre;
   String descripcion;
-  List<String> emprendimientos;
-  DateTime fechaCreacionCategoria;
-  DateTime fechaModificacionCategoria;
+  String imagenUrl;
+  List<EmprendimientoResponse>? emprendimientos;
+  String fechaCreacionCategoria;
+  String? fechaModificacionCategoria;
 
   CategoriaResponse({
     required this.idCategoria,
     required this.nombre,
     required this.descripcion,
+    required this.imagenUrl,
     required this.emprendimientos,
     required this.fechaCreacionCategoria,
-    required this.fechaModificacionCategoria,
+    this.fechaModificacionCategoria,
   });
 
   factory CategoriaResponse.fromJson(Map<String, dynamic> json) {
+    print("JSON categoria recibida: $json");
     return CategoriaResponse(
       idCategoria: json['idCategoria'],
       nombre: json['nombre'],
       descripcion: json['descripcion'],
-      emprendimientos: List<String>.from(json['emprendimientos']),
-      fechaCreacionCategoria: DateTime.parse(json['fechaCreacionCategoria']),
-      fechaModificacionCategoria:
-      DateTime.parse(json['fechaModificacionCategoria']),
+      imagenUrl: json['imagenUrl'],
+      emprendimientos: json['emprendimientos'] != null
+          ? (json['emprendimientos'] as List)
+          .map((e) => EmprendimientoResponse.fromJson(e))
+          .toList()
+          : [],
+      fechaCreacionCategoria: json['fechaCreacionCategoria'],
+      fechaModificacionCategoria: json['fechaModificacionCategoria'],
     );
   }
 
@@ -32,9 +41,10 @@ class CategoriaResponse {
       'idCategoria': idCategoria,
       'nombre': nombre,
       'descripcion': descripcion,
-      'emprendimientos': emprendimientos,
-      'fechaCreacionCategoria': fechaCreacionCategoria.toIso8601String(),
-      'fechaModificacionCategoria': fechaModificacionCategoria.toIso8601String(),
+      'imagenUrl': imagenUrl,
+      'emprendimientos': emprendimientos?.map((e) => e.toJson()).toList(),
+      'fechaCreacionCategoria': fechaCreacionCategoria,
+      'fechaModificacionCategoria': fechaModificacionCategoria,
     };
   }
 }

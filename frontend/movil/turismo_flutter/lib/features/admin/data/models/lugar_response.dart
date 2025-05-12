@@ -8,10 +8,10 @@ class LugarResponse {
   String ciudad;
   String provincia;
   String pais;
-  double latitud;
-  double longitud;
+  String latitud;
+  String longitud;
   String imagenUrl;
-  List<FamiliaResponse>? familias;
+  List<FamiliaResponse?>? familias;
   String fechaCreacionLugar;
   String? fechaModificacionLugar;
 
@@ -41,8 +41,8 @@ class LugarResponse {
       ciudad: json['ciudad'],
       provincia: json['provincia'],
       pais: json['pais'],
-      latitud: json['latitud'].toDouble(),
-      longitud: json['longitud'].toDouble(),
+      latitud: json['latitud'].toString(),
+      longitud: json['longitud'].toString(),
       imagenUrl: json['imagenUrl'],
       familias: (json['familias'] as List).map((e) => FamiliaResponse.fromJson(e)).toList(),
       fechaCreacionLugar: json['fechaCreacionLugar'],

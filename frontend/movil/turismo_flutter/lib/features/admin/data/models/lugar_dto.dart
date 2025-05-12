@@ -7,7 +7,6 @@ class LugarDto{
   final String pais;
   final String latitud;
   final String longitud;
-  final String imagenUrl;
 
   LugarDto({
     required this.nombre,
@@ -18,7 +17,6 @@ class LugarDto{
     required this.pais,
     required this.latitud,
     required this.longitud,
-    required this.imagenUrl,
 });
 
   Map<String, dynamic> toJson(){
@@ -31,7 +29,6 @@ class LugarDto{
       "pais": pais,
       "latitud": latitud,
       "longitud": longitud,
-      "imagenUrl": imagenUrl,
     };
   }
 }

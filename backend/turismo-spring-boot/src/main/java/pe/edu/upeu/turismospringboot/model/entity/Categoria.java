@@ -1,5 +1,7 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -20,9 +22,13 @@ public class Categoria {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    private String imagenUrl;
+
+    @JsonManagedReference
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Emprendimiento> emprendimientos;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "familia_id", nullable = false)
     private Familia familia;

@@ -1,14 +1,30 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/categoria_api_client.dart';
+import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/familia_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/lugar_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/rol_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/usuario_api_client.dart';
+import 'package:turismo_flutter/features/admin/data/repositories/categoria_repository_impl.dart';
+import 'package:turismo_flutter/features/admin/data/repositories/familia_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/lugar_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/rol_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/usuario_respository_impl.dart';
+import 'package:turismo_flutter/features/admin/domain/repositories/categoria_repository.dart';
+import 'package:turismo_flutter/features/admin/domain/repositories/familia_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/lugar_respository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/rol_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/usuario_repository.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/categoria/delete_categoria_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/categoria/get_categoria_by_id_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/categoria/get_categorias_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/categoria/post_categoria_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/categoria/put_categoria_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/familia/delete_familia_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/familia/get_familia_by_id_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/familia/get_familias_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/familia/post_familia_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/familia/put_familia_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/lugar/create_lugar_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/lugar/delete_lugar_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/lugar/get_lugar_by_id_usecase.dart';
@@ -24,6 +40,8 @@ import 'package:turismo_flutter/features/admin/domain/usecases/usuario/delete_us
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuario_by_id_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuarios_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/update_usuario_usecase.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/familia_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
 
@@ -135,6 +153,84 @@ void injectAdminDependencies() {
       createLugarUsecase: getIt<CreateLugarUsecase>(),
       updateLugarUseCase: getIt<UpdateLugarUseCase>(),
       deleteLugarUseCase: getIt<DeleteLugarUseCase>(),
+    ),
+  );
+
+  // --------- FAMILIAS ---------
+  getIt.registerLazySingleton<FamiliaApiClient>(
+        () => FamiliaApiClient(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<FamiliaRepository>(
+        () => FamiliaRepositoryImpl(getIt<FamiliaApiClient>()),
+  );
+
+  getIt.registerLazySingleton<GetFamiliasUsecase>(
+        () => GetFamiliasUsecase(getIt<FamiliaRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetFamiliaByIdUsecase>(
+        () => GetFamiliaByIdUsecase(getIt<FamiliaRepository>()),
+  );
+
+  getIt.registerLazySingleton<PostFamiliaUsecase>(
+        () => PostFamiliaUsecase(getIt<FamiliaRepository>()),
+  );
+
+  getIt.registerLazySingleton<PutFamiliaUseCase>(
+        () => PutFamiliaUseCase(getIt<FamiliaRepository>()),
+  );
+
+  getIt.registerLazySingleton<DeleteFamiliaUsecase>(
+        () => DeleteFamiliaUsecase(getIt<FamiliaRepository>()),
+  );
+
+  getIt.registerFactory<FamiliaBloc>(
+        () => FamiliaBloc(
+      getFamiliasUsecase: getIt<GetFamiliasUsecase>(),
+      getFamiliaByIdUsecase: getIt<GetFamiliaByIdUsecase>(),
+      postFamiliaUsecase: getIt<PostFamiliaUsecase>(),
+      putFamiliaUseCase: getIt<PutFamiliaUseCase>(),
+      deleteFamiliaUsecase: getIt<DeleteFamiliaUsecase>(),
+    ),
+  );
+
+  // --------- CATEGORIAS ---------
+  getIt.registerLazySingleton<CategoriaApiClient>(
+        () => CategoriaApiClient(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<CategoriaRepository>(
+        () => CategoriaRepositoryImpl(getIt<CategoriaApiClient>()),
+  );
+
+  getIt.registerLazySingleton<GetCategoriasUsecase>(
+        () => GetCategoriasUsecase(getIt<CategoriaRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetCategoriaByIdUsecase>(
+        () => GetCategoriaByIdUsecase(getIt<CategoriaRepository>()),
+  );
+
+  getIt.registerLazySingleton<PostCategoriaUsecase>(
+        () => PostCategoriaUsecase(getIt<CategoriaRepository>()),
+  );
+
+  getIt.registerLazySingleton<PutCategoriaUsecase>(
+        () => PutCategoriaUsecase(getIt<CategoriaRepository>()),
+  );
+
+  getIt.registerLazySingleton<DeleteCategoriaUseCase>(
+        () => DeleteCategoriaUseCase(getIt<CategoriaRepository>()),
+  );
+
+  getIt.registerFactory<CategoriaBloc>(
+        () => CategoriaBloc(
+      getCategoriasUsecase: getIt<GetCategoriasUsecase>(),
+      getCategoriaByIdUsecase: getIt<GetCategoriaByIdUsecase>(),
+      postCategoriaUsecase: getIt<PostCategoriaUsecase>(),
+      putCategoriaUsecase: getIt<PutCategoriaUsecase>(),
+      deleteCategoriaUseCase: getIt<DeleteCategoriaUseCase>(),
     ),
   );
 }

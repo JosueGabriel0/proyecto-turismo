@@ -1,5 +1,6 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,6 +23,7 @@ public class Emprendimiento {
 
     private String imagenUrl;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;

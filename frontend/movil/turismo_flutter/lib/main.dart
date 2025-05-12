@@ -5,6 +5,10 @@ import 'package:turismo_flutter/app.dart';
 import 'package:turismo_flutter/core/services/token_storage_service.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuario_by_id_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuarios_usecase.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_event.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/familia_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/familia_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_event.dart';
@@ -50,6 +54,24 @@ void main() {
             updateLugarUseCase: getIt(),
             deleteLugarUseCase: getIt(),
           )..add(GetAllLugaresEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<FamiliaBloc>(
+          create: (context) => FamiliaBloc(
+            getFamiliasUsecase: getIt(),
+            getFamiliaByIdUsecase: getIt(),
+            postFamiliaUsecase: getIt(),
+            putFamiliaUseCase: getIt(),
+            deleteFamiliaUsecase: getIt(),
+          )..add(GetFamiliasEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<CategoriaBloc>(
+          create: (context) => CategoriaBloc(
+            getCategoriasUsecase: getIt(),
+            getCategoriaByIdUsecase: getIt(),
+            postCategoriaUsecase: getIt(),
+            putCategoriaUsecase: getIt(),
+            deleteCategoriaUseCase: getIt(),
+          )..add(GetCategoriasEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<FileBloc>(
           create: (context) => getIt<FileBloc>(),

@@ -8,6 +8,8 @@ import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/u
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/admin_dashboard_screen.dart';
+import 'package:turismo_flutter/features/admin/presentation/screens/cruds/categoria_screen.dart';
+import 'package:turismo_flutter/features/admin/presentation/screens/cruds/familia_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/lugar_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/rol_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/usuario_screen.dart';
@@ -30,6 +32,8 @@ class _AdminScreenState extends State<AdminScreen> {
     const RolScreen(),
     const UsuarioScreen(),
     const LugarScreen(),
+    const FamiliaScreen(),
+    const CategoriaScreen(),
   ];
 
   // Lista de títulos correspondientes a cada pantalla
@@ -38,6 +42,8 @@ class _AdminScreenState extends State<AdminScreen> {
     'Gestión de roles',
     'Gestión de usuarios',
     'Gestión de lugares',
+    'Gestion de familias',
+    'Gestion de categorias',
   ];
 
   // Guardar el usuario en una variable para la pantalla
@@ -153,6 +159,26 @@ class _AdminScreenState extends State<AdminScreen> {
             onTap: () {
               setState(() {
                 _selectedIndex = 3;
+              });
+              Navigator.of(context).pop();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.family_restroom),
+            title: const Text('Familias'),
+            onTap: () {
+              setState(() {
+                _selectedIndex = 4;
+              });
+              Navigator.of(context).pop();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.category),
+            title: const Text('Categorias'),
+            onTap: () {
+              setState(() {
+                _selectedIndex = 5;
               });
               Navigator.of(context).pop();
             },

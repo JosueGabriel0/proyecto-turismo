@@ -210,5 +210,4 @@ class _LugarApiClient implements LugarApiClient {
 
     return Uri.parse(dioBaseUrl).resolveUri(url).toString();
   }
-}
-*/
+}*/

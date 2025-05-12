@@ -19,7 +19,7 @@ public class Rol {
     @Column(nullable = false, unique = true)
     private String nombre;
 
-    @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "rol")
     @JsonBackReference
     private List<Usuario> usuarios = new ArrayList<>();
 

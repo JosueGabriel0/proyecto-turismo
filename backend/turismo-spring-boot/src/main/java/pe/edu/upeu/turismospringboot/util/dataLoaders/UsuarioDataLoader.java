@@ -3,6 +3,7 @@ package pe.edu.upeu.turismospringboot.util.dataLoaders;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import pe.edu.upeu.turismospringboot.model.entity.Persona;
@@ -16,6 +17,7 @@ import pe.edu.upeu.turismospringboot.repository.UsuarioRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Order(2)
 @Component
 @RequiredArgsConstructor
 public class UsuarioDataLoader implements CommandLineRunner {
@@ -58,6 +60,7 @@ public class UsuarioDataLoader implements CommandLineRunner {
             personaAdmin.setTelefono("1234567890");
             personaAdmin.setDireccion("Jr. callefalsa");
             personaAdmin.setCorreoElectronico("admin@gmail.com");
+            personaAdmin.setFotoPerfil("persona1.jpg");
             personaAdmin.setFechaNacimiento(LocalDate.of(1990, 1, 1));
             personaRepository.save(personaAdmin);
 
@@ -80,6 +83,7 @@ public class UsuarioDataLoader implements CommandLineRunner {
             personaUsuario.setTelefono("1234567891");
             personaUsuario.setDireccion("Av. ejemplo");
             personaUsuario.setCorreoElectronico("usuario@gmail.com");
+            personaUsuario.setFotoPerfil("persona2.jpg");
             personaUsuario.setFechaNacimiento(LocalDate.of(1995, 2, 2));
             personaRepository.save(personaUsuario);
 
@@ -102,6 +106,7 @@ public class UsuarioDataLoader implements CommandLineRunner {
             personaEmprendedor.setTelefono("1234567892");
             personaEmprendedor.setDireccion("Calle emprendimiento");
             personaEmprendedor.setCorreoElectronico("emprendedor@gmail.com");
+            personaEmprendedor.setFotoPerfil("persona3.jpg");
             personaEmprendedor.setFechaNacimiento(LocalDate.of(1988, 3, 3));
             personaRepository.save(personaEmprendedor);
 

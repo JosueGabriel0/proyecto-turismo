@@ -1,5 +1,7 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,7 +14,7 @@ public class Familia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idFamilia;
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -22,10 +24,12 @@ public class Familia {
 
     private String imagenUrl;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "lugar_id", nullable = false)
     private Lugar lugar;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "familia", cascade = CascadeType.ALL)
     private List<Categoria> categorias;
 
