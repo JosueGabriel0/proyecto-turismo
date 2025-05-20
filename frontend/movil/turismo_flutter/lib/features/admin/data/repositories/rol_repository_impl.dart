@@ -42,4 +42,9 @@ class RolRepositoryImpl implements RolRepository {
     // Llamada a la API para eliminar un rol
     await rolApiClient.deleteRol(idRol);
   }
+
+  @override
+  Future<List<RolResponse>> buscarRolesPorNombre(String nombre) {
+    return rolApiClient.buscarRolesPorNombre(nombre);
+  }
 }

@@ -47,3 +47,12 @@ class DeleteFamiliaEvent extends FamiliaEvent{
   @override
   List<Object?> get props => [idFamilia];
 }
+
+class BuscarFamiliasPorNombreEvent extends FamiliaEvent {
+  final String nombre;
+
+  const BuscarFamiliasPorNombreEvent(this.nombre);
+
+  @override
+  List<Object?> get props => [nombre];
+}

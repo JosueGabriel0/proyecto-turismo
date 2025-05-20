@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:turismo_flutter/features/admin/data/models/rol_response.dart';
 
 abstract class RolState extends Equatable {
+  const RolState();
   @override
   List<Object?> get props => [];
 }
@@ -33,3 +34,12 @@ class RolCreateSuccessState extends RolState {}
 class RolUpdateSuccessState extends RolState {}
 
 class RolDeleteSuccessState extends RolState {}
+
+class RolSearchLoaded extends RolState {
+  final List<RolResponse> resultados;
+
+  const RolSearchLoaded(this.resultados);
+
+  @override
+  List<Object?> get props => [resultados];
+}

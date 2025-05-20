@@ -24,14 +24,9 @@ public class Categoria {
 
     private String imagenUrl;
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Emprendimiento> emprendimientos;
-
-    @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "familia_id", nullable = false)
-    private Familia familia;
+    @JsonManagedReference(value = "categoria-familiaCategoria")
+    @OneToMany(mappedBy = "categoria")
+    private List<FamiliaCategoria> familiaCategorias;
 
     private LocalDateTime fechaCreacionCategoria;
     private LocalDateTime fechaModificacionCategoria;

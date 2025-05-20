@@ -9,11 +9,16 @@ import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/u
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/admin_dashboard_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/categoria_screen.dart';
+import 'package:turismo_flutter/features/admin/presentation/screens/cruds/emprendimiento_screen.dart';
+import 'package:turismo_flutter/features/admin/presentation/screens/cruds/familia_categoria_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/familia_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/lugar_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/rol_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/usuario_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
+import 'package:turismo_flutter/features/admin/presentation/widgets/pages/home2_page.dart';
+import 'package:turismo_flutter/features/admin/presentation/widgets/pages/home_page.dart';
+import 'package:turismo_flutter/features/emprendedor/presentation/screens/emprendedor_screen.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -34,6 +39,8 @@ class _AdminScreenState extends State<AdminScreen> {
     const LugarScreen(),
     const FamiliaScreen(),
     const CategoriaScreen(),
+    const FamiliaCategoriaScreen(),
+    const EmprendimientoScreen(),
   ];
 
   // Lista de títulos correspondientes a cada pantalla
@@ -44,6 +51,8 @@ class _AdminScreenState extends State<AdminScreen> {
     'Gestión de lugares',
     'Gestion de familias',
     'Gestion de categorias',
+    'Gestion de familia con categoria',
+    'Gestion de emprendimientos',
   ];
 
   // Guardar el usuario en una variable para la pantalla
@@ -85,7 +94,7 @@ class _AdminScreenState extends State<AdminScreen> {
       backgroundColor: Colors.grey[100],
       child: Column(
         children: [
-          // Drawer Header con la información del usuario
+          // Header con info de usuario
           _usuario == null
               ? const DrawerHeader(
             child: Center(child: CircularProgressIndicator()),
@@ -105,12 +114,15 @@ class _AdminScreenState extends State<AdminScreen> {
                       : const CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.white,
-                    child: Icon(Icons.person, size: 36, color: Colors.blueGrey),
+                    child: Icon(Icons.person,
+                        size: 36, color: Colors.blueGrey),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     _usuario!.persona?.nombres ?? "Sin nombre",
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   Text(
@@ -122,14 +134,13 @@ class _AdminScreenState extends State<AdminScreen> {
               ),
             ),
           ),
-          // Lista de opciones en el drawer
+
+          // Menú de opciones
           ListTile(
             leading: const Icon(Icons.dashboard),
             title: const Text('Dashboard'),
             onTap: () {
-              setState(() {
-                _selectedIndex = 0;
-              });
+              setState(() => _selectedIndex = 0);
               Navigator.of(context).pop();
             },
           ),
@@ -137,9 +148,7 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.security),
             title: const Text('Roles'),
             onTap: () {
-              setState(() {
-                _selectedIndex = 1;
-              });
+              setState(() => _selectedIndex = 1);
               Navigator.of(context).pop();
             },
           ),
@@ -147,9 +156,7 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.person),
             title: const Text('Usuarios'),
             onTap: () {
-              setState(() {
-                _selectedIndex = 2;
-              });
+              setState(() => _selectedIndex = 2);
               Navigator.of(context).pop();
             },
           ),
@@ -157,9 +164,7 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.place),
             title: const Text('Lugares'),
             onTap: () {
-              setState(() {
-                _selectedIndex = 3;
-              });
+              setState(() => _selectedIndex = 3);
               Navigator.of(context).pop();
             },
           ),
@@ -167,9 +172,7 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.family_restroom),
             title: const Text('Familias'),
             onTap: () {
-              setState(() {
-                _selectedIndex = 4;
-              });
+              setState(() => _selectedIndex = 4);
               Navigator.of(context).pop();
             },
           ),
@@ -177,19 +180,35 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.category),
             title: const Text('Categorias'),
             onTap: () {
-              setState(() {
-                _selectedIndex = 5;
-              });
+              setState(() => _selectedIndex = 5);
               Navigator.of(context).pop();
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.private_connectivity),
+            title: const Text('Familias con Categorias'),
+            onTap: () {
+              setState(() => _selectedIndex = 6);
+              Navigator.of(context).pop();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.store),
+            title: const Text('Emprendimientos'),
+            onTap: () {
+              setState(() => _selectedIndex = 7);
+              Navigator.of(context).pop();
+            },
+          ),
+
+          const Spacer(), // <- Este empuja el siguiente widget al final
+
+          // Cerrar sesión
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Cerrar sesión'),
             onTap: () async {
               final tokenService = TokenStorageService();
-
-              // Esperamos a que el token se borre correctamente
               await tokenService.clearToken();
               context.go("/login");
             },

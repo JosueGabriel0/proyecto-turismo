@@ -3,9 +3,8 @@ import 'package:turismo_flutter/core/services/token_storage_service.dart';
 import 'package:turismo_flutter/core/utils/auth_utils.dart';
 import 'package:turismo_flutter/features/auth/data/models/login_dto.dart';
 import 'package:turismo_flutter/features/auth/domain/usecases/login_usecase.dart';
-
-import 'login_event.dart';
-import 'login_state.dart';
+import 'package:turismo_flutter/features/auth/presentation/bloc/login/login_event.dart';
+import 'package:turismo_flutter/features/auth/presentation/bloc/login/login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LoginUseCase loginUseCase;

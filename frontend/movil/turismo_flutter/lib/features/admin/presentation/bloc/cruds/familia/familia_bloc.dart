@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/familia/buscar_familias_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/familia/delete_familia_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/familia/get_familia_by_id_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/familia/get_familias_usecase.dart';
@@ -13,6 +15,7 @@ class FamiliaBloc extends Bloc<FamiliaEvent, FamiliaState>{
   final PostFamiliaUsecase postFamiliaUsecase;
   final PutFamiliaUseCase putFamiliaUseCase;
   final DeleteFamiliaUsecase deleteFamiliaUsecase;
+  final BuscarFamiliasPorNombreUsecase buscarFamiliasPorNombreUsecase;
 
   FamiliaBloc({
     required this.getFamiliasUsecase,
@@ -20,6 +23,7 @@ class FamiliaBloc extends Bloc<FamiliaEvent, FamiliaState>{
     required this.postFamiliaUsecase,
     required this.putFamiliaUseCase,
     required this.deleteFamiliaUsecase,
+    required this.buscarFamiliasPorNombreUsecase,
 }): super(FamiliaInitial()){
     on<GetFamiliasEvent>((event, emit) async {
       emit(FamiliaLoading());
@@ -76,5 +80,17 @@ class FamiliaBloc extends Bloc<FamiliaEvent, FamiliaState>{
         emit(FamiliaError("Error al eliminar familia: $e"));
       }
     });
+
+    on<BuscarFamiliasPorNombreEvent>(
+          (event, emit) async {
+        try {
+          final resultados = await buscarFamiliasPorNombreUsecase(event.nombre);
+          emit(FamiliaListLoaded(resultados));
+        } catch (e) {
+          emit(FamiliaError("Error al buscar familia: $e"));
+        }
+      },
+      transformer: (events, mapper) => events.debounceTime(const Duration(milliseconds: 300)).switchMap(mapper),
+    );
   }
 }

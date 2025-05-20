@@ -4,6 +4,7 @@ import 'package:turismo_flutter/features/auth/data/datasources/remote/api_client
 import 'package:turismo_flutter/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:turismo_flutter/features/auth/domain/repositories/auth_repository.dart';
 import 'package:turismo_flutter/features/auth/domain/usecases/login_usecase.dart';
+import 'package:turismo_flutter/features/auth/domain/usecases/register_usecase.dart';
 
 final getIt = GetIt.instance;
 
@@ -21,5 +22,9 @@ void injectAuthDependencies() {
 
   getIt.registerLazySingleton<LoginUseCase>(
         () => LoginUseCase(authRepository: getIt<AuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<RegisterUseCase>(
+        () => RegisterUseCase(authRepository: getIt<AuthRepository>()),
   );
 }

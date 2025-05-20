@@ -42,3 +42,12 @@ class CategoriaError extends CategoriaState{
   @override
   List<Object?> get props => [message];
 }
+
+class CategoriaSearchLoaded extends CategoriaState {
+  final List<CategoriaResponse> resultados;
+
+  const CategoriaSearchLoaded(this.resultados);
+
+  @override
+  List<Object?> get props => [resultados];
+}

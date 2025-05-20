@@ -23,17 +23,17 @@ public class Emprendimiento {
 
     private String imagenUrl;
 
-    @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "categoria_id", nullable = false)
-    private Categoria categoria;
+    private Double latitud;
+
+    private Double longitud;
 
     @OneToMany(mappedBy = "emprendimiento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> reservas;
 
-    private Double latitud;
-
-    private Double longitud;
+    @ManyToOne
+    @JoinColumn(name = "familia_categoria_id")
+    @JsonBackReference
+    private FamiliaCategoria familiaCategoria;
 
     private LocalDateTime fechaCreacionEmprendimiento;
     private LocalDateTime fechaModificacionEmprendimiento;

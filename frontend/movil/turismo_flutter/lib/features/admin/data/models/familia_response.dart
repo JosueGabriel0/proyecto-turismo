@@ -1,12 +1,13 @@
 import 'package:turismo_flutter/features/admin/data/models/categoria_response.dart';
 import 'package:turismo_flutter/features/admin/data/models/emprendimiento_response.dart';
+import 'package:turismo_flutter/features/admin/data/models/familia_categoria_response.dart';
 
 class FamiliaResponse {
   int idFamilia;
   String nombre;
   String descripcion;
   String imagenUrl;
-  List<CategoriaResponse>? categorias;
+  List<FamiliaCategoriaResponse>? familiaCategorias;
   String fechaCreacionFamilia;
   String? fechaModificacionFamilia;
 
@@ -15,7 +16,7 @@ class FamiliaResponse {
     required this.nombre,
     required this.descripcion,
     required this.imagenUrl,
-    required this.categorias,
+    required this.familiaCategorias,
     required this.fechaCreacionFamilia,
     required this.fechaModificacionFamilia,
   });
@@ -27,9 +28,9 @@ class FamiliaResponse {
       nombre: json['nombre'],
       descripcion: json['descripcion'],
       imagenUrl: json['imagenUrl'],
-      categorias: json['categorias'] != null
-          ? (json['categorias'] as List)
-          .map((e) => CategoriaResponse.fromJson(e))
+      familiaCategorias: json['familiaCategorias'] != null
+          ? (json['familiaCategorias'] as List)
+          .map((e) => FamiliaCategoriaResponse.fromJson(e))
           .toList()
           : [],
       fechaCreacionFamilia: json['fechaCreacionFamilia'],
@@ -43,7 +44,7 @@ class FamiliaResponse {
       'nombre': nombre,
       'descripcion': descripcion,
       'imagenUrl': imagenUrl,
-      'emprendimientos': categorias?.map((e) => e?.toJson()).toList(),
+      'emprendimientos': familiaCategorias?.map((e) => e?.toJson()).toList(),
       'fechaCreacionFamilia': fechaCreacionFamilia,
       'fechaModificacionFamilia': fechaModificacionFamilia,
     };

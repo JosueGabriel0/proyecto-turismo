@@ -1,5 +1,3 @@
-
-
 import 'package:turismo_flutter/features/admin/data/models/authority_response.dart';
 import 'package:turismo_flutter/features/admin/data/models/persona_response.dart';
 import 'package:turismo_flutter/features/admin/data/models/rol_response.dart';

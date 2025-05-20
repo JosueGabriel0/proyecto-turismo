@@ -11,6 +11,7 @@ import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/u
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/info_row_widget.dart';
+import 'package:intl/intl.dart';
 
 class UsuarioScreen extends StatefulWidget {
   const UsuarioScreen({super.key});
@@ -35,6 +36,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
   final _fechaNacimientoController = TextEditingController();
   File? _imagen;
   int? _usuarioEditandoId;
+  final _searchController = TextEditingController();
+
+  final DateFormat _formatter = DateFormat('yyyy-MM-dd');
 
   List<String> _rolesDisponibles = [];
   String? _rolSeleccionado;
@@ -251,9 +255,30 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                   TextFormField(controller: _correoElectronicoController,
                       decoration: const InputDecoration(
                           labelText: "Correo Electrónico")),
-                  TextFormField(controller: _fechaNacimientoController,
-                      decoration: const InputDecoration(
-                          labelText: "Fecha de Nacimiento")),
+                  TextFormField(
+                    controller: _fechaNacimientoController,
+                    decoration: const InputDecoration(
+                      labelText: "Fecha de Nacimiento",
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                    readOnly: true,
+                    onTap: () async {
+                      DateTime? fechaSeleccionada = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                        // locale: const Locale('es'), // Opcional
+                      );
+                      if (fechaSeleccionada != null) {
+                        setState(() {
+                          _fechaNacimientoController.text = _formatter.format(fechaSeleccionada);
+                        });
+                      }
+                    },
+                    validator: (value) =>
+                    value == null || value.isEmpty ? "Campo requerido" : null,
+                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -312,89 +337,109 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
               if (state is UsuarioLoading) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state is UsuarioListLoaded) {
-                return ListView.builder(
-                  itemCount: state.usuarios.length,
-                  itemBuilder: (context, index) {
-                    final usuario = state.usuarios[index];
-                    return Dismissible(
-                      key: Key(usuario.idUsuario.toString()),
-                      confirmDismiss: (_) => _onDismissed(context, usuario),
-                      background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: const Icon(Icons.delete, color: Colors.white),),
-                      child: ListTile(
-                        leading: FotoWidget(
-                          fileName: usuario.persona?.fotoPerfil ?? "",
-                        ),
-                        title: Text(usuario.username ?? 'Sin username'),
-                        subtitle: Text(usuario.persona?.nombres ?? 'Sin nombre'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min, // Esto es importante para que la fila no ocupe todo el ancho
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.info),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (_) => AlertDialog(
-                                    title: const Text('Información del Usuario'),
-                                    content: SingleChildScrollView(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Center( // Foto centrada
-                                            child: FotoWidget(
-                                              fileName: usuario.persona?.fotoPerfil ?? '',
-                                              size: 80, // Tamaño más grande para destacar
+                return Column(
+                  children: [
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        context
+                            .read<UsuarioBloc>()
+                            .add(BuscarUsuarioPorNombreEvent(value));
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Buscar usuario...',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: state.usuarios.length,
+                        itemBuilder: (context, index) {
+                          final usuario = state.usuarios[index];
+                          return Dismissible(
+                            key: Key(usuario.idUsuario.toString()),
+                            confirmDismiss: (_) => _onDismissed(context, usuario),
+                            background: Container(
+                              color: Colors.red,
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            child: ListTile(
+                              leading: FotoWidget(
+                                fileName: usuario.persona?.fotoPerfil ?? "",
+                              ),
+                              title: Text(usuario.username ?? 'Sin username'),
+                              subtitle: Text(usuario.persona?.nombres ?? 'Sin nombre'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.info),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => AlertDialog(
+                                          title: const Text('Información del Usuario'),
+                                          content: SingleChildScrollView(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Center(
+                                                  child: FotoWidget(
+                                                    fileName: usuario.persona?.fotoPerfil ?? '',
+                                                    size: 80,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                InfoRowWidget(label: "ID", value: usuario.idUsuario.toString()),
+                                                InfoRowWidget(label: "Username", value: usuario.username ?? 'Sin username'),
+                                                InfoRowWidget(label: "Password", value: "Encriptado"),
+                                                InfoRowWidget(label: "Estado", value: usuario.estado ?? 'Sin estado'),
+                                                InfoRowWidget(label: "Rol", value: usuario.rol?.nombre ?? 'Sin rol'),
+                                                InfoRowWidget(label: "Nombres", value: usuario.persona?.nombres ?? 'Sin nombres'),
+                                                InfoRowWidget(label: "Apellidos", value: usuario.persona?.apellidos ?? 'Sin apellidos'),
+                                                InfoRowWidget(label: "Tipo Documento", value: usuario.persona?.tipoDocumento ?? 'Sin tipo'),
+                                                InfoRowWidget(label: "Número Documento", value: usuario.persona?.numeroDocumento ?? 'Sin número'),
+                                                InfoRowWidget(label: "Teléfono", value: usuario.persona?.telefono ?? 'Sin teléfono'),
+                                                InfoRowWidget(label: "Dirección", value: usuario.persona?.direccion ?? 'Sin dirección'),
+                                                InfoRowWidget(label: "Correo", value: usuario.persona?.correoElectronico ?? 'Sin correo'),
+                                                InfoRowWidget(label: "Fecha Nacimiento", value: usuario.persona?.fechaNacimiento ?? 'Sin fecha'),
+                                                InfoRowWidget(label: "Reseñas", value: usuario.resenas?.toString() ?? 'Sin reseñas'),
+                                                InfoRowWidget(label: "Reservas", value: usuario.reservas?.toString() ?? 'Sin reservas'),
+                                              ],
                                             ),
                                           ),
-                                          const SizedBox(height: 16), // Espacio entre la imagen y el texto
-                                          InfoRowWidget(label: "ID", value: usuario.idUsuario.toString()),
-                                          InfoRowWidget(label: "Username", value:  usuario.username ?? 'Sin username'),
-                                          InfoRowWidget(label: "Password", value:  "Encriptado"),
-                                          InfoRowWidget(label: "Estado", value:  usuario.estado ?? 'Sin estado'),
-                                          InfoRowWidget(label: "Rol", value:  usuario.rol?.nombre ?? 'Sin rol'),
-                                          InfoRowWidget(label: "Nombres", value:  usuario.persona?.nombres ?? 'Sin nombres'),
-                                          InfoRowWidget(label: "Apellidos", value:  usuario.persona?.apellidos ?? 'Sin apellidos'),
-                                          InfoRowWidget(label: "Tipo Documento", value:  usuario.persona?.tipoDocumento ?? 'Sin tipo'),
-                                          InfoRowWidget(label: "Número Documento", value:  usuario.persona?.numeroDocumento ?? 'Sin número'),
-                                          InfoRowWidget(label: "Teléfono", value:  usuario.persona?.telefono ?? 'Sin teléfono'),
-                                          InfoRowWidget(label: "Dirección", value:  usuario.persona?.direccion ?? 'Sin dirección'),
-                                          InfoRowWidget(label: "Correo", value:  usuario.persona?.correoElectronico ?? 'Sin correo'),
-                                          InfoRowWidget(label: "Fecha Nacimiento", value:  usuario.persona?.fechaNacimiento ?? 'Sin fecha'),
-                                          InfoRowWidget(label: "Reseñas", value:  usuario.resenas?.toString() ?? 'Sin reseñas'),
-                                          InfoRowWidget(label: "Reservas", value:  usuario.reservas?.toString() ?? 'Sin reservas'),
-                                        ],
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.of(context).pop(),
-                                        child: const Text('Cerrar'),
-                                      ),
-                                    ],
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(),
+                                              child: const Text('Cerrar'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () {
+                                      _cargarParaEditar(usuario);
+                                      _mostrarFormulario(context);
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                _cargarParaEditar(usuario);
-                                _mostrarFormulario(context);
-                              },
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 );
               } else if (state is UsuarioError) {
-                return Text(
-                    state.message, style: const TextStyle(color: Colors.red));
+                return Text(state.message, style: const TextStyle(color: Colors.red));
               }
               return const SizedBox.shrink();
             },

@@ -10,4 +10,5 @@ abstract class FamiliaRepository{
   Future<FamiliaResponse> postFamilia(FamiliaDto familiaDto, File? file);
   Future<FamiliaResponse> putFamilia(int idFamilia, FamiliaDto familiaDto, File? file);
   Future<void> deleteFamilia(int idFamilia);
+  Future<List<FamiliaResponse>> buscarFamiliasPorNombre(String nombre);
 }

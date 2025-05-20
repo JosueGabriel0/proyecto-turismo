@@ -83,4 +83,9 @@ public class LugarServiceImpl implements LugarService {
             throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
+
+    @Override
+    public List<Lugar> buscarLugarPorNombre(String nombre) {
+        return lugarRepository.buscarPorNombre(nombre);
+    }
 }

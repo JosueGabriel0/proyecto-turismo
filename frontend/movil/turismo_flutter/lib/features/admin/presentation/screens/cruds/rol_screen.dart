@@ -4,76 +4,114 @@ import 'package:turismo_flutter/features/admin/data/models/rol_dto.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_state.dart';
-import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_state.dart';
 
-class RolScreen extends StatelessWidget {
+class RolScreen extends StatefulWidget {
   const RolScreen({super.key});
+
+  @override
+  State<RolScreen> createState() => _RolScreenState();
+}
+
+class _RolScreenState extends State<RolScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchTerm = '';
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<RolBloc>().add(GetRolesEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<RolBloc, RolState>(
-        builder: (context, state) {
-          if (state is RolLoadingState) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is RolErrorState) {
-            return Center(child: Text('Error: ${state.message}'));
-          }
-          if (state is RolLoadedState) {
-            return ListView.builder(
-              itemCount: state.roles.length,
-              itemBuilder: (context, index) {
-                final role = state.roles[index];
-                return Dismissible(
-                  key: Key(role.idRol.toString()), // Clave única para el item
-                  direction: DismissDirection.endToStart, // Solo permitir deslizar de derecha a izquierda
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: const Icon(Icons.delete, color: Colors.white),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: BlocBuilder<RolBloc, RolState>(
+          builder: (context, state) {
+            if (state is RolLoadingState) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state is RolErrorState) {
+              return Center(child: Text('Error: ${state.message}'));
+            }
+            if (state is RolLoadedState) {
+              final filteredRoles = state.roles.where((role) =>
+                  role.nombre.toLowerCase().contains(_searchTerm.toLowerCase())).toList();
+
+              return Column(
+                children: [
+                  TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchTerm = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Buscar rol...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                  confirmDismiss: (direction) async {
-                    // Confirmar antes de eliminar
-                    return await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text('Eliminar Rol'),
-                          content: const Text('¿Estás seguro de que deseas eliminar este rol?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancelar'),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filteredRoles.length,
+                      itemBuilder: (context, index) {
+                        final role = filteredRoles[index];
+                        return Dismissible(
+                          key: Key(role.idRol.toString()),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: const Icon(Icons.delete, color: Colors.white),
+                          ),
+                          confirmDismiss: (direction) async {
+                            return await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text('Eliminar Rol'),
+                                  content: const Text('¿Estás seguro de que deseas eliminar este rol?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(context).pop(false),
+                                      child: const Text('Cancelar'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.of(context).pop(true),
+                                      child: const Text('Eliminar'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          onDismissed: (direction) {
+                            context.read<RolBloc>().add(DeleteRolEvent(idRol: role.idRol));
+                          },
+                          child: ListTile(
+                            title: Text(role.nombre),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                _showUpdateDialog(context, role);
+                              },
                             ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text('Eliminar'),
-                            ),
-                          ],
+                          ),
                         );
-                      },
-                    );
-                  },
-                  onDismissed: (direction) {
-                    context.read<RolBloc>().add(DeleteRolEvent(idRol: role.idRol));
-                  },
-                  child: ListTile(
-                    title: Text(role.nombre),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        _showUpdateDialog(context, role);
                       },
                     ),
                   ),
-                );
-              },
-            );
-          }
-          return const Center(child: Text('No hay roles disponibles'));
-        },
+                ],
+              );
+            }
+            return const Center(child: Text('No hay roles disponibles'));
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreateDialog(context),
@@ -82,7 +120,6 @@ class RolScreen extends StatelessWidget {
     );
   }
 
-  // Crear un nuevo rol
   void _showCreateDialog(BuildContext context) {
     final _nameController = TextEditingController();
 
@@ -114,7 +151,6 @@ class RolScreen extends StatelessWidget {
     );
   }
 
-  // Actualizar un rol
   void _showUpdateDialog(BuildContext context, rol) {
     final _nameController = TextEditingController(text: rol.nombre);
 
@@ -139,32 +175,6 @@ class RolScreen extends StatelessWidget {
                 Navigator.of(context).pop();
               },
               child: const Text('Actualizar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Eliminar un rol
-  void _deleteRol(BuildContext context, int idRol) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Eliminar Rol'),
-          content: const Text('¿Estás seguro de que deseas eliminar este rol?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<RolBloc>().add(DeleteRolEvent(idRol: idRol));
-                Navigator.of(context).pop();
-              },
-              child: const Text('Eliminar'),
             ),
           ],
         );

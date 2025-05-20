@@ -38,4 +38,9 @@ abstract class LugarApiClient {
   // Eliminar un lugar
   @DELETE("/admin/lugar/{idLugar}")
   Future<void> deleteLugar(@Path("idLugar") int idLugar);
+
+  @GET("/admin/lugar/buscar")
+  Future<List<LugarResponse>> buscarLugaresPorNombre(
+      @Query("nombre") String nombre,
+      );
 }

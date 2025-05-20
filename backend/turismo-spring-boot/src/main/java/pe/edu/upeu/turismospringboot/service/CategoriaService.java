@@ -12,4 +12,5 @@ public interface CategoriaService {
     public Categoria postCategoria(CategoriaDto categoriaDto, MultipartFile file);
     public Categoria putCategoria(Long idCategoria, CategoriaDto categoriaDto, MultipartFile file);
     public void deleteCategoria(Long idCategoria);
+    List<Categoria> buscarPorNombre(String nombre);
 }

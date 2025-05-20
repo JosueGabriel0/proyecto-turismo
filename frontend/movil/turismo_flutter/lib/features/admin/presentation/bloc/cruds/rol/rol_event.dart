@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:turismo_flutter/features/admin/data/models/rol_dto.dart';
 
 abstract class RolEvent extends Equatable {
+  const RolEvent();
   @override
   List<Object?> get props => [];
 }
@@ -43,4 +44,13 @@ class DeleteRolEvent extends RolEvent {
 
   @override
   List<Object?> get props => [idRol];
+}
+
+class BuscarRolPorNombreEvent extends RolEvent {
+  final String nombre;
+
+  const BuscarRolPorNombreEvent(this.nombre);
+
+  @override
+  List<Object?> get props => [nombre];
 }

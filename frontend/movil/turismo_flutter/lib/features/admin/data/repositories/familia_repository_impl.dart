@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -55,5 +54,10 @@ class FamiliaRepositoryImpl implements FamiliaRepository {
       );
     }
     return familiaApiClient.putFamilia(idFamilia, familiaJson, multipartFile);
+  }
+
+  @override
+  Future<List<FamiliaResponse>> buscarFamiliasPorNombre(String nombre) {
+    return familiaApiClient.buscarFamiliasPorNombre(nombre);
   }
 }

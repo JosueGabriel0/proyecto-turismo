@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/admin_screen.dart';
 import 'package:turismo_flutter/features/auth/presentation/screens/login_screen.dart';
+import 'package:turismo_flutter/features/auth/presentation/screens/register_screen.dart';
 import 'package:turismo_flutter/features/emprendedor/presentation/screens/emprendedor_screen.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/bienvenida1.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/bienvenida2.dart';
@@ -26,6 +27,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterScreen(),
     ),
     GoRoute(
       path: '/admin',

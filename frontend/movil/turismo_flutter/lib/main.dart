@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:turismo_flutter/app.dart';
 import 'package:turismo_flutter/core/services/token_storage_service.dart';
@@ -7,25 +9,42 @@ import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuar
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuarios_usecase.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_event.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/familia_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/familia_event.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia_categoria/familia_categoria_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia_categoria/familia_categoria_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_event.dart';
+import 'package:turismo_flutter/features/auth/presentation/bloc/register/register_bloc.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/file/file_bloc.dart';
+import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuario_user_bloc.dart';
 import 'package:turismo_flutter/injection/injection.dart';
-import 'package:turismo_flutter/features/auth/presentation/bloc/login_bloc.dart';
+import 'package:turismo_flutter/features/auth/presentation/bloc/login/login_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_bloc.dart'; // Importa el RolBloc
 
-void main() {
+void main() async{
   setupLocator();
+  await setup();
   runApp(
     MultiProvider(
       providers: [
         BlocProvider(
           create: (context) => LoginBloc(loginUseCase: getIt()), // Inyecta el LoginBloc
+        ),
+        BlocProvider(
+          create: (context) => RegisterBloc(registerUseCase: getIt()),
+        ),
+        BlocProvider<UsuarioUserBloc>(
+          create: (context) => UsuarioUserBloc(
+            getUsuarioByIdUserUseCase: getIt(),
+            putUsuarioUserUseCase:  getIt(),
+            tokenStorageService: getIt()
+          ), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<RolBloc>(
           create: (context) => RolBloc(
@@ -43,6 +62,7 @@ void main() {
             createUsuarioUseCase: getIt(),
             updateUsuarioUseCase: getIt(),
             deleteUsuarioUseCase: getIt(),
+            buscarUsuariosCompletosPorNombreUsecase: getIt(),
             tokenStorageService: getIt(),
           )..add(GetAllUsuariosEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
@@ -53,6 +73,7 @@ void main() {
             createLugarUsecase: getIt(),
             updateLugarUseCase: getIt(),
             deleteLugarUseCase: getIt(),
+            buscarLugaresPorNombreUsecase: getIt(),
           )..add(GetAllLugaresEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<FamiliaBloc>(
@@ -62,6 +83,7 @@ void main() {
             postFamiliaUsecase: getIt(),
             putFamiliaUseCase: getIt(),
             deleteFamiliaUsecase: getIt(),
+            buscarFamiliasPorNombreUsecase: getIt(),
           )..add(GetFamiliasEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<CategoriaBloc>(
@@ -71,7 +93,27 @@ void main() {
             postCategoriaUsecase: getIt(),
             putCategoriaUsecase: getIt(),
             deleteCategoriaUseCase: getIt(),
+            buscarCategoriasPorNombreUsecase: getIt(),
           )..add(GetCategoriasEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<FamiliaCategoriaBloc>(
+          create: (context) => FamiliaCategoriaBloc(
+            asociarFamiliaCategoriaUseCase: getIt(),
+            eliminarRelacionUsecase: getIt(),
+            listarRelacionesUsecase: getIt(),
+            obtenerPorIdCategoriaUsecase: getIt(),
+            obtenerPorIdFamiliaUsecase: getIt(),
+          )..add(ListarRelacionesEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<EmprendimientoBloc>(
+          create: (context) => EmprendimientoBloc(
+            getEmprendimientosUsecase: getIt(),
+            getEmprendimientoByIdUsecase: getIt(),
+            postEmprendimientoUsecase: getIt(),
+            putEmprendimientoUsecase: getIt(),
+            deleteEmprendimientoUseCase: getIt(),
+            buscarEmprendimientosPorNombreUseCase: getIt(),
+          )..add(GetEmprendimientosEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<FileBloc>(
           create: (context) => getIt<FileBloc>(),
@@ -80,5 +122,14 @@ void main() {
       ],
       child: const App(),
     ),
+  );
+}
+
+Future<void> setup() async {
+  await dotenv.load(
+    fileName: ".env",
+  );
+  MapboxOptions.setAccessToken(
+    dotenv.env["MAPBOX_ACCESS_TOKEN"]!,
   );
 }

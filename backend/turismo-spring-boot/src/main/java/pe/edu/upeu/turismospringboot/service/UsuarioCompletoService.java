@@ -12,4 +12,5 @@ public interface UsuarioCompletoService {
     public Usuario crearUsuarioCompleto(UsuarioCompletoDto usuarioCompleto, MultipartFile file);
     public Usuario actualizarUsuarioCompleto(Long idUsuario, UsuarioCompletoDto usuarioCompleto, MultipartFile file);
     public void eliminarUsuarioCompleto(Long idUsuario);
+    List<Usuario> buscarUsuariosPorUsername(String username);
 }

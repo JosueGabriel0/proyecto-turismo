@@ -59,4 +59,9 @@ class UsuarioRepositoryImpl implements UsuarioRepository {
   Future<void> deleteUsuarioCompleto(int id) {
     return apiClient.deleteUsuarioCompleto(id);
   }
+
+  @override
+  Future<List<UsuarioCompletoResponse>> buscarUsuariosCompletosPorNombre(String nombre) {
+    return apiClient.buscarUsuariosPorNombre(nombre);
+  }
 }

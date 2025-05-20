@@ -1,5 +1,6 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,6 +20,7 @@ public class ReservaDetalle {
     @Column(nullable = false)
     private double precio;  // Precio asociado al detalle de la reserva
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "reserva_id", nullable = false)
     private Reserva reserva;

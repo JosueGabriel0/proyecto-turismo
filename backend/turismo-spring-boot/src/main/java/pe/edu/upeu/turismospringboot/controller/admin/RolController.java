@@ -48,4 +48,9 @@ public class RolController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el rol");
         }
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Rol>> buscarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(rolService.buscarRolesPorNombre(nombre));
+    }
 }

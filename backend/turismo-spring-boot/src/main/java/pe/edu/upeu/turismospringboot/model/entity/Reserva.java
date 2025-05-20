@@ -1,10 +1,12 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import pe.edu.upeu.turismospringboot.model.enums.EstadoReserva;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -34,6 +36,10 @@ public class Reserva {
     @ManyToOne
     @JoinColumn(name = "emprendimiento_id", nullable = false)
     private Emprendimiento emprendimiento;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL)
+    private List<ReservaDetalle> reservaDetalles;
 
     private LocalDateTime fechaCreacionReserva;
     private LocalDateTime fechaModificacionReserva;

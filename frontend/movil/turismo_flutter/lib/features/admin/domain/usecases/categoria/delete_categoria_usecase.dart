@@ -6,6 +6,6 @@ class DeleteCategoriaUseCase {
   DeleteCategoriaUseCase(this.categoriaRepository);
 
   Future<void> call(int idCategoria) async {
-    await categoriaRepository.getCategoriaById(idCategoria);
+    await categoriaRepository.deleteCategoria(idCategoria);
   }
 }

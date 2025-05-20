@@ -70,4 +70,9 @@ public class CategoriaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el categoria: "+e.getMessage());
         }
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Categoria>> buscarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(categoriaService.buscarPorNombre(nombre));
+    }
 }

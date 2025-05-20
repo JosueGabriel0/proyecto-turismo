@@ -42,3 +42,12 @@ class FamiliaError extends FamiliaState {
   @override
   List<Object?> get props => [message];
 }
+
+class FamiliaSearchLoaded extends FamiliaState {
+  final List<FamiliaResponse> resultados;
+
+  const FamiliaSearchLoaded(this.resultados);
+
+  @override
+  List<Object?> get props => [resultados];
+}

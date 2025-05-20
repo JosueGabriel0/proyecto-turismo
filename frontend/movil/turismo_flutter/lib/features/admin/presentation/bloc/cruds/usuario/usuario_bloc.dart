@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:turismo_flutter/core/services/token_storage_service.dart';
 import 'package:turismo_flutter/core/utils/auth_utils.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/usuario/buscar_usuarios_completos_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/create_usuario_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/delete_usuario_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuario_by_id_usecase.dart';
@@ -15,6 +17,7 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
   final CreateUsuarioUseCase createUsuarioUseCase;
   final UpdateUsuarioUseCase updateUsuarioUseCase;
   final DeleteUsuarioUseCase deleteUsuarioUseCase;
+  final BuscarUsuariosCompletosPorNombreUsecase buscarUsuariosCompletosPorNombreUsecase;
   final TokenStorageService tokenStorageService;
 
   UsuarioBloc({
@@ -23,6 +26,7 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
     required this.createUsuarioUseCase,
     required this.updateUsuarioUseCase,
     required this.deleteUsuarioUseCase,
+    required this.buscarUsuariosCompletosPorNombreUsecase,
     required this.tokenStorageService,
   }) : super(UsuarioInitial()) {
     on<GetAllUsuariosEvent>((event, emit) async {
@@ -101,5 +105,17 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
         emit(UsuarioError("Error al obtener datos del usuario actual: $e"));
       }
     });
+
+    on<BuscarUsuarioPorNombreEvent>(
+          (event, emit) async {
+        try {
+          final resultados = await buscarUsuariosCompletosPorNombreUsecase(event.nombre);
+          emit(UsuarioListLoaded(resultados));
+        } catch (e) {
+          emit(UsuarioError("Error al buscar usuarios: $e"));
+        }
+      },
+      transformer: (events, mapper) => events.debounceTime(const Duration(milliseconds: 300)).switchMap(mapper),
+    );
   }
 }

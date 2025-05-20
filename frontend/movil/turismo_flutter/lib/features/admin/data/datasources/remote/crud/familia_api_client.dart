@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 import 'package:turismo_flutter/features/admin/data/models/familia_response.dart';
 
@@ -31,4 +32,9 @@ abstract class FamiliaApiClient {
 
   @DELETE("/admin/familia/{idFamilia}")
   Future<void> deleteFamilia(@Path("idFamilia") int idFamilia);
+
+  @GET("/admin/familia/buscar")
+  Future<List<FamiliaResponse>> buscarFamiliasPorNombre(
+      @Query("nombre") String nombre,
+      );
 }

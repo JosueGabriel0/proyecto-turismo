@@ -56,4 +56,8 @@ class CategoriaRepositoryImpl implements CategoriaRepository {
     return categoriaApiClient.putCategoria(idCategoria, categoriaJson, multipartFile);
   }
 
+  @override
+  Future<List<CategoriaResponse>> buscarCategoriasPorNombre(String nombre) {
+    return categoriaApiClient.buscarCategoriasPorNombre(nombre);
+  }
 }

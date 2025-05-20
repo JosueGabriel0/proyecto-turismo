@@ -40,3 +40,12 @@ class UsuarioError extends UsuarioState {
   @override
   List<Object?> get props => [message];
 }
+
+class UsuarioSearchLoaded extends UsuarioState {
+  final List<UsuarioCompletoResponse> resultados;
+
+  const UsuarioSearchLoaded(this.resultados);
+
+  @override
+  List<Object?> get props => [resultados];
+}

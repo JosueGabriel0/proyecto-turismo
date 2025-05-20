@@ -11,4 +11,5 @@ public interface RolService {
     public Rol guardarRol(RolDto rolDto);
     public Rol actualizarRol(Long idRol, RolDto rolDto);
     public void eliminarRolPorId(Long idRol);
+    public List<Rol> buscarRolesPorNombre(String nombre);
 }

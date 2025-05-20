@@ -8,4 +8,5 @@ abstract class UsuarioRepository {
   Future<UsuarioCompletoResponse> postUsuarioCompleto(UsuarioCompletoDto usuario, File? imagen);
   Future<UsuarioCompletoResponse> putUsuarioCompleto(int id, UsuarioCompletoDto usuario, File? imagen);
   Future<void> deleteUsuarioCompleto(int id);
+  Future<List<UsuarioCompletoResponse>> buscarUsuariosCompletosPorNombre(String nombre);
 }

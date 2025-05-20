@@ -46,3 +46,12 @@ class DeleteLugarEvent extends LugarEvent{
   @override
   List<Object?> get props => [id];
 }
+
+class BuscarLugaresPorNombreEvent extends LugarEvent {
+  final String nombre;
+
+  const BuscarLugaresPorNombreEvent(this.nombre);
+
+  @override
+  List<Object?> get props => [nombre];
+}

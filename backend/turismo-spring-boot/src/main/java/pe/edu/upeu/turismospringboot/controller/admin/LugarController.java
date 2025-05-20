@@ -72,4 +72,9 @@ public class LugarController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Lugar>> buscarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(lugarService.buscarLugarPorNombre(nombre));
+    }
 }

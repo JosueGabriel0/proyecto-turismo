@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 class InfoRowWidget extends StatelessWidget {
   final String label;
-  final String value;
+  final dynamic value;
 
   const InfoRowWidget({
     Key? key,
     required this.label,
-    required this.value
+    required this.value,
   }) : super(key: key);
 
   @override
@@ -19,9 +19,13 @@ class InfoRowWidget extends StatelessWidget {
         text: TextSpan(
           style: const TextStyle(color: Colors.black),
           children: [
-            TextSpan(text: "• $label: ",
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            TextSpan(text: value),
+            TextSpan(
+              text: "• $label: ",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(
+              text: value.toString(),
+            ),
           ],
         ),
       ),

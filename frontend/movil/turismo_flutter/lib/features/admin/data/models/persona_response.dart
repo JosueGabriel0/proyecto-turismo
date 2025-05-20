@@ -1,15 +1,15 @@
 class PersonaResponse {
   int idPersona;
   String nombres;
-  String apellidos;
-  String tipoDocumento;
-  String numeroDocumento;
-  String telefono;
-  String direccion;
-  String correoElectronico;
+  String? apellidos;
+  String? tipoDocumento;
+  String? numeroDocumento;
+  String? telefono;
+  String? direccion;
+  String? correoElectronico;
   String? fotoPerfil;
-  String fechaNacimiento;
-  String fechaCreacionPersona;
+  String? fechaNacimiento;
+  String? fechaCreacionPersona;
   String? fechaModificacionPersona;
 
   PersonaResponse({

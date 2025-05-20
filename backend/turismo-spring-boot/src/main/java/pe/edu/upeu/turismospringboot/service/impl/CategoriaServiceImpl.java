@@ -19,9 +19,6 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
-    @Autowired
-    private FamiliaRepository familiaRepository;
-
     @Override
     public List<Categoria> getCategorias() {
         return categoriaRepository.findAll();
@@ -34,7 +31,6 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public Categoria postCategoria(CategoriaDto categoriaDto, MultipartFile file) {
-        Familia familiaEncontrada = familiaRepository.findByNombre(categoriaDto.getNombreFamilia()).orElseThrow(() -> new RuntimeException("Familia con nombre "+categoriaDto.getNombreFamilia()+" no existe"));
         Categoria categoria = new Categoria();
         categoria.setNombre(categoriaDto.getNombre());
         categoria.setDescripcion(categoriaDto.getDescripcion());
@@ -43,14 +39,12 @@ public class CategoriaServiceImpl implements CategoriaService {
             String fileName = saveFile(file);
             categoria.setImagenUrl(fileName);
         }
-        categoria.setFamilia(familiaEncontrada);
 
         return categoriaRepository.save(categoria);
     }
 
     @Override
     public Categoria putCategoria(Long idCategoria, CategoriaDto categoriaDto, MultipartFile file) {
-        Familia familiaEncontrada = familiaRepository.findByNombre(categoriaDto.getNombreFamilia()).orElseThrow(() -> new RuntimeException("Familia con nombre "+categoriaDto.getNombreFamilia()+" no existe"));
         Categoria categoriaEncontrada = categoriaRepository.findById(idCategoria).orElseThrow(() -> new RuntimeException("La categoria con id "+idCategoria+" no existe"));
         categoriaEncontrada.setNombre(categoriaDto.getNombre());
         categoriaEncontrada.setDescripcion(categoriaDto.getDescripcion());
@@ -58,7 +52,6 @@ public class CategoriaServiceImpl implements CategoriaService {
             String fileName = saveFile(file);
             categoriaEncontrada.setImagenUrl(fileName);
         }
-        categoriaEncontrada.setFamilia(familiaEncontrada);
 
         return categoriaRepository.save(categoriaEncontrada);
     }
@@ -82,5 +75,10 @@ public class CategoriaServiceImpl implements CategoriaService {
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen", e);
         }
+    }
+
+    @Override
+    public List<Categoria> buscarPorNombre(String nombre) {
+        return categoriaRepository.buscarPorNombre(nombre);
     }
 }

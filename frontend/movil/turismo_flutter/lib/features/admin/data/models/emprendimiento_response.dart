@@ -1,10 +1,13 @@
+import 'package:turismo_flutter/features/admin/data/models/reserva_response.dart';
+
 class EmprendimientoResponse {
   int idEmprendimiento;
   String nombre;
   String descripcion;
   String imagenUrl;
-  double latitud;
-  double longitud;
+  String latitud;
+  String longitud;
+  List<ReservaResponse>? reservas; // Ahora puede ser null
   String fechaCreacionEmprendimiento;
   String? fechaModificacionEmprendimiento;
 
@@ -15,6 +18,7 @@ class EmprendimientoResponse {
     required this.imagenUrl,
     required this.latitud,
     required this.longitud,
+    this.reservas,
     required this.fechaCreacionEmprendimiento,
     this.fechaModificacionEmprendimiento,
   });
@@ -25,8 +29,11 @@ class EmprendimientoResponse {
       nombre: json['nombre'],
       descripcion: json['descripcion'],
       imagenUrl: json['imagenUrl'],
-      latitud: json['latitud']?.toDouble(),
-      longitud: json['longitud']?.toDouble(),
+      latitud: json['latitud'].toString(),
+      longitud: json['longitud'].toString(),
+      reservas: json['reservas'] != null
+          ? List<ReservaResponse>.from(json['reservas'])
+          : null,
       fechaCreacionEmprendimiento: json['fechaCreacionEmprendimiento'],
       fechaModificacionEmprendimiento: json['fechaModificacionEmprendimiento'],
     );
@@ -40,6 +47,7 @@ class EmprendimientoResponse {
       'imagenUrl': imagenUrl,
       'latitud': latitud,
       'longitud': longitud,
+      'reservas': reservas,
       'fechaCreacionEmprendimiento': fechaCreacionEmprendimiento,
       'fechaModificacionEmprendimiento': fechaModificacionEmprendimiento,
     };

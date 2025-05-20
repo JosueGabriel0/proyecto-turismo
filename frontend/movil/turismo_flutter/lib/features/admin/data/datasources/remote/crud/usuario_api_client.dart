@@ -38,4 +38,9 @@ abstract class UsuarioApiClient {
   // Eliminar un usuario
   @DELETE("/admin/usuarioCompleto/{idUsuario}")
   Future<void> deleteUsuarioCompleto(@Path("idUsuario") int idUsuario);
+
+  @GET("/admin/usuarioCompleto/buscar")
+  Future<List<UsuarioCompletoResponse>> buscarUsuariosPorNombre(
+      @Query("username") String username,
+      );
 }

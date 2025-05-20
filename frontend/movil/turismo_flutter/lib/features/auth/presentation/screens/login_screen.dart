@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:rive/rive.dart' as rive;
 import 'package:turismo_flutter/config/theme/app_color.dart';
 import 'package:turismo_flutter/features/auth/domain/usecases/login_usecase.dart';
-import 'package:turismo_flutter/features/auth/presentation/bloc/login_bloc.dart';
-import 'package:turismo_flutter/features/auth/presentation/bloc/login_event.dart';
-import 'package:turismo_flutter/features/auth/presentation/bloc/login_state.dart';
+import 'package:turismo_flutter/features/auth/presentation/bloc/login/login_bloc.dart';
+import 'package:turismo_flutter/features/auth/presentation/bloc/login/login_event.dart';
+import 'package:turismo_flutter/features/auth/presentation/bloc/login/login_state.dart';
 import 'package:turismo_flutter/features/auth/presentation/widgets/dialogs/loading_dialog.dart';
 import 'package:turismo_flutter/injection/injection.dart';
 
@@ -94,7 +94,7 @@ class _LoginContentState extends State<LoginContent> {
                 if (role == 'ROLE_ADMIN') {
                   context.go('/admin');
                 } else if (role == 'ROLE_USUARIO') {
-                  context.go('/usuario');
+                  context.go('/home');
                 } else if (role == 'ROLE_EMPRENDEDOR') {
                   context.go('/emprendedor');
                 } else {

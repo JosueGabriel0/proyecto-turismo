@@ -12,4 +12,5 @@ public interface LugarService {
     public Lugar postLugar(LugarDto lugarDto, MultipartFile file);
     public Lugar putLugar(Long idLugar, LugarDto lugarDto, MultipartFile file);
     public void deleteLugar(Long idLugar);
+    public List<Lugar> buscarLugarPorNombre(String nombre);
 }

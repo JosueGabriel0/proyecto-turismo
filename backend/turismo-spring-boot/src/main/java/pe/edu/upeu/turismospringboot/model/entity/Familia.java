@@ -29,9 +29,9 @@ public class Familia {
     @JoinColumn(name = "lugar_id", nullable = false)
     private Lugar lugar;
 
-    @JsonManagedReference
+    @JsonManagedReference(value = "familia-familiaCategoria")
     @OneToMany(mappedBy = "familia", cascade = CascadeType.ALL)
-    private List<Categoria> categorias;
+    private List<FamiliaCategoria> familiaCategorias;
 
     private LocalDateTime fechaCreacionFamilia;
     private LocalDateTime fechaModificacionFamilia;

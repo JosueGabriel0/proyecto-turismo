@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 import 'package:turismo_flutter/features/admin/data/models/categoria_response.dart';
 
@@ -29,4 +30,9 @@ abstract class CategoriaApiClient {
 
   @DELETE("/admin/categoria/{idCategoria}")
   Future<void> deleteCategoria(@Path("idCategoria") int idCategoria);
+
+  @GET("/admin/categoria/buscar")
+  Future<List<CategoriaResponse>> buscarCategoriasPorNombre(
+      @Query("nombre") String nombre,
+      );
 }

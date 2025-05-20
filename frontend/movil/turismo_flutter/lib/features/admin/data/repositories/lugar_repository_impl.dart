@@ -59,4 +59,8 @@ class LugarRepositoryImpl implements LugarRepository {
     return lugarApiClient.putLugar(id, lugarJson, multipartFile);
   }
 
+  @override
+  Future<List<LugarResponse>> buscarLugaresPorNombre(String nombre) {
+    return lugarApiClient.buscarLugaresPorNombre(nombre);
+  }
 }

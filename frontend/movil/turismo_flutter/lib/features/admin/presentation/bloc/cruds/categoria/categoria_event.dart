@@ -55,3 +55,12 @@ class DeleteCategoriaEvent extends CategoriaEvent {
   @override
   List<Object?> get props => [idCategoria];
 }
+
+class BuscarCategoriasPorNombreEvent extends CategoriaEvent {
+  final String nombre;
+
+  const BuscarCategoriasPorNombreEvent(this.nombre);
+
+  @override
+  List<Object?> get props => [nombre];
+}

@@ -3,15 +3,17 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart' as imagePiker;
 import 'package:turismo_flutter/features/admin/data/models/lugar_dto.dart';
 import 'package:turismo_flutter/features/admin/data/models/lugar_response.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_state.dart';
-import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_state.dart';
+import 'package:turismo_flutter/features/admin/presentation/screens/cruds/selector_ubicacion_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/info_row_widget.dart';
+
+
 
 class LugarScreen extends StatefulWidget{
   const LugarScreen({super.key});
@@ -33,6 +35,8 @@ class _LugarScreenState extends State<LugarScreen>{
   final _longitudController = TextEditingController();
   File? _imagenUrlController;
   final _familiasController = TextEditingController();
+  final _searchController = TextEditingController();
+
 
   @override
   void initState() {
@@ -41,8 +45,8 @@ class _LugarScreenState extends State<LugarScreen>{
   }
 
   void _pickImage() async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.gallery);
+    final picker = imagePiker.ImagePicker();
+    final image = await picker.pickImage(source: imagePiker.ImageSource.gallery);
     if(image != null) setState(() => _imagenUrlController = File(image.path));
   }
 
@@ -166,11 +170,39 @@ class _LugarScreenState extends State<LugarScreen>{
                         controller: _latitudController,
                         decoration: const InputDecoration(labelText: "Latitud"),
                         validator: (v) => v!.isEmpty ? "Campo requerido": null,
+                        readOnly: true,
                       ),
                       TextFormField(
                         controller: _longitudController,
                         decoration: const InputDecoration(labelText: "Longitud"),
                         validator: (v) => v!.isEmpty ? "Campo requerido": null,
+                        readOnly: true,
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final resultado = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SeleccionUbicacionScreen(),
+                            ),
+                          );
+
+                          if (resultado != null) {
+                            final lat = resultado['lat'] as double;
+                            final lng = resultado['lng'] as double;
+
+                            setState(() {
+                              _latitudController.text = lat.toString();
+                              _longitudController.text = lng.toString();
+                            });
+                          }
+                        },
+                        child: Text(
+                          (_latitudController.text.isNotEmpty && _longitudController.text.isNotEmpty)
+                              ? 'Lat: ${_latitudController.text}, Lng: ${_longitudController.text}'
+                              : 'Seleccionar ubicación en el mapa',
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                       const SizedBox(height: 10,),
                       Column(
@@ -215,119 +247,134 @@ class _LugarScreenState extends State<LugarScreen>{
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: BlocListener<LugarBloc, LugarState>(
-            listener: (context, state){
-              if(state is LugarSuccess){
-                context.read<LugarBloc>().add(GetAllLugaresEvent());
-              }
-              },
-            child: BlocBuilder<LugarBloc, LugarState>(
-                builder: (context, state) {
-                  if(state is LugarLoading){
-                    return const Center(child: CircularProgressIndicator(),);
-                  } else if(state is LugarListLoaded){
-                    return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        child: BlocListener<LugarBloc, LugarState>(
+          listener: (context, state) {
+            if (state is LugarSuccess) {
+              context.read<LugarBloc>().add(GetAllLugaresEvent());
+            }
+          },
+          child: BlocBuilder<LugarBloc, LugarState>(
+            builder: (context, state) {
+              if (state is LugarLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is LugarListLoaded) {
+                return Column(
+                  children: [
+                    // 🟦 Buscador
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        context.read<LugarBloc>().add(
+                          BuscarLugaresPorNombreEvent(value),
+                        );
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Buscar lugar...',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // 🟦 Lista de lugares
+                    Expanded(
+                      child: ListView.builder(
                         itemCount: state.lugares.length,
                         itemBuilder: (context, index) {
                           final lugar = state.lugares[index];
                           return Dismissible(
-                              key: Key(lugar.idLugar.toString()),
-                              confirmDismiss: (_) => _onDismissed(context, lugar),
-                              background: Container(
-                                color: Colors.red,
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
-                                child: Icon(Icons.delete, color: Colors.white,),
-                              ),
-                              child: ListTile(
-                                leading: FotoWidget(
-                                  fileName: lugar.imagenUrl
-                                ),
-                                title: Text(lugar.nombre),
-                                subtitle: Text(lugar.direccion),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(Icons.info),
-                                      onPressed: (){
-                                        showDialog(
-                                            context: context,
-                                            builder: (_) => AlertDialog(
-                                              title: const Text("Informacion del lugar"),
-                                              content: SingleChildScrollView(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Center(
-                                                      child: FotoWidget(
-                                                        fileName: lugar.imagenUrl,
-                                                        size: 80,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 16,),
-                                                    InfoRowWidget(label: "ID", value: lugar.idLugar.toString()),
-                                                    InfoRowWidget(label: "Nombre", value: lugar.nombre),
-                                                    InfoRowWidget(label: "descripcion", value: lugar.descripcion),
-                                                    InfoRowWidget(label: "direccion", value: lugar.direccion),
-                                                    InfoRowWidget(label: "ciudad", value: lugar.ciudad),
-                                                    InfoRowWidget(label: "provincia", value: lugar.provincia),
-                                                    InfoRowWidget(label: "pais", value: lugar.pais),
-                                                    InfoRowWidget(label: "longitud", value: lugar.longitud.toString()),
-                                                    InfoRowWidget(label: "imagenUrl", value: lugar.latitud.toString()),
-                                                    InfoRowWidget(label: "imagenUrl", value: lugar.imagenUrl.toString()),
-                                                    InfoRowWidget(
-                                                      label: "Familias",
-                                                      value: (lugar.familias ?? [])
-                                                          .where((f) => f?.nombre != null) // Filtra nulos
-                                                          .map((f) => f!.nombre!)         // Accede con confianza
-                                                          .join(', '),
-                                                    ),
-                                                    InfoRowWidget(label: "fechaCreacionLugar", value: lugar.fechaCreacionLugar),
-                                                    InfoRowWidget(label: "fechaModificacionLugar", value: lugar.fechaModificacionLugar.toString()),
-                                                  ],
+                            key: Key(lugar.idLugar.toString()),
+                            confirmDismiss: (_) => _onDismissed(context, lugar),
+                            background: Container(
+                              color: Colors.red,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            child: ListTile(
+                              leading: FotoWidget(fileName: lugar.imagenUrl),
+                              title: Text(lugar.nombre),
+                              subtitle: Text(lugar.direccion),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.info),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => AlertDialog(
+                                          title: const Text("Información del lugar"),
+                                          content: SingleChildScrollView(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Center(
+                                                  child: FotoWidget(fileName: lugar.imagenUrl, size: 80),
                                                 ),
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                    onPressed: () => Navigator.of(context).pop(),
-                                                    child: const Text("Cerrar"))
+                                                const SizedBox(height: 16),
+                                                InfoRowWidget(label: "ID", value: lugar.idLugar.toString()),
+                                                InfoRowWidget(label: "Nombre", value: lugar.nombre),
+                                                InfoRowWidget(label: "Descripción", value: lugar.descripcion),
+                                                InfoRowWidget(label: "Dirección", value: lugar.direccion),
+                                                InfoRowWidget(label: "Ciudad", value: lugar.ciudad),
+                                                InfoRowWidget(label: "Provincia", value: lugar.provincia),
+                                                InfoRowWidget(label: "País", value: lugar.pais),
+                                                InfoRowWidget(label: "Longitud", value: lugar.longitud.toString()),
+                                                InfoRowWidget(label: "Latitud", value: lugar.latitud.toString()),
+                                                InfoRowWidget(label: "Imagen URL", value: lugar.imagenUrl),
+                                                InfoRowWidget(
+                                                  label: "Familias",
+                                                  value: (lugar.familias ?? [])
+                                                      .where((f) => f?.nombre != null)
+                                                      .map((f) => f!.nombre!)
+                                                      .join(', '),
+                                                ),
+                                                InfoRowWidget(label: "Fecha de creación", value: lugar.fechaCreacionLugar),
+                                                InfoRowWidget(label: "Fecha de modificación", value: lugar.fechaModificacionLugar.toString()),
                                               ],
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(),
+                                              child: const Text("Cerrar"),
                                             )
-                                        );
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: (){
-                                        _cargarParaEditar(lugar);
-                                        _mostrarFormulario(context);
-                                      }, )
-                                  ],
-                                ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () {
+                                      _cargarParaEditar(lugar);
+                                      _mostrarFormulario(context);
+                                    },
+                                  )
+                                ],
                               ),
+                            ),
                           );
                         },
-                        );
-                  } else if(state is LugarError){
-                    return Text(
-                      state.message, style: const TextStyle(color: Colors.red),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-                ),
-              ),
+                      ),
+                    ),
+                  ],
+                );
+              } else if (state is LugarError) {
+                return Text(state.message, style: const TextStyle(color: Colors.red));
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () => {
-            _mostrarFormulario(context)
-          },
-          child: const Icon(Icons.add),
+        onPressed: () => _mostrarFormulario(context),
+        child: const Icon(Icons.add),
       ),
     );
   }

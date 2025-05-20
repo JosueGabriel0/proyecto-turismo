@@ -72,4 +72,9 @@ public class FamiliaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Familia>> buscarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(familiaService.buscarPorNombre(nombre));
+    }
 }

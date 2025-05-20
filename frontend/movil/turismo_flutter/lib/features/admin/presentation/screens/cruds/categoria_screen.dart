@@ -31,8 +31,8 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
   int? _idCategoriaController;
   final _nombreController = TextEditingController();
   final _descripcionController = TextEditingController();
-  final _nombreFamiliaController = TextEditingController();
   File? _imagenController;
+  final _searchController = TextEditingController();
 
   @override
   void initState(){
@@ -76,7 +76,6 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
   void _resetForm(){
     _nombreController.clear();
     _descripcionController.clear();
-    _nombreFamiliaController.clear();
     _imagenController = null;
   }
 
@@ -85,7 +84,6 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
       final categoriaDto = CategoriaDto(
           nombre: _nombreController.text,
           descripcion: _descripcionController.text,
-          nombreFamilia: _nombreFamiliaController.text
       );
 
       if(_idCategoriaController != null){
@@ -123,55 +121,6 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
                     TextFormField(
                       controller: _descripcionController,
                       decoration: const InputDecoration(labelText: "Descripcion"),
-                    ),
-                    BlocBuilder<FamiliaBloc, FamiliaState>(
-                      builder: (context, familiaState) {
-                        if (familiaState is FamiliaListLoaded) {
-                          final familias = familiaState.familiaListResponse
-                              .map((f) => f.nombre)
-                              .toSet()
-                              .toList(); // elimina duplicados
-
-                          // Asegúrate de que el valor actual está en la lista de items
-                          final currentValue = familias.contains(_nombreFamiliaController.text)
-                              ? _nombreFamiliaController.text
-                              : null;
-
-                          return SizedBox(
-                            width: 400, // Ancho fijo que puedes ajustar
-                            child: DropdownButtonFormField<String>(
-                              value: currentValue,
-                              decoration: const InputDecoration(labelText: "Familia"),
-                              items: familias.map((familia) {
-                                return DropdownMenuItem(
-                                  value: familia,
-                                  child: SizedBox(
-                                    width: 259, // Cambia esto al ancho que necesites
-                                    child: Text(
-                                      familia,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: false,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _nombreFamiliaController.text = value!;
-                                });
-                              },
-                              validator: (value) =>
-                              value == null || value.isEmpty ? 'Campo requerido' : null,
-                            ),
-                          );
-                        } else if (familiaState is FamiliaLoading) {
-                          return const CircularProgressIndicator();
-                        } else if (familiaState is FamiliaError) {
-                          return Text("Error al cargar familias: ${familiaState
-                              .message}");
-                        }
-                        return const SizedBox.shrink();
-                      },
                     ),
                     const SizedBox(height: 10,),
                     Column(
@@ -214,34 +163,54 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
       },
     );
   }
+
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: BlocListener<CategoriaBloc, CategoriaState>(
-          listener: (context, state){
-            if(state is CategoriaSuccess){
+          listener: (context, state) {
+            if (state is CategoriaSuccess) {
               context.read<CategoriaBloc>().add(GetCategoriasEvent());
             }
           },
           child: BlocBuilder<CategoriaBloc, CategoriaState>(
-              builder: (context, state){
-                if(state is CategoriaLoading){
-                  return const Center(child: CircularProgressIndicator(),);
-                } else if(state is CategoriaListLoaded){
-                  return ListView.builder(
-                      itemCount: state.categorias.length,
-                      itemBuilder: (context, index){
-                        final categoria = state.categorias[index];
-                        return Dismissible(
+            builder: (context, state) {
+              if (state is CategoriaLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is CategoriaListLoaded) {
+                return Column(
+                  children: [
+                    // 🔍 Buscador
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        context.read<CategoriaBloc>().add(
+                          BuscarCategoriasPorNombreEvent(value),
+                        );
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Buscar categoría...',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // 📋 Lista de categorías
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: state.categorias.length,
+                        itemBuilder: (context, index) {
+                          final categoria = state.categorias[index];
+                          return Dismissible(
                             key: Key(categoria.idCategoria.toString()),
                             confirmDismiss: (_) => _onDismissed(context, categoria),
                             background: Container(
                               color: Colors.red,
                               alignment: Alignment.center,
                               padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: Icon(Icons.delete, color: Colors.white,),
+                              child: const Icon(Icons.delete, color: Colors.white),
                             ),
                             child: ListTile(
                               leading: FotoWidget(fileName: categoria.imagenUrl),
@@ -251,71 +220,64 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                      icon: Icon(Icons.info),
-                                      onPressed: (){
-                                        showDialog(
-                                            context: context,
-                                            builder: (_) => AlertDialog(
-                                              title: const Text("Informacion de la Categoria"),
-                                              content: SingleChildScrollView(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Center(
-                                                      child: FotoWidget(fileName: categoria.imagenUrl, size: 80,),
-                                                    ),
-                                                    const SizedBox(height: 16,),
-                                                    InfoRowWidget(label: "ID", value: categoria.idCategoria.toString()),
-                                                    InfoRowWidget(label: "Nombre", value: categoria.nombre),
-                                                    InfoRowWidget(label: "Descripcion", value: categoria.descripcion),
-                                                    InfoRowWidget(
-                                                      label: "Emprendimientos",
-                                                      value: (categoria.emprendimientos ?? [])
-                                                          .where((f) => f?.nombre != null) // Filtra nulos
-                                                          .map((f) => f!.nombre!)         // Accede con confianza
-                                                          .join(', '),
-                                                    ),
-                                                    InfoRowWidget(label: "Fecha de creacion", value: categoria.fechaCreacionCategoria),
-                                                    InfoRowWidget(label: "Fecha de modificacion", value: categoria.fechaModificacionCategoria ?? "No hay modificaciones"),
-                                                  ],
+                                    icon: const Icon(Icons.info),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => AlertDialog(
+                                          title: const Text("Información de la Categoría"),
+                                          content: SingleChildScrollView(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Center(
+                                                  child: FotoWidget(fileName: categoria.imagenUrl, size: 80),
                                                 ),
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                    onPressed: () => Navigator.of(context).pop(),
-                                                    child: const Text("Cerrar"))
+                                                const SizedBox(height: 16),
+                                                InfoRowWidget(label: "ID", value: categoria.idCategoria.toString()),
+                                                InfoRowWidget(label: "Nombre", value: categoria.nombre),
+                                                InfoRowWidget(label: "Descripción", value: categoria.descripcion),
+                                                InfoRowWidget(label: "Fecha de creación", value: categoria.fechaCreacionCategoria),
+                                                InfoRowWidget(label: "Fecha de modificación", value: categoria.fechaModificacionCategoria ?? "No hay modificaciones"),
                                               ],
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(),
+                                              child: const Text("Cerrar"),
                                             )
-                                        );
-                                      }
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.edit),
-                                    onPressed: (){
+                                    onPressed: () {
                                       _cargarParaEditar(categoria);
                                       _mostrarFormulario(context);
                                     },
                                   )
                                 ],
                               ),
-                            )
-                        );
-                      }
-                  );
-                } else if(state is CategoriaError){
-                  return Text(
-                    state.message, style: const TextStyle(color: Colors.red),
-                  );
-                }
-                return const SizedBox.shrink();
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              } else if (state is CategoriaError) {
+                return Text(state.message, style: const TextStyle(color: Colors.red));
               }
+              return const SizedBox.shrink();
+            },
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: ()=>{
-          _mostrarFormulario(context)
-        },
+        onPressed: () => _mostrarFormulario(context),
         child: const Icon(Icons.add),
       ),
     );

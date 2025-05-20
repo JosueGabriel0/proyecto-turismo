@@ -80,4 +80,9 @@ public class UsuarioCompletoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar usuario");
         }
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Usuario>> buscarPorUsername(@RequestParam String username) {
+        return ResponseEntity.ok(usuarioCompletoService.buscarUsuariosPorUsername(username));
+    }
 }

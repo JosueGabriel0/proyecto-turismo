@@ -80,4 +80,9 @@ public class FamiliaServiceImpl implements FamiliaService {
             throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
+
+    @Override
+    public List<Familia> buscarPorNombre(String nombre) {
+        return familiaRepository.buscarPorNombre(nombre);
+    }
 }

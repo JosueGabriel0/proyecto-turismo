@@ -12,4 +12,5 @@ public interface FamiliaService {
     public Familia postFamilia(FamiliaDto familiaDto, MultipartFile file);
     public Familia putFamilia(Long idFamilia, FamiliaDto familiaDto, MultipartFile file);
     public void deleteFamilia(Long idFamilia);
+    public List<Familia> buscarPorNombre(String nombre);
 }

@@ -9,4 +9,5 @@ abstract class CategoriaRepository{
   Future<CategoriaResponse> postCategoria(CategoriaDto categoriaDto, File? file);
   Future<CategoriaResponse> putCategoria(int idCategoria, CategoriaDto categoriaDto, File? file);
   Future<void> deleteCategoria(int idCategoria);
+  Future<List<CategoriaResponse>> buscarCategoriasPorNombre(String nombre);
 }

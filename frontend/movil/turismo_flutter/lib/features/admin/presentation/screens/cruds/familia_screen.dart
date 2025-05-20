@@ -28,6 +28,7 @@ class _FamiliaScreenState extends State<FamiliaScreen>{
   final _descripcionController = TextEditingController();
   final _nombreLugarController = TextEditingController();
   File? _imagenController;
+  final _searchController = TextEditingController();
 
   @override
   void initState(){
@@ -209,110 +210,130 @@ class _FamiliaScreenState extends State<FamiliaScreen>{
         },
         );
   }
+
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: BlocListener<FamiliaBloc, FamiliaState>(
-              listener: (context, state){
-                if(state is FamiliaSuccess){
-                  context.read<FamiliaBloc>().add(GetFamiliasEvent());
-                }
-              },
-              child: BlocBuilder<FamiliaBloc, FamiliaState>(
-                  builder: (context, state){
-                    if(state is FamiliaLoading){
-                      return const Center(child: CircularProgressIndicator(),);
-                    } else if(state is FamiliaListLoaded){
-                      return ListView.builder(
-                          itemCount: state.familiaListResponse.length,
-                          itemBuilder: (context, index){
-                            final familia = state.familiaListResponse[index];
-                            return Dismissible(
-                                key: Key(familia.idFamilia.toString()),
-                                confirmDismiss: (_) => _onDismissed(context, familia),
-                                background: Container(
-                                  color: Colors.red,
-                                  alignment: Alignment.center,
-                                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                                  child: Icon(Icons.delete, color: Colors.white,),
-                                ),
-                                child: ListTile(
-                                  leading: FotoWidget(fileName: familia.imagenUrl),
-                                  title: Text(familia.nombre),
-                                  subtitle: Text(familia.descripcion),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                          icon: Icon(Icons.info),
-                                          onPressed: (){
-                                            showDialog(
-                                                context: context,
-                                                builder: (_) => AlertDialog(
-                                                  title: const Text("Informacion de la familia"),
-                                                  content: SingleChildScrollView(
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Center(
-                                                          child: FotoWidget(fileName: familia.imagenUrl, size: 80,),
-                                                        ),
-                                                        const SizedBox(height: 16,),
-                                                        InfoRowWidget(label: "ID", value: familia.idFamilia.toString()),
-                                                        InfoRowWidget(label: "Nombre", value: familia.nombre),
-                                                        InfoRowWidget(label: "Descripcion", value: familia.descripcion),
-                                                        InfoRowWidget(
-                                                          label: "Categorias",
-                                                          value: (familia.categorias ?? [])
-                                                              .where((f) => f?.nombre != null) // Filtra nulos
-                                                              .map((f) => f!.nombre!)         // Accede con confianza
-                                                              .join(', '),
-                                                        ),
-                                                        InfoRowWidget(label: "Fecha de creacion", value: familia.fechaCreacionFamilia),
-                                                        InfoRowWidget(label: "Fecha de modificacion", value: familia.fechaModificacionFamilia ?? "No hay modificaciones"),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                        onPressed: () => Navigator.of(context).pop(),
-                                                        child: const Text("Cerrar"))
-                                                  ],
-                                                )
-                                            );
-                                          }
+        padding: const EdgeInsets.all(16),
+        child: BlocListener<FamiliaBloc, FamiliaState>(
+          listener: (context, state) {
+            if (state is FamiliaSuccess) {
+              context.read<FamiliaBloc>().add(GetFamiliasEvent());
+            }
+          },
+          child: BlocBuilder<FamiliaBloc, FamiliaState>(
+            builder: (context, state) {
+              if (state is FamiliaLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is FamiliaListLoaded) {
+                return Column(
+                  children: [
+                    // 🔍 Buscador
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        context.read<FamiliaBloc>().add(
+                          BuscarFamiliasPorNombreEvent(value),
+                        );
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Buscar familia...',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // 📋 Lista de familias
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: state.familiaListResponse.length,
+                        itemBuilder: (context, index) {
+                          final familia = state.familiaListResponse[index];
+                          return Dismissible(
+                            key: Key(familia.idFamilia.toString()),
+                            confirmDismiss: (_) => _onDismissed(context, familia),
+                            background: Container(
+                              color: Colors.red,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            child: ListTile(
+                              leading: FotoWidget(fileName: familia.imagenUrl),
+                              title: Text(familia.nombre),
+                              subtitle: Text(familia.descripcion),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.info),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => AlertDialog(
+                                          title: const Text("Información de la familia"),
+                                          content: SingleChildScrollView(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Center(
+                                                  child: FotoWidget(fileName: familia.imagenUrl, size: 80),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                InfoRowWidget(label: "ID", value: familia.idFamilia.toString()),
+                                                InfoRowWidget(label: "Nombre", value: familia.nombre),
+                                                InfoRowWidget(label: "Descripción", value: familia.descripcion),
+                                                InfoRowWidget(
+                                                  label: "Categorías",
+                                                  value: (familia.familiaCategorias ?? [])
+                                                      .where((f) => f?.idFamiliaCategoria != null)
+                                                      .map((f) => f!.idFamiliaCategoria!)
+                                                      .join(', '),
+                                                ),
+                                                InfoRowWidget(label: "Fecha de creación", value: familia.fechaCreacionFamilia),
+                                                InfoRowWidget(label: "Fecha de modificación", value: familia.fechaModificacionFamilia ?? "No hay modificaciones"),
+                                              ],
+                                            ),
                                           ),
-                                      IconButton(
-                                          icon: const Icon(Icons.edit),
-                                          onPressed: (){
-                                            _cargarParaEditar(familia);
-                                            _mostrarFormulario(context);
-                                          },
-                                      )
-                                    ],
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(),
+                                              child: const Text("Cerrar"),
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
-                                )
-                            );
-                          }
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () {
+                                      _cargarParaEditar(familia);
+                                      _mostrarFormulario(context);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                           );
-                    } else if(state is FamiliaError){
-                      return Text(
-                        state.message, style: const TextStyle(color: Colors.red),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  }
-                  ),
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              } else if (state is FamiliaError) {
+                return Text(state.message, style: const TextStyle(color: Colors.red));
+              }
+              return const SizedBox.shrink();
+            },
           ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: ()=>{
-            _mostrarFormulario(context)
-          },
-          child: const Icon(Icons.add),
-          ),
+        onPressed: () => _mostrarFormulario(context),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

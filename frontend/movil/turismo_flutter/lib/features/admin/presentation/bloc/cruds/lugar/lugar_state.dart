@@ -43,3 +43,12 @@ class LugarError extends LugarState{
   @override
   List<Object?> get props => [message];
 }
+
+class LugarSearchLoaded extends LugarState {
+  final List<LugarResponse> resultados;
+
+  const LugarSearchLoaded(this.resultados);
+
+  @override
+  List<Object?> get props => [resultados];
+}

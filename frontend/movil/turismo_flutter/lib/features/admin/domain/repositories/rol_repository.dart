@@ -7,4 +7,5 @@ abstract class RolRepository {
   Future<RolResponse> createRol(RolDto rolDto);  // Crear un nuevo rol
   Future<RolResponse> updateRol(int idRol, RolDto rolDto);  // Actualizar un rol
   Future<void> deleteRol(int idRol);  // Eliminar un rol
+  Future<List<RolResponse>> buscarRolesPorNombre(String nombre);
 }

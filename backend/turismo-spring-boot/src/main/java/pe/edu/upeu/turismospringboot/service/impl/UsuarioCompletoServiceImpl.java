@@ -143,4 +143,9 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
             throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
+
+    @Override
+    public List<Usuario> buscarUsuariosPorUsername(String username) {
+        return usuarioRepository.buscarPorUsername(username);
+    }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/categoria/buscar_categorias_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/categoria/delete_categoria_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/categoria/get_categoria_by_id_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/categoria/get_categorias_usecase.dart';
@@ -13,6 +15,7 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState>{
   final GetCategoriasUsecase getCategoriasUsecase;
   final PostCategoriaUsecase postCategoriaUsecase;
   final PutCategoriaUsecase putCategoriaUsecase;
+  final BuscarCategoriasPorNombreUsecase buscarCategoriasPorNombreUsecase;
 
   CategoriaBloc({
     required this.deleteCategoriaUseCase,
@@ -20,6 +23,7 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState>{
     required this.getCategoriasUsecase,
     required this.postCategoriaUsecase,
     required this.putCategoriaUsecase,
+    required this.buscarCategoriasPorNombreUsecase,
 }): super(CategoriaInitial()) {
     on<DeleteCategoriaEvent>((event, emit) async {
       emit(CategoriaLoading());
@@ -76,5 +80,17 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState>{
         emit(CategoriaError("Error al encontrar categoria: $e"));
       }
     });
+
+    on<BuscarCategoriasPorNombreEvent>(
+          (event, emit) async {
+        try {
+          final resultados = await buscarCategoriasPorNombreUsecase(event.nombre);
+          emit(CategoriaListLoaded(resultados));
+        } catch (e) {
+          emit(CategoriaError("Error al buscar categoria: $e"));
+        }
+      },
+      transformer: (events, mapper) => events.debounceTime(const Duration(milliseconds: 300)).switchMap(mapper),
+    );
   }
 }

@@ -26,4 +26,9 @@ abstract class RolApiClient {
 
   @DELETE("/admin/rol/{idRol}")  // Eliminar un rol
   Future<void> deleteRol(@Path("idRol") int idRol);
+
+  @GET("/admin/rol/buscar")
+  Future<List<RolResponse>> buscarRolesPorNombre(
+      @Query("nombre") String nombre,
+      );
 }

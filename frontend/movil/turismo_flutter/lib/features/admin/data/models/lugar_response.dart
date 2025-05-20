@@ -44,7 +44,9 @@ class LugarResponse {
       latitud: json['latitud'].toString(),
       longitud: json['longitud'].toString(),
       imagenUrl: json['imagenUrl'],
-      familias: (json['familias'] as List).map((e) => FamiliaResponse.fromJson(e)).toList(),
+      familias: json['familias'] != null
+          ? (json['familias'] as List).map((e) => FamiliaResponse.fromJson(e)).toList()
+          : null,
       fechaCreacionLugar: json['fechaCreacionLugar'],
       fechaModificacionLugar: json['fechaModificacionLugar'],
     );
