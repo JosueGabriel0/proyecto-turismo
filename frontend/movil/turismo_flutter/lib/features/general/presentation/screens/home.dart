@@ -10,6 +10,7 @@ import 'package:turismo_flutter/features/general/presentation/screens/home_dashb
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/emprendimientos_familia_categoria_screen.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/familias_lugares_screen.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/home_main_dashboard.dart';
+import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/reserva_screen.dart';
 import 'package:turismo_flutter/features/usuario/data/models/usuario_user_response.dart';
 import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuario_user_bloc.dart';
 import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuario_user_event.dart';
@@ -68,12 +69,20 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void _navigateTo5(int index, {int? id}){
+    setState(() {
+      _selectedIndex = index;
+      _selectedEmprendimientoId = id;
+    });
+  }
+
   List<Widget> get _screens => [
     HomeMainDashboard(onNavigate: _navigateTo),
     FamiliasLugaresScreen(onNavigate: _navigateTo2, id: _selectedLugarId, onNavigateIndex: _navigateToIndex,),
     CategoriasPorFamiliaScreen(onNavigate: _navigateTo3, idFamilia: _selectedFamiliaId, onNavigateIndex: _navigateToIndex,),
     EmprendimientosFamiliaCategoriaScreen(onNavigate: _navigateTo4, idFamiliaCategoria: _selectedFamiliaCategoriaId, onNavigateIndex: _navigateToIndex,),
-    EmprendimientoDetalleScreen(idEmprendimiento: _selectedEmprendimientoId, onNavigateIndex: _navigateToIndex)
+    EmprendimientoDetalleScreen(onNavigate: _navigateTo5, idEmprendimiento: _selectedEmprendimientoId, onNavigateIndex: _navigateToIndex),
+    ReservaScreen(idEmprendimiento: _selectedEmprendimientoId,),
   ];
 
   final List<String> _titles = [
@@ -82,6 +91,7 @@ class _HomeState extends State<Home> {
     'Categorias',
     'Emprendimientos',
     'Detalles',
+    'Reserva',
   ];
 
   UsuarioUserResponse? _usuario;

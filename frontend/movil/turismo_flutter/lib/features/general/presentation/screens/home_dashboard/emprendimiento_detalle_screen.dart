@@ -6,11 +6,13 @@ import 'package:turismo_flutter/features/general/presentation/bloc/emprendimient
 import 'package:turismo_flutter/features/general/presentation/widgets/foto_rectangulo_widget.dart';
 
 class EmprendimientoDetalleScreen extends StatefulWidget {
+  final Function(int newIndex, {int? id}) onNavigate;
   final int? idEmprendimiento;
   final Function(int newIndex) onNavigateIndex;
 
   const EmprendimientoDetalleScreen({
     Key? key,
+    required this.onNavigate,
     required this.idEmprendimiento,
     required this.onNavigateIndex,
   }) : super(key: key);
@@ -73,6 +75,28 @@ class _EmprendimientoDetalleScreenState extends State<EmprendimientoDetalleScree
                   Text("Creado: ${e.fechaCreacionEmprendimiento}"),
                   if (e.fechaModificacionEmprendimiento != null)
                     Text("Modificado: ${e.fechaModificacionEmprendimiento}"),
+
+                  const SizedBox(height: 32),
+
+                  // 👇 AQUÍ AGREGAS EL BOTÓN
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        widget.onNavigate(5, id: widget.idEmprendimiento); // acción al presionar
+                      },
+                      icon: const Icon(Icons.event_available, color: Colors.black), // ícono negro
+                      label: const Text(
+                        "REALIZAR RESERVA",
+                        style: TextStyle(color: Colors.black), // texto negro
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        backgroundColor: Color(0xFF5AC7F5),
+                        foregroundColor: Colors.black, // en caso quieras definirlo también aquí
+                        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             );

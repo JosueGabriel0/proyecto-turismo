@@ -1,6 +1,6 @@
 class UsuarioUserDto {
   String username;
-  String password;
+  String? password;
   String estadoCuenta;
   String nombreRol;
   String nombres;

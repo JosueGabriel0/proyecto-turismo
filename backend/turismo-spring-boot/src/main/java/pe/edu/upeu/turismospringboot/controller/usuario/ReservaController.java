@@ -3,10 +3,7 @@ package pe.edu.upeu.turismospringboot.controller.usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pe.edu.upeu.turismospringboot.model.dto.CrearReservaRequest;
 import pe.edu.upeu.turismospringboot.model.dto.ReservaResponseDTO;
 import pe.edu.upeu.turismospringboot.model.entity.Reserva;
@@ -27,5 +24,12 @@ public class ReservaController {
 
         ReservaResponseDTO reservaCreada = reservaService.crearReserva(request, usuarioAutenticado);
         return ResponseEntity.ok(reservaCreada);
+    }
+
+    @GetMapping("/telefono/{idEmprendimiento}")
+    public ResponseEntity<String> obtenerNumeroEmprendedorPorIdEmprendimiento(
+            @PathVariable("idEmprendimiento") Long idEmprendimiento
+    ){
+        return ResponseEntity.ok(reservaService.obtenerNumeroEmprendedorPorIdEmprendimiento(idEmprendimiento));
     }
 }

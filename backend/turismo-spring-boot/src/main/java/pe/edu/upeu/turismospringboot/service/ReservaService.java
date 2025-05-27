@@ -7,4 +7,5 @@ import pe.edu.upeu.turismospringboot.model.entity.Usuario;
 
 public interface ReservaService {
     public ReservaResponseDTO crearReserva(CrearReservaRequest request, Usuario usuarioAutenticado);
+    public String obtenerNumeroEmprendedorPorIdEmprendimiento(Long idEmprendimiento);
 }

@@ -56,4 +56,11 @@ public class ReservaServiceImpl implements ReservaService {
 
         return new ReservaResponseDTO(reservaGuardada);
     }
+
+    @Override
+    public String obtenerNumeroEmprendedorPorIdEmprendimiento(Long idEmprendimiento){
+        Emprendimiento emprendimiento = emprendimientoRepository.findById(idEmprendimiento).orElseThrow(() -> new RuntimeException("Emprendimiento con id"+idEmprendimiento+"no encontrado"));
+        String numeroDeTelefono = emprendimiento.getUsuario().getPersona().getTelefono();
+        return numeroDeTelefono;
+    }
 }

@@ -89,18 +89,21 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
 
     @Override
     public Usuario actualizarUsuarioCompleto(Long idUsuario, UsuarioCompletoDto usuarioCompleto, MultipartFile file) {
-        // Buscar el usuario existente
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Si se proporciona un archivo de imagen, se guarda y se actualiza el fotoPerfil
+        Persona persona = usuario.getPersona();
+
+        // Si se proporciona un archivo nuevo, lo guardamos y actualizamos la foto
         if (file != null && !file.isEmpty()) {
             String fileName = saveFile(file);
-            usuarioCompleto.setFotoPerfil(fileName);
+            persona.setFotoPerfil(fileName);
+        } else {
+            // Si no se envió una nueva imagen, conservamos la existente
+            usuarioCompleto.setFotoPerfil(persona.getFotoPerfil());
         }
 
-        // Actualizar la entidad Persona asociada
-        Persona persona = usuario.getPersona();
+        // Actualizar el resto de campos
         persona.setNombres(usuarioCompleto.getNombres());
         persona.setApellidos(usuarioCompleto.getApellidos());
         persona.setTipoDocumento(usuarioCompleto.getTipoDocumento());
@@ -108,36 +111,34 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
         persona.setTelefono(usuarioCompleto.getTelefono());
         persona.setDireccion(usuarioCompleto.getDireccion());
         persona.setCorreoElectronico(usuarioCompleto.getCorreoElectronico());
-        persona.setFotoPerfil(usuarioCompleto.getFotoPerfil());
         persona.setFechaNacimiento(usuarioCompleto.getFechaNacimiento());
 
-        // Guardar los cambios en Persona
         personaRepository.save(persona);
 
-        // Actualizar el rol del usuario
         Rol rolEncontrado = rolRepository.findByNombre(usuarioCompleto.getNombreRol())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
         usuario.setRol(rolEncontrado);
 
-        if(usuarioCompleto.getNombreEmprendimiento() != null) {
+        if (usuarioCompleto.getNombreEmprendimiento() != null) {
             Emprendimiento emprendimiento = emprendimientoRepository.findByNombre(usuarioCompleto.getNombreEmprendimiento())
                     .orElseThrow(() -> new RuntimeException("Emprendimiento no encontrado"));
             usuario.setEmprendimiento(emprendimiento);
         }
 
-        // Actualizar los campos del usuario
         usuario.setUsername(usuarioCompleto.getUsername());
-        usuario.setPassword(passwordEncoder.encode(usuarioCompleto.getPassword()));
+        String nuevaPassword = usuarioCompleto.getPassword();
 
-        // Actualizar el estado de la cuenta
-        try {
-            EstadoCuenta estado = EstadoCuenta.valueOf(usuarioCompleto.getEstadoCuenta());
-            usuario.setEstado(estado);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Estado de cuenta inválido: " + usuarioCompleto.getEstadoCuenta());
+        if (nuevaPassword != null && !nuevaPassword.isBlank()) {
+            // Solo actualiza si la nueva contraseña no es igual a la actual
+            if (!passwordEncoder.matches(nuevaPassword, usuario.getPassword())) {
+                usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+            }
         }
 
-        // Guardar el usuario actualizado
+
+        EstadoCuenta estado = EstadoCuenta.valueOf(usuarioCompleto.getEstadoCuenta());
+        usuario.setEstado(estado);
+
         return usuarioRepository.save(usuario);
     }
 

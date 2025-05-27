@@ -28,6 +28,7 @@ class UsuarioUserBloc extends Bloc<UsuarioUserEvent, UsuarioUserState> {
     });
 
     on<PutUsuarioUserEvent>((event, emit) async {
+      print("Evento llamado");
       emit(UsuarioUserLoading());
       try {
         await putUsuarioUserUseCase(event.id, event.usuario, event.imagen);
