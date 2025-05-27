@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upeu.turismospringboot.model.dto.LugarDto;
+import pe.edu.upeu.turismospringboot.model.entity.Familia;
 import pe.edu.upeu.turismospringboot.model.entity.Lugar;
 import pe.edu.upeu.turismospringboot.service.LugarService;
 

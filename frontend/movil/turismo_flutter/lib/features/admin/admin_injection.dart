@@ -6,6 +6,7 @@ import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/fami
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/familia_categoria_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/lugar_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/rol_api_client.dart';
+import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/servicio_turistico_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/usuario_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/categoria_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/emprendimiento_repository_impl.dart';
@@ -13,6 +14,7 @@ import 'package:turismo_flutter/features/admin/data/repositories/familia_categor
 import 'package:turismo_flutter/features/admin/data/repositories/familia_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/lugar_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/rol_repository_impl.dart';
+import 'package:turismo_flutter/features/admin/data/repositories/servicio_turistico_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/usuario_respository_impl.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/categoria_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/emprendimiento_repository.dart';
@@ -20,6 +22,7 @@ import 'package:turismo_flutter/features/admin/domain/repositories/familia_categ
 import 'package:turismo_flutter/features/admin/domain/repositories/familia_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/lugar_respository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/rol_repository.dart';
+import 'package:turismo_flutter/features/admin/domain/repositories/servicio_turistico_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/usuario_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/categoria/buscar_categorias_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/categoria/delete_categoria_usecase.dart';
@@ -56,6 +59,12 @@ import 'package:turismo_flutter/features/admin/domain/usecases/rol/delete_rol_us
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/get_rol_by_id_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/get_roles_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/update_rol_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistico/buscar_servicios_turisticos_por_nombre_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistico/create_servicio_turistico_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistico/delete_servicio_turistico_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistico/get_servicio_turistico_by_id_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistico/get_servicios_turisticos_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistico/upgrate_servicio_turistico_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/buscar_usuarios_completos_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/create_usuario_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/delete_usuario_usecase.dart';
@@ -67,6 +76,7 @@ import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendim
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/familia_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia_categoria/familia_categoria_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/servicio_turistico/servicio_turistico_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
 
 final getIt = GetIt.instance;
@@ -362,6 +372,50 @@ void injectAdminDependencies() {
       putEmprendimientoUsecase: getIt<PutEmprendimientoUsecase>(),
       deleteEmprendimientoUseCase: getIt<DeleteEmprendimientoUseCase>(),
           buscarEmprendimientosPorNombreUseCase: getIt<BuscarEmprendimientosPorNombreUseCase>(),
+    ),
+  );
+
+  // --------- SERVICIO TURISTICO ---------
+  getIt.registerLazySingleton<ServicioTuristicoApiClient>(
+        () => ServicioTuristicoApiClient(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<ServicioTuristicoRepository>(
+        () => ServicioTuristicoRepositoryImpl(getIt<ServicioTuristicoApiClient>()),
+  );
+
+  getIt.registerLazySingleton<GetServiciosTuristicosUsecase>(
+        () => GetServiciosTuristicosUsecase(getIt<ServicioTuristicoRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetServicioTuristicoByIdUsecase>(
+        () => GetServicioTuristicoByIdUsecase(getIt<ServicioTuristicoRepository>()),
+  );
+
+  getIt.registerLazySingleton<CreateServicioTuristicoUsecase>(
+        () => CreateServicioTuristicoUsecase(getIt<ServicioTuristicoRepository>()),
+  );
+
+  getIt.registerLazySingleton<UpdateServicioTuristicoUseCase>(
+        () => UpdateServicioTuristicoUseCase(getIt<ServicioTuristicoRepository>()),
+  );
+
+  getIt.registerLazySingleton<DeleteServicioTuristicoUsecase>(
+        () => DeleteServicioTuristicoUsecase(getIt<ServicioTuristicoRepository>()),
+  );
+
+  getIt.registerLazySingleton<BuscarServiciosTuristicosPorNombreUsecase>(
+        () => BuscarServiciosTuristicosPorNombreUsecase(getIt<ServicioTuristicoRepository>()),
+  );
+
+  getIt.registerFactory<ServicioTuristicoBloc>(
+        () => ServicioTuristicoBloc(
+      getServiciosTuristicosUsecase: getIt<GetServiciosTuristicosUsecase>(),
+      getServicioTuristicoByIdUsecase: getIt<GetServicioTuristicoByIdUsecase>(),
+      createServicioTuristicoUsecase: getIt<CreateServicioTuristicoUsecase>(),
+      updateServicioTuristicoUseCase: getIt<UpdateServicioTuristicoUseCase>(),
+      deleteServicioTuristicoUsecase: getIt<DeleteServicioTuristicoUsecase>(),
+      buscarServiciosTuristicosPorNombreUsecase: getIt<BuscarServiciosTuristicosPorNombreUsecase>(),
     ),
   );
 }

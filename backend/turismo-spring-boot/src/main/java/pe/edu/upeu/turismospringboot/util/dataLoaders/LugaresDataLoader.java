@@ -10,7 +10,7 @@ import pe.edu.upeu.turismospringboot.repository.LugarRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Order(4)
+@Order(2)
 @Component
 @RequiredArgsConstructor
 public class LugaresDataLoader {

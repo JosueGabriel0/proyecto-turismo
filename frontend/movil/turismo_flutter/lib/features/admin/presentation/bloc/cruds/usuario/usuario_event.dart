@@ -45,10 +45,10 @@ class DeleteUsuarioEvent extends UsuarioEvent {
 class GetMyUsuarioEvent extends UsuarioEvent {}
 
 class BuscarUsuarioPorNombreEvent extends UsuarioEvent {
-  final String nombre;
+  final String username;
 
-  const BuscarUsuarioPorNombreEvent(this.nombre);
+  const BuscarUsuarioPorNombreEvent(this.username);
 
   @override
-  List<Object?> get props => [nombre];
+  List<Object?> get props => [username];
 }

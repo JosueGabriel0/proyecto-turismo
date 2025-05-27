@@ -7,29 +7,25 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pe.edu.upeu.turismospringboot.repository.UsuarioRepository;
+import pe.edu.upeu.turismospringboot.service.auth.UsuarioDetailsService;
 
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final UsuarioRepository userRepository;
+    private final UsuarioDetailsService usuarioDetailsService;
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception
-    {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider()
-    {
-        DaoAuthenticationProvider authenticationProvider= new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailService());
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(usuarioDetailsService); // <- Aquí usamos el correcto
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }
@@ -37,12 +33,6 @@ public class ApplicationConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UserDetailsService userDetailService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(()-> new UsernameNotFoundException("User not fournd"));
     }
 
 }

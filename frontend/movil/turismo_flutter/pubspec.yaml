@@ -59,6 +59,8 @@ dependencies:
   fl_chart: ^0.64.0
   google_fonts: ^6.1.0
   flutter_animate: ^4.5.0
+  carousel_slider: ^5.0.0
+
 
 dev_dependencies:
   flutter_test:

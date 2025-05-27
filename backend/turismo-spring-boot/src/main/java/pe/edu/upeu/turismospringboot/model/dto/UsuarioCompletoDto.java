@@ -13,6 +13,7 @@ public class UsuarioCompletoDto {
     private String password;
     private String estadoCuenta;
     private String nombreRol;
+    private String nombreEmprendimiento;
     private String nombres;
     private String apellidos;
     private String tipoDocumento;

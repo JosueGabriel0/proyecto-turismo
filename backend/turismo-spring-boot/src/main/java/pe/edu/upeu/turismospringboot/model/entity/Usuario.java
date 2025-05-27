@@ -1,6 +1,7 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -50,10 +51,17 @@ public class Usuario implements UserDetails {
     private List<Noticia> noticias = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Resena> resenas = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Reserva> reservas = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id_emprendimiento", unique = true, nullable = true)
+    @JsonManagedReference
+    private Emprendimiento emprendimiento;
 
     private LocalDateTime fechaCreacionUsuario;
     private LocalDateTime fechaModificacionUsuario;

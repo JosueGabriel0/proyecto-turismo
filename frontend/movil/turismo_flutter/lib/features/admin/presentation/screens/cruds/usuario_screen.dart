@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:turismo_flutter/features/admin/data/models/usuario_completo_dto.dart';
 import 'package:turismo_flutter/features/admin/data/models/usuario_completo_response.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
@@ -26,6 +28,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
   final _passwordController = TextEditingController();
   final _estadoCuentaController = TextEditingController();
   final _nombreRolController = TextEditingController();
+  final _nombreEmprendimientoController = TextEditingController();
   final _nombresController = TextEditingController();
   final _apellidosController = TextEditingController();
   final _tipoDocumentoController = TextEditingController();
@@ -40,9 +43,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
 
   final DateFormat _formatter = DateFormat('yyyy-MM-dd');
 
-  List<String> _rolesDisponibles = [];
   String? _rolSeleccionado;
 
+  String? _emprendimientoSeleccionado;
 
   @override
   void initState() {
@@ -61,6 +64,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     _passwordController.clear();
     _estadoCuentaController.clear();
     _nombreRolController.clear();
+    _nombreEmprendimientoController.clear();
     _nombresController.clear();
     _apellidosController.clear();
     _tipoDocumentoController.clear();
@@ -71,6 +75,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     _fechaNacimientoController.clear();
     _imagen = null;
     _usuarioEditandoId = null;
+    _rolSeleccionado = null;
+    _emprendimientoSeleccionado = null;
   }
 
   void _submitForm() {
@@ -80,6 +86,9 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
         password: _passwordController.text,
         estadoCuenta: _estadoCuentaController.text,
         nombreRol: _nombreRolController.text,
+        nombreEmprendimiento: _nombreRolController.text.toLowerCase() == 'role_emprendedor'
+            ? _emprendimientoSeleccionado
+            : null,
         nombres: _nombresController.text,
         apellidos: _apellidosController.text,
         tipoDocumento: _tipoDocumentoController.text,
@@ -89,6 +98,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
         correoElectronico: _correoElectronicoController.text,
         fechaNacimiento: _fechaNacimientoController.text,
       );
+
+      print('DTO JSON a enviar: ${usuarioCompletoDtoToJson(usuarioDto)}');
 
       if (_usuarioEditandoId != null) {
         context.read<UsuarioBloc>().add(
@@ -156,166 +167,224 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
 
     return confirmacion; // 👈 Esto es lo que necesita confirmDismiss
   }
+
   void _mostrarFormulario(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(controller: _userNameController,
-                      decoration: const InputDecoration(labelText: "Username"),
-                      validator: (v) => v!.isEmpty ? "Campo requerido" : null),
-                  TextFormField(controller: _passwordController,
-                      decoration: const InputDecoration(labelText: "Password"),
-                      obscureText: true),
-                  DropdownButtonFormField<String>(
-                    value: _estadoCuentaController.text.isNotEmpty
-                        ? _estadoCuentaController.text
-                        : null,
-                    decoration: const InputDecoration(
-                        labelText: "Estado Cuenta"),
-                    items: const [
-                      DropdownMenuItem(value: 'ACTIVO', child: Text('ACTIVO')),
-                      DropdownMenuItem(
-                          value: 'INACTIVO', child: Text('INACTIVO')),
-                      DropdownMenuItem(
-                          value: 'BLOQUEADO', child: Text('BLOQUEADO')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _estadoCuentaController.text = value!;
-                      });
-                    },
-                    validator: (value) =>
-                    value == null || value.isEmpty
-                        ? 'Campo requerido'
-                        : null,
-                  ),
-                  BlocBuilder<RolBloc, RolState>(
-                    builder: (context, rolState) {
-                      if (rolState is RolLoadedState) {
-                        final roles = rolState.roles
-                            .map((r) => r.nombre)
-                            .toSet()
-                            .toList(); // elimina duplicados
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: _userNameController,
+                        decoration: const InputDecoration(labelText: "Username"),
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                      ),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: const InputDecoration(labelText: "Password"),
+                        obscureText: true,
+                      ),
+                      DropdownButtonFormField<String>(
+                        value: _estadoCuentaController.text.isNotEmpty
+                            ? _estadoCuentaController.text
+                            : null,
+                        decoration: const InputDecoration(labelText: "Estado Cuenta"),
+                        items: const [
+                          DropdownMenuItem(value: 'ACTIVO', child: Text('ACTIVO')),
+                          DropdownMenuItem(value: 'INACTIVO', child: Text('INACTIVO')),
+                          DropdownMenuItem(value: 'BLOQUEADO', child: Text('BLOQUEADO')),
+                        ],
+                        onChanged: (value) {
+                          setStateDialog(() {
+                            _estadoCuentaController.text = value!;
+                          });
+                        },
+                        validator: (value) =>
+                        value == null || value.isEmpty ? 'Campo requerido' : null,
+                      ),
+                      BlocBuilder<RolBloc, RolState>(
+                        builder: (context, rolState) {
+                          if (rolState is RolLoadedState) {
+                            final roles = rolState.roles
+                                .map((r) => r.nombre)
+                                .toSet()
+                                .toList();
 
-                        // Asegúrate de que el valor actual está en la lista de items
-                        final currentValue = roles.contains(_nombreRolController
-                            .text)
-                            ? _nombreRolController.text
-                            : null;
+                            final currentValue = roles.contains(_nombreRolController.text)
+                                ? _nombreRolController.text
+                                : null;
 
-                        return DropdownButtonFormField<String>(
-                          value: currentValue,
-                          decoration: const InputDecoration(labelText: "Rol"),
-                          items: roles.map((rol) {
-                            return DropdownMenuItem(
-                                value: rol, child: Text(rol));
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _nombreRolController.text = value!;
-                            });
+                            return DropdownButtonFormField<String>(
+                              value: _rolSeleccionado ?? currentValue,
+                              decoration: const InputDecoration(labelText: "Rol"),
+                              items: roles.map((rol) {
+                                return DropdownMenuItem(value: rol, child: Text(rol));
+                              }).toList(),
+                              onChanged: (value) {
+                                setStateDialog(() {
+                                  _rolSeleccionado = value;
+                                  _nombreRolController.text = value ?? '';
+
+                                  if (value?.toLowerCase() != 'role_emprendedor') {
+                                    _emprendimientoSeleccionado = null;
+                                    _nombreEmprendimientoController.clear();
+                                  }
+                                });
+                              },
+                              validator: (value) =>
+                              value == null || value.isEmpty ? 'Campo requerido' : null,
+                            );
+                          } else if (rolState is RolLoadingState) {
+                            return const CircularProgressIndicator();
+                          } else if (rolState is RolErrorState) {
+                            return Text("Error al cargar roles: ${rolState.message}");
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      if (_rolSeleccionado?.toLowerCase() == 'role_emprendedor')
+                        BlocBuilder<EmprendimientoBloc, EmprendimientoState>(
+                          builder: (context, emprendimientoState) {
+                            if (emprendimientoState is EmprendimientoListLoaded) {
+                              final emprendimientos = emprendimientoState.emprendimientos
+                                  .map((e) => e.nombre)
+                                  .toSet()
+                                  .toList();
+
+                              final currentValue = emprendimientos.contains(_nombreEmprendimientoController.text)
+                                  ? _nombreEmprendimientoController.text
+                                  : null;
+
+                              return DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                value: _emprendimientoSeleccionado ?? currentValue,
+                                decoration: const InputDecoration(labelText: "Emprendimiento"),
+                                items: emprendimientos.map((emprendimiento) {
+                                  return DropdownMenuItem<String>(
+                                    value: emprendimiento,
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      child: Text(emprendimiento, overflow: TextOverflow.ellipsis),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setStateDialog(() {
+                                    _emprendimientoSeleccionado = value;
+                                    _nombreEmprendimientoController.text = value ?? '';
+                                  });
+                                },
+                                validator: (value) =>
+                                value == null || value.isEmpty ? 'Campo requerido' : null,
+                              );
+                            } else if (emprendimientoState is EmprendimientoLoading) {
+                              return const CircularProgressIndicator();
+                            } else if (emprendimientoState is EmprendimientoError) {
+                              return Text("Error al cargar emprendimientos: ${emprendimientoState.message}");
+                            }
+                            return const SizedBox.shrink();
                           },
-                          validator: (value) =>
-                          value == null || value.isEmpty
-                              ? 'Campo requerido'
-                              : null,
-                        );
-                      } else if (rolState is RolLoadingState) {
-                        return const CircularProgressIndicator();
-                      } else if (rolState is RolErrorState) {
-                        return Text("Error al cargar roles: ${rolState
-                            .message}");
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  TextFormField(controller: _nombresController,
-                      decoration: const InputDecoration(labelText: "Nombres")),
-                  TextFormField(controller: _apellidosController,
-                      decoration: const InputDecoration(
-                          labelText: "Apellidos")),
-                  TextFormField(controller: _tipoDocumentoController,
-                      decoration: const InputDecoration(
-                          labelText: "Tipo Documento")),
-                  TextFormField(controller: _numeroDocumentoController,
-                      decoration: const InputDecoration(
-                          labelText: "Número Documento")),
-                  TextFormField(controller: _telefonoController,
-                      decoration: const InputDecoration(labelText: "Teléfono")),
-                  TextFormField(controller: _direccionController,
-                      decoration: const InputDecoration(
-                          labelText: "Dirección")),
-                  TextFormField(controller: _correoElectronicoController,
-                      decoration: const InputDecoration(
-                          labelText: "Correo Electrónico")),
-                  TextFormField(
-                    controller: _fechaNacimientoController,
-                    decoration: const InputDecoration(
-                      labelText: "Fecha de Nacimiento",
-                      suffixIcon: Icon(Icons.calendar_today),
-                    ),
-                    readOnly: true,
-                    onTap: () async {
-                      DateTime? fechaSeleccionada = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
-                        // locale: const Locale('es'), // Opcional
-                      );
-                      if (fechaSeleccionada != null) {
-                        setState(() {
-                          _fechaNacimientoController.text = _formatter.format(fechaSeleccionada);
-                        });
-                      }
-                    },
-                    validator: (value) =>
-                    value == null || value.isEmpty ? "Campo requerido" : null,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      ElevatedButton(onPressed: _pickImage,
-                          child: const Text("Seleccionar Imagen")),
-                      if (_imagen != null) Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: Text("Imagen seleccionada"))
+                        ),
+                      TextFormField(
+                        controller: _nombresController,
+                        decoration: const InputDecoration(labelText: "Nombres"),
+                      ),
+                      TextFormField(
+                        controller: _apellidosController,
+                        decoration: const InputDecoration(labelText: "Apellidos"),
+                      ),
+                      TextFormField(
+                        controller: _tipoDocumentoController,
+                        decoration: const InputDecoration(labelText: "Tipo Documento"),
+                      ),
+                      TextFormField(
+                        controller: _numeroDocumentoController,
+                        decoration: const InputDecoration(labelText: "Número Documento"),
+                      ),
+                      TextFormField(
+                        controller: _telefonoController,
+                        decoration: const InputDecoration(labelText: "Teléfono"),
+                      ),
+                      TextFormField(
+                        controller: _direccionController,
+                        decoration: const InputDecoration(labelText: "Dirección"),
+                      ),
+                      TextFormField(
+                        controller: _correoElectronicoController,
+                        decoration: const InputDecoration(labelText: "Correo Electrónico"),
+                      ),
+                      TextFormField(
+                        controller: _fechaNacimientoController,
+                        decoration: const InputDecoration(
+                          labelText: "Fecha de Nacimiento",
+                          suffixIcon: Icon(Icons.calendar_today),
+                        ),
+                        readOnly: true,
+                        onTap: () async {
+                          DateTime? fechaSeleccionada = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                          );
+                          if (fechaSeleccionada != null) {
+                            setStateDialog(() {
+                              _fechaNacimientoController.text =
+                                  _formatter.format(fechaSeleccionada);
+                            });
+                          }
+                        },
+                        validator: (value) =>
+                        value == null || value.isEmpty ? "Campo requerido" : null,
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: _pickImage,
+                            child: const Text("Seleccionar Imagen"),
+                          ),
+                          if (_imagen != null)
+                            const Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: Text("Imagen seleccionada"),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              _submitForm();
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(_usuarioEditandoId == null ? "Crear" : "Actualizar"),
+                          ),
+                          const SizedBox(width: 8),
+                          OutlinedButton(
+                            onPressed: () {
+                              _resetForm();
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Cancelar"),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          _submitForm();
-                          Navigator.of(context).pop();
-                        },
-                        child: Text(_usuarioEditandoId == null
-                            ? "Crear"
-                            : "Actualizar"),
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton(
-                        onPressed: () {
-                          _resetForm();
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text("Cancelar"),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -409,6 +478,21 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                                                 InfoRowWidget(label: "Fecha Nacimiento", value: usuario.persona?.fechaNacimiento ?? 'Sin fecha'),
                                                 InfoRowWidget(label: "Reseñas", value: usuario.resenas?.toString() ?? 'Sin reseñas'),
                                                 InfoRowWidget(label: "Reservas", value: usuario.reservas?.toString() ?? 'Sin reservas'),
+                                                usuario.emprendimiento != null
+                                                    ? Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(height: 12),
+                                                    Text(
+                                                      'Emprendimiento:',
+                                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                                                    ),
+                                                    InfoRowWidget(label: "Nombre:", value: usuario.emprendimiento?.nombre),
+                                                    InfoRowWidget(label: "Descripcion:", value: usuario.emprendimiento?.descripcion),
+
+                                                  ],
+                                                )
+                                                    : SizedBox.shrink(),
                                               ],
                                             ),
                                           ),

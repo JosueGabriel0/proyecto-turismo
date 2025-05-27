@@ -15,11 +15,15 @@ class FileBloc extends Bloc<FileEvent, FileState> {
       DownloadFileEvent event,
       Emitter<FileState> emit,
       ) async {
+    print('📦 FileBloc: Iniciando descarga de archivo: ${event.fileName}');
     emit(FileDownloading());
     try {
       final fileData = await _downloadFileUseCase.execute(event.fileName);
+      print('✅ FileBloc: Archivo descargado correctamente (${event.fileName}), tamaño: ${fileData.length}');
+      print('🧪 Primeros bytes del archivo: ${fileData.sublist(0, 20)}');
       emit(FileDownloaded(fileData));
     } catch (e) {
+      print('❌ FileBloc: Error al descargar archivo "${event.fileName}": $e');
       emit(FileDownloadError(e.toString()));
     }
   }

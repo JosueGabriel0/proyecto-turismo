@@ -109,7 +109,7 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
     on<BuscarUsuarioPorNombreEvent>(
           (event, emit) async {
         try {
-          final resultados = await buscarUsuariosCompletosPorNombreUsecase(event.nombre);
+          final resultados = await buscarUsuariosCompletosPorNombreUsecase(event.username);
           emit(UsuarioListLoaded(resultados));
         } catch (e) {
           emit(UsuarioError("Error al buscar usuarios: $e"));

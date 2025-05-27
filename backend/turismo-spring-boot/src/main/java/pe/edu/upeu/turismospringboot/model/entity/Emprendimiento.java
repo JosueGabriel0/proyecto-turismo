@@ -1,6 +1,7 @@
 package pe.edu.upeu.turismospringboot.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -28,12 +29,21 @@ public class Emprendimiento {
     private Double longitud;
 
     @OneToMany(mappedBy = "emprendimiento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Reserva> reservas;
 
     @ManyToOne
     @JoinColumn(name = "familia_categoria_id")
     @JsonBackReference
     private FamiliaCategoria familiaCategoria;
+
+    @OneToOne(mappedBy = "emprendimiento", cascade = CascadeType.ALL)
+    @JsonBackReference
+    private Usuario usuario;
+
+    @OneToMany(mappedBy = "emprendimiento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ServicioTuristico> servicioTuristicos;
 
     private LocalDateTime fechaCreacionEmprendimiento;
     private LocalDateTime fechaModificacionEmprendimiento;

@@ -66,7 +66,7 @@ class CustomProgressCard extends StatelessWidget {
                                 width: progressWidth > indicatorWidth ? progressWidth - indicatorWidth : 0,
                                 height: 10,
                                 decoration: BoxDecoration(
-                                  color: Colors.blue,
+                                  color: Color(0xFF0AA3EF),
                                   borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(10),
                                     bottomLeft: Radius.circular(10),
@@ -100,21 +100,26 @@ class CustomProgressCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text("$progressPercent%"),
                 const SizedBox(width: 12),
-                ElevatedButton.icon(
+                ElevatedButton(
                   onPressed: onMapPressed,
-                  icon: const Icon(
-                    Icons.map,
-                    color: Colors.white,
-                  ),
-                  label: const Text(
-                    "Mapa",
-                    style: TextStyle(color: Colors.white),
-                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Color(0xFF5AC7F5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(color: Colors.black), // Borde negro
                     ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        "Mapa",
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.map, color: Colors.black), // Icono a la derecha
+                    ],
                   ),
                 ),
               ],

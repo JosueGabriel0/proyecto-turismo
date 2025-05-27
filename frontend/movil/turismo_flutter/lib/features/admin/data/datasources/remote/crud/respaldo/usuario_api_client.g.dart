@@ -1,6 +1,6 @@
 /*// GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'usuario_api_client_user.dart';
+part of 'usuario_api_client.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -177,10 +177,10 @@ class _UsuarioApiClient implements UsuarioApiClient {
 
   @override
   Future<List<UsuarioCompletoResponse>> buscarUsuariosPorNombre(
-    String nombre,
+    String username,
   ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'nombre': nombre};
+    final queryParameters = <String, dynamic>{r'username': username};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<List<UsuarioCompletoResponse>>(

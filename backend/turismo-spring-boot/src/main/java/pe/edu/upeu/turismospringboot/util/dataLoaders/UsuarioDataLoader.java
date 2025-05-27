@@ -6,18 +6,21 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import pe.edu.upeu.turismospringboot.model.entity.Emprendimiento;
 import pe.edu.upeu.turismospringboot.model.entity.Persona;
 import pe.edu.upeu.turismospringboot.model.entity.Rol;
 import pe.edu.upeu.turismospringboot.model.entity.Usuario;
 import pe.edu.upeu.turismospringboot.model.enums.EstadoCuenta;
+import pe.edu.upeu.turismospringboot.repository.EmprendimientoRepository;
 import pe.edu.upeu.turismospringboot.repository.PersonaRepository;
 import pe.edu.upeu.turismospringboot.repository.RolRepository;
 import pe.edu.upeu.turismospringboot.repository.UsuarioRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Order(2)
+@Order(7)
 @Component
 @RequiredArgsConstructor
 public class UsuarioDataLoader implements CommandLineRunner {
@@ -26,13 +29,14 @@ public class UsuarioDataLoader implements CommandLineRunner {
     private final RolRepository rolRepository;
     private final PersonaRepository personaRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmprendimientoRepository emprendimientoRepository;
 
     @Override
     @Transactional
     public void run(String... args) {
         if (usuarioRepository.findByUsername("admin").isEmpty()) {
 
-            // Crear roles si no existen
+            // Crear roles si no existen (como antes)
             Rol rolAdmin = rolRepository.findByNombre("ROLE_ADMIN").orElseGet(() -> {
                 Rol nuevoRol = new Rol();
                 nuevoRol.setNombre("ROLE_ADMIN");
@@ -50,6 +54,8 @@ public class UsuarioDataLoader implements CommandLineRunner {
                 nuevoRol.setNombre("ROLE_EMPRENDEDOR");
                 return rolRepository.save(nuevoRol);
             });
+
+            List<Emprendimiento> emprendimientos = emprendimientoRepository.findAll();
 
             // Crear persona para admin
             Persona personaAdmin = new Persona();
@@ -97,35 +103,36 @@ public class UsuarioDataLoader implements CommandLineRunner {
             usuario.setFechaCreacionUsuario(LocalDateTime.now());
             usuarioRepository.save(usuario);
 
-            // Crear persona para emprendedor
-            Persona personaEmprendedor = new Persona();
-            personaEmprendedor.setNombres("Emprendedor");
-            personaEmprendedor.setApellidos("Principal");
-            personaEmprendedor.setTipoDocumento("DNI");
-            personaEmprendedor.setNumeroDocumento("11223344");
-            personaEmprendedor.setTelefono("1234567892");
-            personaEmprendedor.setDireccion("Calle emprendimiento");
-            personaEmprendedor.setCorreoElectronico("emprendedor@gmail.com");
-            personaEmprendedor.setFotoPerfil("persona3.jpg");
-            personaEmprendedor.setFechaNacimiento(LocalDate.of(1988, 3, 3));
-            personaRepository.save(personaEmprendedor);
+            // Crear 7 emprendedores si hay suficientes emprendimientos
+            for (int i = 0; i < Math.min(7, emprendimientos.size()); i++) {
+                Emprendimiento emp = emprendimientos.get(i);
 
-            // Crear usuario
-            Usuario usuarioEmprendedor = new Usuario();
-            usuarioEmprendedor.setUsername("emprendedor");
-            usuarioEmprendedor.setPassword(passwordEncoder.encode("Password123!emprendedor"));
-            usuarioEmprendedor.setRol(rolEmprendedor);
-            usuarioEmprendedor.setPersona(personaEmprendedor);
-            usuarioEmprendedor.setEstado(EstadoCuenta.ACTIVO);
-            usuarioEmprendedor.setFechaCreacionUsuario(LocalDateTime.now());
-            usuarioRepository.save(usuarioEmprendedor);
+                Persona personaEmp = new Persona();
+                personaEmp.setNombres("Emprendedor" + (i + 1));
+                personaEmp.setApellidos("Apellido" + (i + 1));
+                personaEmp.setTipoDocumento("DNI");
+                personaEmp.setNumeroDocumento("1000000" + i);
+                personaEmp.setTelefono("98765432" + i);
+                personaEmp.setDireccion("Dirección " + (i + 1));
+                personaEmp.setCorreoElectronico("emprendedor" + (i + 1) + "@gmail.com");
+                personaEmp.setFotoPerfil("emprendedor" + (i + 1) + ".png");
+                personaEmp.setFechaNacimiento(LocalDate.of(1988 - i, 1, 1));
+                personaRepository.save(personaEmp);
 
-            System.out.println("Usuario admin creado con éxito.");
-            System.out.println("Usuario usuario creado con éxito.");
-            System.out.println("Usuario emprendedor creado con éxito.");
+                Usuario usuarioEmp = new Usuario();
+                usuarioEmp.setUsername("emprendedor" + (i + 1));
+                usuarioEmp.setPassword(passwordEncoder.encode("Password123!emprendedor" + (i + 1)));
+                usuarioEmp.setRol(rolEmprendedor);
+                usuarioEmp.setEmprendimiento(emp);
+                usuarioEmp.setPersona(personaEmp);
+                usuarioEmp.setEstado(EstadoCuenta.ACTIVO);
+                usuarioEmp.setFechaCreacionUsuario(LocalDateTime.now());
+                usuarioRepository.save(usuarioEmp);
+            }
 
+            System.out.println("Usuarios creados: admin, usuario, emprendedor1-7");
         } else {
-            System.out.println("Usuario admin ya existe.");
+            System.out.println("El usuario admin ya existe.");
         }
     }
 }

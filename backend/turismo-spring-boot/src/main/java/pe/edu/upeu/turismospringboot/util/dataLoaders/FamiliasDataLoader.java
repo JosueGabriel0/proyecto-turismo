@@ -11,7 +11,7 @@ import pe.edu.upeu.turismospringboot.repository.LugarRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Order(5)
+@Order(3)
 @Component
 @RequiredArgsConstructor
 public class FamiliasDataLoader implements CommandLineRunner {

@@ -12,7 +12,7 @@ import pe.edu.upeu.turismospringboot.repository.FamiliaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Order(6)
+@Order(4)
 @Component
 @RequiredArgsConstructor
 public class CategoriaDataLoader implements CommandLineRunner {

@@ -11,6 +11,7 @@ class UsuarioCompletoDto {
   String password;
   String estadoCuenta;
   String nombreRol;
+  String? nombreEmprendimiento;
   String nombres;
   String apellidos;
   String tipoDocumento;
@@ -25,6 +26,7 @@ class UsuarioCompletoDto {
     required this.password,
     required this.estadoCuenta,
     required this.nombreRol,
+    required this.nombreEmprendimiento,
     required this.nombres,
     required this.apellidos,
     required this.tipoDocumento,
@@ -41,6 +43,7 @@ class UsuarioCompletoDto {
         password: json["password"],
         estadoCuenta: json["estadoCuenta"],
         nombreRol: json["nombreRol"],
+        nombreEmprendimiento: json["nombreEmprendimiento"],
         nombres: json["nombres"],
         apellidos: json["apellidos"],
         tipoDocumento: json["tipoDocumento"],
@@ -56,6 +59,7 @@ class UsuarioCompletoDto {
     "password": password,
     "estadoCuenta": estadoCuenta,
     "nombreRol": nombreRol,
+    "nombreEmprendimiento": nombreEmprendimiento,
     "nombres": nombres,
     "apellidos": apellidos,
     "tipoDocumento": tipoDocumento,
@@ -65,4 +69,23 @@ class UsuarioCompletoDto {
     "correoElectronico": correoElectronico,
     "fechaNacimiento": fechaNacimiento,
   };
+
+  @override
+  String toString() {
+    return 'UsuarioCompletoDto('
+        'username: $username, '
+        'password: $password, '
+        'estadoCuenta: $estadoCuenta, '
+        'nombreRol: $nombreRol, '
+        'nombreEmprendimiento: $nombreEmprendimiento, '
+        'nombres: $nombres, '
+        'apellidos: $apellidos, '
+        'tipoDocumento: $tipoDocumento, '
+        'numeroDocumento: $numeroDocumento, '
+        'telefono: $telefono, '
+        'direccion: $direccion, '
+        'correoElectronico: $correoElectronico, '
+        'fechaNacimiento: $fechaNacimiento'
+        ')';
+  }
 }

@@ -61,7 +61,7 @@ class UsuarioRepositoryImpl implements UsuarioRepository {
   }
 
   @override
-  Future<List<UsuarioCompletoResponse>> buscarUsuariosCompletosPorNombre(String nombre) {
-    return apiClient.buscarUsuariosPorNombre(nombre);
+  Future<List<UsuarioCompletoResponse>> buscarUsuariosCompletosPorNombre(String username) {
+    return apiClient.buscarUsuariosPorNombre(username);
   }
 }

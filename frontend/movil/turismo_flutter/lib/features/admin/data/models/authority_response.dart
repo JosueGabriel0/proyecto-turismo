@@ -4,14 +4,10 @@ class AuthorityResponse {
   AuthorityResponse({required this.authority});
 
   factory AuthorityResponse.fromJson(Map<String, dynamic> json) {
-    return AuthorityResponse(
-      authority: json['authority'],
-    );
+    return AuthorityResponse(authority: json['authority']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'authority': authority,
-    };
+    return {'authority': authority};
   }
 }

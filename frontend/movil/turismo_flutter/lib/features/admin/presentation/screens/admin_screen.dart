@@ -14,6 +14,7 @@ import 'package:turismo_flutter/features/admin/presentation/screens/cruds/famili
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/familia_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/lugar_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/rol_screen.dart';
+import 'package:turismo_flutter/features/admin/presentation/screens/cruds/servicio_turistico_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/usuario_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/pages/home2_page.dart';
@@ -41,6 +42,7 @@ class _AdminScreenState extends State<AdminScreen> {
     const CategoriaScreen(),
     const FamiliaCategoriaScreen(),
     const EmprendimientoScreen(),
+    const ServicioTuristicoScreen(),
   ];
 
   // Lista de títulos correspondientes a cada pantalla
@@ -53,6 +55,7 @@ class _AdminScreenState extends State<AdminScreen> {
     'Gestion de categorias',
     'Gestion de familia con categoria',
     'Gestion de emprendimientos',
+    'Gestion de servicios turisticos',
   ];
 
   // Guardar el usuario en una variable para la pantalla
@@ -197,6 +200,14 @@ class _AdminScreenState extends State<AdminScreen> {
             title: const Text('Emprendimientos'),
             onTap: () {
               setState(() => _selectedIndex = 7);
+              Navigator.of(context).pop();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.design_services),
+            title: const Text('Servicios turisticos'),
+            onTap: () {
+              setState(() => _selectedIndex = 8);
               Navigator.of(context).pop();
             },
           ),

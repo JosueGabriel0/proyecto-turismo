@@ -6,7 +6,7 @@ class BuscarUsuariosCompletosPorNombreUsecase {
 
   BuscarUsuariosCompletosPorNombreUsecase(this.repository);
 
-  Future<List<UsuarioCompletoResponse>> call(String nombre) {
-    return repository.buscarUsuariosCompletosPorNombre(nombre);
+  Future<List<UsuarioCompletoResponse>> call(String username) {
+    return repository.buscarUsuariosCompletosPorNombre(username);
   }
 }

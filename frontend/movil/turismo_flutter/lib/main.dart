@@ -18,10 +18,22 @@ import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia_c
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/rol/rol_event.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/servicio_turistico/servicio_turistico_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/servicio_turistico/servicio_turistico_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_event.dart';
 import 'package:turismo_flutter/features/auth/presentation/bloc/register/register_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/categoria/categoria_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/categoria/categoria_event.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/emprendimiento/emprendimiento_general_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/emprendimiento/emprendimiento_general_event.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/familia/familia_general_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/familia/familia_general_event.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/familia_categoria/familia_categoria_general_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/familia_categoria/familia_categoria_general_event.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/file/file_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/lugar/lugar_general_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/lugar/lugar_general_event.dart';
 import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuario_user_bloc.dart';
 import 'package:turismo_flutter/injection/injection.dart';
 import 'package:turismo_flutter/features/auth/presentation/bloc/login/login_bloc.dart';
@@ -76,6 +88,13 @@ void main() async{
             buscarLugaresPorNombreUsecase: getIt(),
           )..add(GetAllLugaresEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
+        BlocProvider<LugarGeneralBloc>(
+          create: (context) => LugarGeneralBloc(
+            getLugaresGeneralUseCase: getIt(),
+            buscarLugaresPorNombreGeneralUsecase: getIt(),
+            getFamiliasPorLugarGeneralUsecase: getIt()
+          )..add(GetAllLugaresGeneralEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
         BlocProvider<FamiliaBloc>(
           create: (context) => FamiliaBloc(
             getFamiliasUsecase: getIt(),
@@ -85,6 +104,13 @@ void main() async{
             deleteFamiliaUsecase: getIt(),
             buscarFamiliasPorNombreUsecase: getIt(),
           )..add(GetFamiliasEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<FamiliaGeneralBloc>(
+          create: (context) => FamiliaGeneralBloc(
+            buscarFamiliasPorNombreUsecaseGeneral: getIt(),
+            getFamiliaByIdUsecaseGeneral: getIt(),
+            getFamiliasUsecaseGeneral: getIt()
+          )..add(GetFamiliasEventGeneral()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<CategoriaBloc>(
           create: (context) => CategoriaBloc(
@@ -96,6 +122,13 @@ void main() async{
             buscarCategoriasPorNombreUsecase: getIt(),
           )..add(GetCategoriasEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
+        BlocProvider<CategoriaGeneralBloc>(
+          create: (context) => CategoriaGeneralBloc(
+            getCategoriaByIdUsecaseGeneral: getIt(),
+            buscarCategoriasPorNombreUsecaseGeneral: getIt(),
+            getCategoriasUsecaseGeneral: getIt()
+          )..add(GetCategoriasGeneralEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
         BlocProvider<FamiliaCategoriaBloc>(
           create: (context) => FamiliaCategoriaBloc(
             asociarFamiliaCategoriaUseCase: getIt(),
@@ -104,6 +137,14 @@ void main() async{
             obtenerPorIdCategoriaUsecase: getIt(),
             obtenerPorIdFamiliaUsecase: getIt(),
           )..add(ListarRelacionesEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<FamiliaCategoriaGeneralBloc>(
+          create: (context) => FamiliaCategoriaGeneralBloc(
+            listarRelacionesUsecaseGeneral: getIt(),
+            obtenerPorIdCategoriaUsecaseGeneral: getIt(),
+            obtenerPorIdFamiliaUsecaseGeneral: getIt(),
+            getEmprendimientosPorFamiliaCategoriaUsecaseGeneral: getIt(),
+          )..add(ListarRelacionesEventGeneral()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<EmprendimientoBloc>(
           create: (context) => EmprendimientoBloc(
@@ -114,6 +155,23 @@ void main() async{
             deleteEmprendimientoUseCase: getIt(),
             buscarEmprendimientosPorNombreUseCase: getIt(),
           )..add(GetEmprendimientosEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<EmprendimientoGeneralBloc>(
+          create: (context) => EmprendimientoGeneralBloc(
+            buscarEmprendimientosPorNombreUseCaseGeneral: getIt(),
+            getEmprendimientoByIdUsecaseGeneral: getIt(),
+            getEmprendimientosUsecaseGeneral: getIt()
+          )..add(GetEmprendimientosGeneralEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<ServicioTuristicoBloc>(
+          create: (context) => ServicioTuristicoBloc(
+              buscarServiciosTuristicosPorNombreUsecase: getIt(),
+              deleteServicioTuristicoUsecase: getIt(),
+              updateServicioTuristicoUseCase: getIt(),
+            createServicioTuristicoUsecase: getIt(),
+            getServiciosTuristicosUsecase: getIt(),
+            getServicioTuristicoByIdUsecase: getIt(),
+          )..add(GetAllServiciosTuristicosEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<FileBloc>(
           create: (context) => getIt<FileBloc>(),

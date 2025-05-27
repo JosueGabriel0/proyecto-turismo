@@ -5,10 +5,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upeu.turismospringboot.model.dto.UsuarioCompletoDto;
+import pe.edu.upeu.turismospringboot.model.entity.Emprendimiento;
 import pe.edu.upeu.turismospringboot.model.entity.Persona;
 import pe.edu.upeu.turismospringboot.model.entity.Rol;
 import pe.edu.upeu.turismospringboot.model.entity.Usuario;
 import pe.edu.upeu.turismospringboot.model.enums.EstadoCuenta;
+import pe.edu.upeu.turismospringboot.repository.EmprendimientoRepository;
 import pe.edu.upeu.turismospringboot.repository.PersonaRepository;
 import pe.edu.upeu.turismospringboot.repository.RolRepository;
 import pe.edu.upeu.turismospringboot.repository.UsuarioRepository;
@@ -29,6 +31,10 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
 
     @Autowired
     private RolRepository rolRepository;
+
+    @Autowired
+    private EmprendimientoRepository emprendimientoRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -72,6 +78,12 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
         usuario.setRol(rol);
         usuario.setPersona(personaCreada);
 
+        if(usuarioCompleto.getNombreEmprendimiento() != null) {
+            Emprendimiento emprendimiento = emprendimientoRepository.findByNombre(usuarioCompleto.getNombreEmprendimiento())
+                    .orElseThrow(() -> new RuntimeException("Emprendimiento no encontrado"));
+            usuario.setEmprendimiento(emprendimiento);
+        }
+
         return usuarioRepository.save(usuario);
     }
 
@@ -106,6 +118,12 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
         Rol rolEncontrado = rolRepository.findByNombre(usuarioCompleto.getNombreRol())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
         usuario.setRol(rolEncontrado);
+
+        if(usuarioCompleto.getNombreEmprendimiento() != null) {
+            Emprendimiento emprendimiento = emprendimientoRepository.findByNombre(usuarioCompleto.getNombreEmprendimiento())
+                    .orElseThrow(() -> new RuntimeException("Emprendimiento no encontrado"));
+            usuario.setEmprendimiento(emprendimiento);
+        }
 
         // Actualizar los campos del usuario
         usuario.setUsername(usuarioCompleto.getUsername());

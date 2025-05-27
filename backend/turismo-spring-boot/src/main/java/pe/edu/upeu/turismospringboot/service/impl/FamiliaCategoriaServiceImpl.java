@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.upeu.turismospringboot.model.dto.FamiliaCategoriaDto;
 import pe.edu.upeu.turismospringboot.model.dto.FamiliaCategoriaDtoPost;
-import pe.edu.upeu.turismospringboot.model.entity.Categoria;
-import pe.edu.upeu.turismospringboot.model.entity.Familia;
-import pe.edu.upeu.turismospringboot.model.entity.FamiliaCategoria;
+import pe.edu.upeu.turismospringboot.model.entity.*;
 import pe.edu.upeu.turismospringboot.repository.CategoriaRepository;
 import pe.edu.upeu.turismospringboot.repository.FamiliaCategoriaRepository;
 import pe.edu.upeu.turismospringboot.repository.FamiliaRepository;
@@ -90,5 +88,21 @@ public class FamiliaCategoriaServiceImpl implements FamiliaCategoriaService {
     @Override
     public void eliminarRelacion(Long idRelacion) {
         familiaCategoriaRepository.deleteById(idRelacion);
+    }
+
+    @Override
+    public List<Emprendimiento> getEmprendimientosPorFamiliaCategoria(Long idFamiliaCategoria, String nombre) {
+        FamiliaCategoria familiaCategoria = familiaCategoriaRepository.findById(idFamiliaCategoria)
+                .orElseThrow(() -> new RuntimeException("FamiliaCategoria no encontrada"));
+
+        List<Emprendimiento> emprendimientos = familiaCategoria.getEmprendimientos();
+
+        if (nombre != null && !nombre.isEmpty()) {
+            return emprendimientos.stream()
+                    .filter(e -> e.getNombre().toLowerCase().contains(nombre.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        return emprendimientos;
     }
 }

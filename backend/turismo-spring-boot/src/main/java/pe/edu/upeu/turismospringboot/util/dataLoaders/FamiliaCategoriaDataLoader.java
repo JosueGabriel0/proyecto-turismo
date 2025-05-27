@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Order(7)
+@Order(5)
 @Component
 @RequiredArgsConstructor
 public class FamiliaCategoriaDataLoader implements CommandLineRunner {

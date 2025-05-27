@@ -177,10 +177,10 @@ class _UsuarioApiClient implements UsuarioApiClient {
 
   @override
   Future<List<UsuarioCompletoResponse>> buscarUsuariosPorNombre(
-    String nombre,
+    String username,
   ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'nombre': nombre};
+    final queryParameters = <String, dynamic>{r'username': username};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<List<UsuarioCompletoResponse>>(

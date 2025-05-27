@@ -44,7 +44,7 @@ class FamiliaResponse {
       'nombre': nombre,
       'descripcion': descripcion,
       'imagenUrl': imagenUrl,
-      'emprendimientos': familiaCategorias?.map((e) => e?.toJson()).toList(),
+      'familiaCategorias': familiaCategorias?.map((e) => e.toJson()).toList(),
       'fechaCreacionFamilia': fechaCreacionFamilia,
       'fechaModificacionFamilia': fechaModificacionFamilia,
     };

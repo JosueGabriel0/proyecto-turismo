@@ -73,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Registro exitoso')),
                         );
-                        Navigator.pop(context); // o context.go('/home');
+                        context.go("/home"); // o context.go('/home');
                       } else if (state is RegisterFailure) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(state.error)),

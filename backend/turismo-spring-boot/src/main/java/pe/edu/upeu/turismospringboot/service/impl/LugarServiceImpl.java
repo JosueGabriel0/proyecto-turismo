@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upeu.turismospringboot.model.dto.LugarDto;
+import pe.edu.upeu.turismospringboot.model.entity.Familia;
 import pe.edu.upeu.turismospringboot.model.entity.Lugar;
 import pe.edu.upeu.turismospringboot.repository.LugarRepository;
 import pe.edu.upeu.turismospringboot.service.LugarService;
@@ -11,6 +12,7 @@ import pe.edu.upeu.turismospringboot.service.LugarService;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LugarServiceImpl implements LugarService {
@@ -88,4 +90,21 @@ public class LugarServiceImpl implements LugarService {
     public List<Lugar> buscarLugarPorNombre(String nombre) {
         return lugarRepository.buscarPorNombre(nombre);
     }
+
+    @Override
+    public List<Familia> getFamiliasPorLugar(Long idLugar, String nombre) {
+        Lugar lugar = lugarRepository.findById(idLugar)
+                .orElseThrow(() -> new RuntimeException("Lugar no encontrado"));
+
+        List<Familia> familias = lugar.getFamilias();
+
+        if (nombre != null && !nombre.isEmpty()) {
+            return familias.stream()
+                    .filter(f -> f.getNombre().toLowerCase().contains(nombre.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        return familias;
+    }
+
 }
