@@ -6,8 +6,10 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upeu.turismospringboot.model.dto.EmprendimientoDto;
 import pe.edu.upeu.turismospringboot.model.entity.Emprendimiento;
 import pe.edu.upeu.turismospringboot.model.entity.FamiliaCategoria;
+import pe.edu.upeu.turismospringboot.model.entity.Usuario;
 import pe.edu.upeu.turismospringboot.repository.EmprendimientoRepository;
 import pe.edu.upeu.turismospringboot.repository.FamiliaCategoriaRepository;
+import pe.edu.upeu.turismospringboot.repository.UsuarioRepository;
 import pe.edu.upeu.turismospringboot.service.EmprendimientoService;
 
 import java.io.File;
@@ -21,6 +23,9 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
 
     @Autowired
     private FamiliaCategoriaRepository familiaCategoriaRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Override
     public List<Emprendimiento> getEmprendimientos() {
@@ -88,5 +93,15 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     @Override
     public List<Emprendimiento> buscarPorNombre(String nombre) {
         return emprendimientoRepository.buscarPorNombre(nombre);
+    }
+
+    @Override
+    public Emprendimiento buscarPorIdUsuario(Long idUsuario){
+        Usuario usuarioEncontrado = usuarioRepository.findById(idUsuario).orElseThrow(
+                () -> new RuntimeException("Usuario con id "+ idUsuario + " no encontrado")
+        );
+
+        Emprendimiento emprendimiento = usuarioEncontrado.getEmprendimiento();
+        return emprendimiento;
     }
 }

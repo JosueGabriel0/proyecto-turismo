@@ -68,11 +68,19 @@ import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/f
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia_categoria/familia_categoria_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
+import 'package:turismo_flutter/features/usuario/data/datasources/remote/reserva_api_client.dart';
 import 'package:turismo_flutter/features/usuario/data/datasources/remote/usuario_api_client_user.dart';
+import 'package:turismo_flutter/features/usuario/data/repositories/reserva_repository_impl.dart';
 import 'package:turismo_flutter/features/usuario/data/repositories/usuario_user_repository_impl.dart';
+import 'package:turismo_flutter/features/usuario/domain/repositories/reserva_repository.dart';
 import 'package:turismo_flutter/features/usuario/domain/repositories/usuario_user_repository.dart';
+import 'package:turismo_flutter/features/usuario/domain/usecases/reserva/crear_reserva_usecase.dart';
+import 'package:turismo_flutter/features/usuario/domain/usecases/reserva/obtener_reserva_por_id_usecase.dart';
+import 'package:turismo_flutter/features/usuario/domain/usecases/reserva/obtener_reservas_por_id_usuari_usecase.dart';
+import 'package:turismo_flutter/features/usuario/domain/usecases/reserva/obtener_telefono_usecase.dart';
 import 'package:turismo_flutter/features/usuario/domain/usecases/usuario/get_usuario_by_id_user_usecase.dart';
 import 'package:turismo_flutter/features/usuario/domain/usecases/usuario/put_usuario_user_usecase.dart';
+import 'package:turismo_flutter/features/usuario/presentation/bloc/reserva/reserva_bloc.dart';
 import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuario_user_bloc.dart';
 
 final getIt = GetIt.instance;
@@ -101,6 +109,40 @@ void injectUsuarioDependencies() {
       getUsuarioByIdUserUseCase: getIt<GetUsuarioByIdUserUseCase>(),
       putUsuarioUserUseCase:  getIt<PutUsuarioUserUseCase>(),
       tokenStorageService: getIt(),
+    ),
+  );
+
+  // ---------- RESERVA ----------
+  getIt.registerLazySingleton<ReservaApiClient>(
+        () => ReservaApiClient(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<ReservaRepository>(
+        () => ReservaRepositoryImpl(getIt<ReservaApiClient>()),
+  );
+
+  getIt.registerLazySingleton<CrearReservaUseCase>(
+        () => CrearReservaUseCase(getIt<ReservaRepository>()),
+  );
+
+  getIt.registerLazySingleton<ObtenerTelefonoUseCase>(
+        () => ObtenerTelefonoUseCase(getIt<ReservaRepository>()),
+  );
+
+  getIt.registerLazySingleton<ObtenerReservasPorIdUsuariUsecase>(
+        () => ObtenerReservasPorIdUsuariUsecase(getIt<ReservaRepository>()),
+  );
+
+  getIt.registerLazySingleton<ObtenerReservaPorIdUsecase>(
+        () => ObtenerReservaPorIdUsecase(getIt<ReservaRepository>()),
+  );
+
+  getIt.registerFactory<ReservaBloc>(
+        () => ReservaBloc(
+          crearReservaUseCase: getIt<CrearReservaUseCase>(),
+          obtenerTelefonoUseCase: getIt<ObtenerTelefonoUseCase>(),
+          obtenerReservasPorIdUsuariUsecase: getIt<ObtenerReservasPorIdUsuariUsecase>(),
+          obtenerReservaPorIdUsecase: getIt<ObtenerReservaPorIdUsecase>(),
     ),
   );
 }

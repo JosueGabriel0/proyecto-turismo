@@ -29,6 +29,15 @@ public class ServicioTuristicoServiceImpl implements ServicioTuristicoService {
     }
 
     @Override
+    public List<ServicioTuristico> getServicioTuristicosPorIdEmprendimiento(Long idEmprendimiento){
+        Emprendimiento emprendimientoEncontrado = emprendimientoRepository.findById(idEmprendimiento).orElseThrow(
+                () -> new RuntimeException("No existe el emprendimiento con id"+ idEmprendimiento)
+        );
+        List<ServicioTuristico> servicioTuristicos = emprendimientoEncontrado.getServicioTuristicos();
+        return servicioTuristicos;
+    }
+
+    @Override
     public ServicioTuristico getServicioTuristicoById(Long idServicio) {
         return servicioTuristicoRepository.findById(idServicio).orElseThrow(() -> new RuntimeException("ServicioTuristico con id: "+idServicio+"no encontrado"));
     }
@@ -75,6 +84,13 @@ public class ServicioTuristicoServiceImpl implements ServicioTuristicoService {
     @Override
     public List<ServicioTuristico> buscarServicioTuristicoPorNombre(String nombre) {
         return servicioTuristicoRepository.buscarPorNombre(nombre);
+    }
+
+    @Override
+    public List<ServicioTuristico> buscarServicioTuristicoPorIdEmprendimiento(Long idEmprendimiento){
+        Emprendimiento emprendimiento = emprendimientoRepository.findById(idEmprendimiento).orElseThrow(() -> new RuntimeException("No se encontro el emprendimiento con id "+idEmprendimiento));
+        List<ServicioTuristico> servicioTuristicos = emprendimiento.getServicioTuristicos();
+        return servicioTuristicos;
     }
 
     private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/upload/";

@@ -9,9 +9,11 @@ import java.util.List;
 
 public interface ServicioTuristicoService {
     public List<ServicioTuristico> getServicioTuristicos();
+    public List<ServicioTuristico> getServicioTuristicosPorIdEmprendimiento(Long idEmprendimiento);
     public ServicioTuristico getServicioTuristicoById(Long id);
     public ServicioTuristico postServicioTuristico(ServicioTuristicoDto servicioTuristicoDto, MultipartFile multipartFile);
     public ServicioTuristico putServicioTuristico(Long idServicio, ServicioTuristicoDto servicioTuristicoDto, MultipartFile multipartFile);
     public void deleteServicioTuristico(Long idServicio);
     public List<ServicioTuristico> buscarServicioTuristicoPorNombre(String nombre);
+    public List<ServicioTuristico> buscarServicioTuristicoPorIdEmprendimiento(Long idEmprendimiento);
 }

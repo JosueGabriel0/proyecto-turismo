@@ -26,9 +26,13 @@ class _CategoriasPorFamiliaScreenState extends State<CategoriasPorFamiliaScreen>
   @override
   void initState() {
     super.initState();
-    context.read<FamiliaCategoriaGeneralBloc>().add(
-      ObtenerPorIdFamiliaEventGeneral(widget.idFamilia!),
-    );
+    if (widget.idFamilia != null) {
+      context.read<FamiliaCategoriaGeneralBloc>().add(
+        ObtenerPorIdFamiliaEventGeneral(widget.idFamilia!),
+      );
+    } else {
+      // Manejo de error, mostrar alerta o retornar
+    }
   }
 
   Future<CategoriaGeneralResponse> obtenerCategoria(int idCategoria) async {

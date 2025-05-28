@@ -1,6 +1,7 @@
 import 'package:turismo_flutter/features/admin/data/models/authority_response.dart';
 import 'package:turismo_flutter/features/admin/data/models/persona_response.dart';
 import 'package:turismo_flutter/features/admin/data/models/rol_response.dart';
+import 'package:turismo_flutter/features/usuario/data/models/reserva_user_response.dart';
 
 class UsuarioUserResponse {
   int idUsuario;
@@ -12,7 +13,7 @@ class UsuarioUserResponse {
   List<String?> bitacoraAccesoList;
   List<String?> noticias;
   List<String?> resenas;
-  List<String?> reservas;
+  List<ReservaUserResponse?> reservas;
   String? fechaCreacionUsuario;
   String? fechaModificacionUsuario;
 
@@ -38,12 +39,18 @@ class UsuarioUserResponse {
       username: json['username'],
       password: json['password'],
       estado: json['estado'],
-      rol: RolResponse.fromJson(json['rol']),
-      persona: PersonaResponse.fromJson(json['persona']),
-      bitacoraAccesoList: List<String>.from(json['bitacoraAccesoList']),
-      noticias: List<String>.from(json['noticias']),
-      resenas: List<String>.from(json['resenas']),
-      reservas: List<String>.from(json['reservas']),
+      rol: json['rol'] != null ? RolResponse.fromJson(json['rol']) : null,
+      persona: json['persona'] != null ? PersonaResponse.fromJson(json['persona']) : null,
+      bitacoraAccesoList: json['bitacoraAccesoList'] != null
+          ? List<String>.from(json['bitacoraAccesoList'])
+          : [],
+      noticias: json['noticias'] != null ? List<String>.from(json['noticias']) : [],
+      resenas: json['resenas'] != null ? List<String>.from(json['resenas']) : [],
+      reservas: json['reservas'] != null
+          ? (json['reservas'] as List<dynamic>)
+          .map((e) => ReservaUserResponse.fromJson(e))
+          .toList()
+          : [],
       fechaCreacionUsuario: json['fechaCreacionUsuario'],
       fechaModificacionUsuario: json['fechaModificacionUsuario'],
     );

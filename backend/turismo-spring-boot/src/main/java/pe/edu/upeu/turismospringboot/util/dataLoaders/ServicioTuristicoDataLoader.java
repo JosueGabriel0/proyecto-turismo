@@ -44,7 +44,7 @@ public class ServicioTuristicoDataLoader implements CommandLineRunner {
                         crearServicio(emp, "Tour en bicicleta", "Recorrido guiado por 3 pueblos históricos.", 100.0, TipoServicio.CULTURA, "servicio6.jpg");
                     }
                     case "Aventura Kayak" -> {
-                        crearServicio(emp, "Kayak en río encantado", "Excursión acuática con equipo y guía.", 90.0, TipoServicio.CULTURA, "servicio7.jpg");
+                        crearServicio(emp, "Kayak en río encantado", "Excursión acuática con equipo y guía.", 90.0, TipoServicio.KAYAK, "servicio7.jpg");
                     }
                     case "Museo Vivo Lunaria" -> {
                         crearServicio(emp, "Entrada general", "Acceso completo a exposiciones interactivas.", 30.0, TipoServicio.CULTURA, "servicio8.jpg");

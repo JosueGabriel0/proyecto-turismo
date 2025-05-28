@@ -9,9 +9,9 @@ String? getRoleFromToken(String token) {
   }
 }
 
-int? getIdUsuarioFromToken(String token) {
+int? getIdUsuarioFromToken(String? token) {
   try {
-    final decodedToken = JwtDecoder.decode(token);
+    final decodedToken = JwtDecoder.decode(token!);
     return decodedToken['idUsuario']; // Asegúrate de que este sea el nombre exacto del campo en el token
   } catch (e) {
     return null;

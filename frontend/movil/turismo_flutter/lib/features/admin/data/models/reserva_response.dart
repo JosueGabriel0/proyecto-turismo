@@ -1,16 +1,14 @@
-import 'package:turismo_flutter/features/admin/data/models/reserva_detalle_response.dart';
+import 'reserva_detalle_response.dart';
 
 class ReservaResponse {
-  int idReserva;
-  String fechaHoraReserva;
-  String fechaHoraInicio;
-  String fechaHoraFin;
-  String estado;
-  int usuarioId; // solo el ID, puedes expandir a un modelo si es necesario
-  int emprendimientoId; // igual que usuarioId
-  List<ReservaDetalleResponse>? reservaDetalles; // puede ser null
-  String? fechaCreacionReserva;
-  String? fechaModificacionReserva;
+  final int idReserva;
+  final DateTime fechaHoraReserva;
+  final DateTime fechaHoraInicio;
+  final DateTime fechaHoraFin;
+  final String estado;
+  final List<ReservaDetalleResponse> reservaDetalles;
+  final DateTime? fechaCreacionReserva;
+  final DateTime? fechaModificacionReserva;
 
   ReservaResponse({
     required this.idReserva,
@@ -18,9 +16,7 @@ class ReservaResponse {
     required this.fechaHoraInicio,
     required this.fechaHoraFin,
     required this.estado,
-    required this.usuarioId,
-    required this.emprendimientoId,
-    this.reservaDetalles,
+    required this.reservaDetalles,
     this.fechaCreacionReserva,
     this.fechaModificacionReserva,
   });
@@ -28,32 +24,32 @@ class ReservaResponse {
   factory ReservaResponse.fromJson(Map<String, dynamic> json) {
     return ReservaResponse(
       idReserva: json['idReserva'],
-      fechaHoraReserva: json['fechaHoraReserva'],
-      fechaHoraInicio: json['fechaHoraInicio'],
-      fechaHoraFin: json['fechaHoraFin'],
+      fechaHoraReserva: DateTime.parse(json['fechaHoraReserva']),
+      fechaHoraInicio: DateTime.parse(json['fechaHoraInicio']),
+      fechaHoraFin: DateTime.parse(json['fechaHoraFin']),
       estado: json['estado'],
-      usuarioId: json['usuario']['idUsuario'], // o simplemente json['usuario'] si solo te llega el ID
-      emprendimientoId: json['emprendimiento']['idEmprendimiento'],
-      reservaDetalles: json['reservaDetalles'] != null
-          ? List<ReservaDetalleResponse>.from(json['reservaDetalles'])
+      reservaDetalles: (json['reservaDetalles'] as List<dynamic>)
+          .map((e) => ReservaDetalleResponse.fromJson(e))
+          .toList(),
+      fechaCreacionReserva: json['fechaCreacionReserva'] != null
+          ? DateTime.parse(json['fechaCreacionReserva'])
           : null,
-      fechaCreacionReserva: json['fechaCreacionReserva'],
-      fechaModificacionReserva: json['fechaModificacionReserva'],
+      fechaModificacionReserva: json['fechaModificacionReserva'] != null
+          ? DateTime.parse(json['fechaModificacionReserva'])
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'idReserva': idReserva,
-      'fechaHoraReserva': fechaHoraReserva,
-      'fechaHoraInicio': fechaHoraInicio,
-      'fechaHoraFin': fechaHoraFin,
+      'fechaHoraReserva': fechaHoraReserva.toIso8601String(),
+      'fechaHoraInicio': fechaHoraInicio.toIso8601String(),
+      'fechaHoraFin': fechaHoraFin.toIso8601String(),
       'estado': estado,
-      'usuario': {'idUsuario': usuarioId},
-      'emprendimiento': {'idEmprendimiento': emprendimientoId},
-      'reservaDetalles': reservaDetalles,
-      'fechaCreacionReserva': fechaCreacionReserva,
-      'fechaModificacionReserva': fechaModificacionReserva,
+      'reservaDetalles': reservaDetalles.map((e) => e.toJson()).toList(),
+      'fechaCreacionReserva': fechaCreacionReserva?.toIso8601String(),
+      'fechaModificacionReserva': fechaModificacionReserva?.toIso8601String(),
     };
   }
 }

@@ -32,7 +32,9 @@ class EmprendimientoResponse {
       latitud: json['latitud'].toString(),
       longitud: json['longitud'].toString(),
       reservas: json['reservas'] != null
-          ? List<ReservaResponse>.from(json['reservas'])
+          ? (json['reservas'] as List<dynamic>)
+          .map((e) => ReservaResponse.fromJson(e as Map<String, dynamic>))
+          .toList()
           : null,
       fechaCreacionEmprendimiento: json['fechaCreacionEmprendimiento'],
       fechaModificacionEmprendimiento: json['fechaModificacionEmprendimiento'],

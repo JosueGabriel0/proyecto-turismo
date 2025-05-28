@@ -18,17 +18,15 @@ class ReservaDto {
       idEmprendimiento: json['idEmprendimiento'],
       fechaHoraInicio: DateTime.parse(json['fechaHoraInicio']),
       fechaHoraFin: DateTime.parse(json['fechaHoraFin']),
-      detalles: (json['detalles'] as List)
-          .map((item) => ReservaDetalleDto.fromJson(item))
-          .toList(),
+      detalles: (json['detalles'] as List?)?.map((item) => ReservaDetalleDto.fromJson(item)).toList() ?? [],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'idEmprendimiento': idEmprendimiento,
-      'fechaHoraInicio': fechaHoraInicio.toIso8601String(),
-      'fechaHoraFin': fechaHoraFin.toIso8601String(),
+      'fechaHoraInicio': fechaHoraInicio.toIso8601String().split('.').first,
+      'fechaHoraFin': fechaHoraFin.toIso8601String().split('.').first,
       'detalles': detalles.map((item) => item.toJson()).toList(),
     };
   }

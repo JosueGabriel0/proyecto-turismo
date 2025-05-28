@@ -17,7 +17,8 @@ import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuar
 import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuario_user_state.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  final Widget? child;
+  const Home({super.key, this.child});
 
   @override
   _HomeState createState() => _HomeState();
@@ -28,62 +29,72 @@ class _HomeState extends State<Home> {
   bool _isClickedSignup = false;
   bool _isLoggedIn = false;
 
-  int _selectedIndex = 0;
+  int _bottomNavIndex = 0;  // índice para el BottomNavigationBar
+  int _screenIndex = 0;     // índice para controlar las pantallas que se muestran
 
   int? _selectedLugarId;
   int? _selectedFamiliaId;
   int? _selectedFamiliaCategoriaId;
   int? _selectedEmprendimientoId;
 
-  void _navigateToIndex(int index){
+  void _navigateToIndex(int index) {
     setState(() {
-      _selectedIndex = index;
+      _bottomNavIndex = index;
+      _screenIndex = index;  // sincroniza cuando viene del bottom nav
     });
   }
 
-  void _navigateTo(int index, {int? id}) {
+  void _navigateToBottomNavIndex(int index) {
     setState(() {
-      _selectedIndex = index;
-      _selectedLugarId = id;
-    });
-  }
-  
-  void _navigateTo2(int index, {int? id}){
-    setState(() {
-      _selectedIndex = index;
-      _selectedFamiliaId = id;
+      _bottomNavIndex = index;
     });
   }
 
-  void _navigateTo3(int index, {int? id}){
+  void _navigateToScreen(int index, {int? id}) {
     setState(() {
-      _selectedIndex = index;
-      _selectedFamiliaCategoriaId = id;
+      _screenIndex = index;  // cambia pantalla sin alterar bottomNavIndex
+
+      switch (index) {
+        case 1:
+          _selectedLugarId = id;
+          break;
+        case 2:
+          _selectedFamiliaId = id;
+          break;
+        case 3:
+          _selectedFamiliaCategoriaId = id;
+          break;
+        case 4:
+        case 5:
+          _selectedEmprendimientoId = id;
+          break;
+        default:
+          _selectedLugarId = null;
+          _selectedFamiliaId = null;
+          _selectedFamiliaCategoriaId = null;
+          _selectedEmprendimientoId = null;
+      }
     });
   }
 
-  void _navigateTo4(int index, {int? id}){
-    setState(() {
-      _selectedIndex = index;
-      _selectedEmprendimientoId = id;
-    });
-  }
-
-  void _navigateTo5(int index, {int? id}){
-    setState(() {
-      _selectedIndex = index;
-      _selectedEmprendimientoId = id;
-    });
-  }
-
-  List<Widget> get _screens => [
-    HomeMainDashboard(onNavigate: _navigateTo),
-    FamiliasLugaresScreen(onNavigate: _navigateTo2, id: _selectedLugarId, onNavigateIndex: _navigateToIndex,),
-    CategoriasPorFamiliaScreen(onNavigate: _navigateTo3, idFamilia: _selectedFamiliaId, onNavigateIndex: _navigateToIndex,),
-    EmprendimientosFamiliaCategoriaScreen(onNavigate: _navigateTo4, idFamiliaCategoria: _selectedFamiliaCategoriaId, onNavigateIndex: _navigateToIndex,),
-    EmprendimientoDetalleScreen(onNavigate: _navigateTo5, idEmprendimiento: _selectedEmprendimientoId, onNavigateIndex: _navigateToIndex),
-    ReservaScreen(idEmprendimiento: _selectedEmprendimientoId,),
-  ];
+  List<Widget> get _screens =>
+      [
+        HomeMainDashboard(onNavigate: _navigateToScreen),
+        FamiliasLugaresScreen(onNavigate: _navigateToScreen,
+          id: _selectedLugarId,
+          onNavigateIndex: _navigateToIndex,),
+        CategoriasPorFamiliaScreen(onNavigate: _navigateToScreen,
+          idFamilia: _selectedFamiliaId,
+          onNavigateIndex: _navigateToIndex,),
+        EmprendimientosFamiliaCategoriaScreen(onNavigate: _navigateToScreen,
+          idFamiliaCategoria: _selectedFamiliaCategoriaId,
+          onNavigateIndex: _navigateToIndex,),
+        EmprendimientoDetalleScreen(onNavigate: _navigateToScreen,
+            idEmprendimiento: _selectedEmprendimientoId,
+            onNavigateIndex: _navigateToIndex),
+        ReservaScreen(idEmprendimiento: _selectedEmprendimientoId,
+          onNavigateIndex: _navigateToIndex, onNavigateIndexBottomNav: _navigateToBottomNavIndex),
+      ];
 
   final List<String> _titles = [
     'Home',
@@ -100,17 +111,43 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _checkIfLoggedIn();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<UsuarioUserBloc>().add(GetMyUsuarioUserEvent());
     });
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
+    final uri = GoRouterState.of(context).uri.toString();
+    int? newIndex;
+
+    switch (uri) {
+      case '/home':
+        newIndex = 0;
+        break;
+      case '/rate':
+        newIndex = 1;
+        break;
+      case '/home/reserva':
+        newIndex = 2;
+        break;
+      case '/mensajes':
+        newIndex = 3;
+        break;
+      case '/usuario':
+        newIndex = 4;
+        break;
+    }
+
+    if (newIndex != null && newIndex != _bottomNavIndex) {
+      setState(() {
+        _bottomNavIndex = newIndex!;
+      });
+    }
+  }
 
   Future<void> _checkIfLoggedIn() async {
     final tokenService = TokenStorageService();
@@ -134,6 +171,35 @@ class _HomeState extends State<Home> {
     }
   }
 
+  String _getTitle() {
+    final uri = GoRouterState.of(context).uri.toString();
+    if (uri == '/home') {
+      return _titles[_screenIndex];
+    } else if (uri == '/rate') {
+      return 'Rate';
+    } else if (uri == '/home/reserva') {
+      return 'Reservas';
+    } else if (uri == '/mensajes') {
+      return 'Mensajes';
+    } else if (uri == '/usuario') {
+      return 'Usuario';
+    }
+    return 'Turismo App';
+  }
+
+
+  Widget _buildBody() {
+    final uri = GoRouterState.of(context).uri.toString();
+
+    if (uri == '/home') {
+      // Aquí muestro según _screenIndex (que puede ir más allá del rango del BottomNav)
+      return _screens[_screenIndex];
+    }
+
+    return widget.child ?? const SizedBox();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<UsuarioUserBloc, UsuarioUserState>(
@@ -146,8 +212,10 @@ class _HomeState extends State<Home> {
       },
       child: Scaffold(
         appBar: AppBar(
-      title: Text(_titles[_selectedIndex]),
-      actions: _isLoggedIn
+          title: Text(_getTitle(), style: const TextStyle(color: Colors.white),),
+          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Color(0xFF3A506B),
+          actions: _isLoggedIn
           ? [
         IconButton(
           icon: const Icon(Icons.notifications),
@@ -220,43 +288,42 @@ class _HomeState extends State<Home> {
       ],
     ),
         drawer: _buildDrawer(),
-        body: _screens[_selectedIndex],
+        body: _buildBody(),
         // En el BottomNavigationBar
         bottomNavigationBar: BottomNavigationBar(
-          currentIndex: 0, // <-- FIJO, no depende de _selectedIndex
+          currentIndex: _bottomNavIndex,
+          selectedItemColor: Colors.black,       // Color cuando está seleccionado
+          unselectedItemColor: Colors.grey[700], // Color plomo cuando no está seleccionado
           onTap: (index) {
-            // Solo cambia la lógica del índice para mostrar pantallas
-            setState(() {
-              _selectedIndex = index;
-            });
-            // No actualices el currentIndex del BottomNavigationBar
+            _navigateToIndex(index);
+
+            switch (index) {
+              case 0:
+                context.go('/home');
+                break;
+              case 1:
+                context.go('/rate');
+                break;
+              case 2:
+                context.go('/home/reserva');
+                break;
+              case 3:
+                context.go('/mensajes');
+                break;
+              case 4:
+                context.go('/usuario');
+                break;
+            }
           },
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey,
           items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Buscar',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.star_rate),
-              label: 'Rate',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month),
-              label: 'Reserva',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.message),
-              label: 'Mensaje',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Usuario',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
+            BottomNavigationBarItem(icon: Icon(Icons.star_rate), label: 'Rate'),
+            BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Reserva'),
+            BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Mensaje'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Usuario'),
           ],
         ),
+
       ),
     );
   }
@@ -267,7 +334,7 @@ class _HomeState extends State<Home> {
       child: Column(
         children: [
           DrawerHeader(
-            decoration: const BoxDecoration(color: Color(0xFF2C6593)),
+            decoration: const BoxDecoration(color: Color(0xFF3A506B)),
             child: SizedBox(
               width: double.infinity,
               child: Column(
@@ -316,7 +383,7 @@ class _HomeState extends State<Home> {
             leading: const Icon(Icons.dashboard),
             title: const Text('Dashboard'),
             onTap: () {
-              setState(() => _selectedIndex = 0);
+              setState(() => _screenIndex = 0);
               Navigator.of(context).pop();
             },
           ),

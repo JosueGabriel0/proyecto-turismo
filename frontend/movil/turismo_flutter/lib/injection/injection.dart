@@ -5,6 +5,7 @@ import 'package:turismo_flutter/core/network/auth_interceptor.dart';
 import 'package:turismo_flutter/core/services/token_storage_service.dart';
 import 'package:turismo_flutter/features/admin/admin_injection.dart';
 import 'package:turismo_flutter/features/auth/auth_injection.dart';
+import 'package:turismo_flutter/features/emprendedor/emprendedor_injection.dart';
 import 'package:turismo_flutter/features/general/general_injection.dart';
 import 'package:turismo_flutter/features/usuario/usuario_injection.dart';
 
@@ -33,4 +34,5 @@ void setupLocator() {
   injectAdminDependencies();
   injectGeneralDependencies();
   injectUsuarioDependencies();
+  injectEmprendedorDependencies();
 }

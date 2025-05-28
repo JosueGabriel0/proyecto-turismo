@@ -23,6 +23,9 @@ import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/servicio_
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_event.dart';
 import 'package:turismo_flutter/features/auth/presentation/bloc/register/register_bloc.dart';
+import 'package:turismo_flutter/features/emprendedor/presentation/bloc/emprendimiento/emprendimiento_emprendedor_bloc.dart';
+import 'package:turismo_flutter/features/emprendedor/presentation/bloc/servicio_turistico/servicio_turistico_emprendedor_bloc.dart';
+import 'package:turismo_flutter/features/emprendedor/presentation/bloc/usuario/usuario_emprendedor_bloc.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/categoria/categoria_bloc.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/categoria/categoria_event.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/emprendimiento/emprendimiento_general_bloc.dart';
@@ -34,6 +37,9 @@ import 'package:turismo_flutter/features/general/presentation/bloc/familia_categ
 import 'package:turismo_flutter/features/general/presentation/bloc/file/file_bloc.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/lugar/lugar_general_bloc.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/lugar/lugar_general_event.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/servicio_turistico/servicio_turistico_general_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/servicio_turistico/servicio_turistico_general_event.dart';
+import 'package:turismo_flutter/features/usuario/presentation/bloc/reserva/reserva_bloc.dart';
 import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuario_user_bloc.dart';
 import 'package:turismo_flutter/injection/injection.dart';
 import 'package:turismo_flutter/features/auth/presentation/bloc/login/login_bloc.dart';
@@ -163,6 +169,12 @@ void main() async{
             getEmprendimientosUsecaseGeneral: getIt()
           )..add(GetEmprendimientosGeneralEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
+        BlocProvider<EmprendimientoEmprendedorBloc>(
+          create: (context) => EmprendimientoEmprendedorBloc(
+            getUseCase: getIt(),
+            updateUseCase: getIt()
+          ), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
         BlocProvider<ServicioTuristicoBloc>(
           create: (context) => ServicioTuristicoBloc(
               buscarServiciosTuristicosPorNombreUsecase: getIt(),
@@ -172,6 +184,36 @@ void main() async{
             getServiciosTuristicosUsecase: getIt(),
             getServicioTuristicoByIdUsecase: getIt(),
           )..add(GetAllServiciosTuristicosEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<ServicioTuristicoEmprendedorBloc>(
+          create: (context) => ServicioTuristicoEmprendedorBloc(
+            obtenerPorId: getIt(),
+            obtenerPorEmprendimiento: getIt(),
+            eliminar: getIt(),
+            crear: getIt(),
+            buscarPorNombre: getIt(),
+            actualizar: getIt(),
+          ),
+        ),
+        BlocProvider<ReservaBloc>(
+          create: (context) => ReservaBloc(
+            obtenerTelefonoUseCase: getIt(),
+            crearReservaUseCase: getIt(),
+            obtenerReservasPorIdUsuariUsecase: getIt(),
+            obtenerReservaPorIdUsecase: getIt(),
+          ), // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<ServicioTuristicoGeneralBloc>(
+          create: (context) => ServicioTuristicoGeneralBloc(
+              getServiciosUseCase: getIt(),
+          ) // Esto garantiza que el RolBloc se inicialice correctamente
+        ),
+        BlocProvider<UsuarioEmprendedorBloc>(
+            create: (context) => UsuarioEmprendedorBloc(
+              getUsuarioByIdEmprendedorUsecase: getIt(),
+              putUsuarioEmprendedorUsecase: getIt(),
+              tokenStorageService: getIt()
+            ) // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<FileBloc>(
           create: (context) => getIt<FileBloc>(),

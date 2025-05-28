@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:turismo_flutter/features/admin/data/models/reserva_response.dart';
+import 'package:turismo_flutter/features/usuario/data/models/reserva_response.dart';
+import 'package:turismo_flutter/features/usuario/data/models/reserva_user_response.dart';
 
 abstract class ReservaState extends Equatable {
   const ReservaState();
@@ -11,6 +12,23 @@ abstract class ReservaState extends Equatable {
 class ReservaInitial extends ReservaState {}
 
 class ReservaLoading extends ReservaState {}
+
+class ReservaLoaded extends ReservaState {
+  final ReservaUserResponse reserva;
+  const ReservaLoaded(this.reserva);
+
+  @override
+  List<Object?> get props => [reserva];
+}
+
+class ReservaListLoaded extends ReservaState {
+  final List<ReservaUserResponse> reservas;
+
+  const ReservaListLoaded(this.reservas);
+
+  @override
+  List<Object?> get props => [reservas];
+}
 
 class ReservaCreada extends ReservaState {
   final ReservaResponse reserva;

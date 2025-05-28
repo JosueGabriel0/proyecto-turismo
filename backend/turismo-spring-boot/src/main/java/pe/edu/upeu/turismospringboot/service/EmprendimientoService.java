@@ -13,4 +13,5 @@ public interface EmprendimientoService {
     public Emprendimiento putEmprendimiento(Long idEmprendimiento, EmprendimientoDto emprendimientoDto, MultipartFile file);
     public void deleteEmprendimiento(Long idEmprendimiento);
     public List<Emprendimiento> buscarPorNombre(String nombre);
+    public Emprendimiento buscarPorIdUsuario(Long idUsuario);
 }

@@ -30,6 +30,7 @@ public class Reserva {
     @Column(nullable = false)
     private EstadoReserva estado;  // Estado de la reserva (pendiente, confirmada, cancelada, etc.)
 
+    private Double totalGeneral;
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     @JsonBackReference

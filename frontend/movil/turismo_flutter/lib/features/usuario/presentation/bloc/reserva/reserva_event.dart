@@ -25,3 +25,21 @@ class ObtenerTelefonoEvent extends ReservaEvent {
   @override
   List<Object?> get props => [idEmprendimiento];
 }
+
+class ObtenerReservasPorIdUsuarioEvent extends ReservaEvent {
+  final int id;
+
+  const ObtenerReservasPorIdUsuarioEvent(this.id);
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class ObtenerReservaPorIdEvent extends ReservaEvent {
+  final int idReserva;
+
+  const ObtenerReservaPorIdEvent(this.idReserva);
+
+  @override
+  List<Object?> get props => [idReserva];
+}

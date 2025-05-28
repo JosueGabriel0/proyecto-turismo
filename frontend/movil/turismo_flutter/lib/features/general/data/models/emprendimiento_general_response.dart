@@ -1,4 +1,3 @@
-import 'package:turismo_flutter/features/admin/data/models/reserva_response.dart';
 import 'package:turismo_flutter/features/general/data/models/reserva_general_response.dart';
 
 class EmprendimientoGeneralResponse {
@@ -33,8 +32,10 @@ class EmprendimientoGeneralResponse {
       latitud: json['latitud'].toString(),
       longitud: json['longitud'].toString(),
       reservas: json['reservas'] != null
-          ? List<ReservaGeneralResponse>.from(json['reservas'])
-          : null,
+          ? (json['reservas'] as List)
+          .map((e) => ReservaGeneralResponse.fromJson(e))
+          .toList()
+          : [],
       fechaCreacionEmprendimiento: json['fechaCreacionEmprendimiento'],
       fechaModificacionEmprendimiento: json['fechaModificacionEmprendimiento'],
     );

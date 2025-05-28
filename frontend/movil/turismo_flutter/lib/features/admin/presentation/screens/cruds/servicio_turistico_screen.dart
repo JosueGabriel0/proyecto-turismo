@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart' as imagePicker;
 import 'package:turismo_flutter/features/admin/data/models/servicio_turistico_dto.dart';
 import 'package:turismo_flutter/features/admin/data/models/servicio_turistico_response.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/servicio_turistico/servicio_turistico_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/servicio_turistico/servicio_turistico_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/servicio_turistico/servicio_turistico_state.dart';
@@ -30,6 +32,18 @@ class _ServicioTuristicoScreenState extends State<ServicioTuristicoScreen> {
   File? _imagenFile;
 
   final _searchController = TextEditingController();
+
+  final List<String> tiposServicios = [
+    "HOTELERIA",
+    "GASTRONOMIA",
+    "ARTESANIA",
+    "CYCLING",
+    "KAYAK",
+    "CULTURA",
+    "PAQUETE_TURISTICO",
+  ];
+
+  String? _tipoServicioSeleccionado; // Variable para guardar la selección
 
   @override
   void initState() {
@@ -135,14 +149,71 @@ class _ServicioTuristicoScreenState extends State<ServicioTuristicoScreen> {
                   keyboardType: TextInputType.number,
                   validator: (v) => v!.isEmpty ? "Campo requerido" : null,
                 ),
-                TextFormField(
-                  controller: _tipoServicioController,
+                DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: "Tipo de Servicio"),
-                  validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                  value: _tipoServicioSeleccionado,
+                  items: tiposServicios.map((tipo) {
+                    return DropdownMenuItem<String>(
+                      value: tipo,
+                      child: Text(tipo),
+                    );
+                  }).toList(),
+                  onChanged: (valor) {
+                    setState(() {
+                      _tipoServicioSeleccionado = valor;
+                      _tipoServicioController.text = valor ?? '';
+                    });
+                  },
+                  validator: (v) => v == null || v.isEmpty ? "Campo requerido" : null,
                 ),
-                TextFormField(
-                  controller: _nombreEmprendimientoController,
-                  decoration: const InputDecoration(labelText: "Nombre Emprendimiento"),
+                BlocBuilder<EmprendimientoBloc, EmprendimientoState>(
+                  builder: (context, emprendimientoState) {
+                    if (emprendimientoState is EmprendimientoListLoaded) {
+                      final emprendimientos = emprendimientoState.emprendimientos
+                          .map((e) => e.nombre)
+                          .toSet()
+                          .toList(); // elimina duplicados
+
+                      // Asegúrate de que el valor actual está en la lista de items
+                      final currentValue = emprendimientos.contains(_nombreEmprendimientoController.text)
+                          ? _nombreEmprendimientoController.text
+                          : null;
+
+                      return SizedBox(
+                        width: 400, // Ancho fijo que puedes ajustar
+                        child: DropdownButtonFormField<String>(
+                          value: currentValue,
+                          decoration: const InputDecoration(labelText: "Emprendimiento"),
+                          items: emprendimientos.map((emprendimiento) {
+                            return DropdownMenuItem(
+                              value: emprendimiento,
+                              child: SizedBox(
+                                width: 259, // Cambia esto al ancho que necesites
+                                child: Text(
+                                  emprendimiento,
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: false,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _nombreEmprendimientoController.text = value!;
+                            });
+                          },
+                          validator: (value) =>
+                          value == null || value.isEmpty ? 'Campo requerido' : null,
+                        ),
+                      );
+                    } else if (emprendimientoState is EmprendimientoLoading) {
+                      return const CircularProgressIndicator();
+                    } else if (emprendimientoState is EmprendimientoError) {
+                      return Text("Error al cargar emprendimeintos: ${emprendimientoState
+                          .message}");
+                    }
+                    return const SizedBox.shrink();
+                  },
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
@@ -246,7 +317,7 @@ class _ServicioTuristicoScreenState extends State<ServicioTuristicoScreen> {
                                               children: [
                                                 if (servicio.imagenUrl != null)
                                                   Center(
-                                                    child: Image.network(servicio.imagenUrl, width: 80, height: 80),
+                                                    child: FotoWidget(fileName: servicio.imagenUrl, size: 80,),
                                                   ),
                                                 const SizedBox(height: 16),
                                                 Text("ID: ${servicio.idServicio}"),

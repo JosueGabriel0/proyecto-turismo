@@ -10,5 +10,6 @@ public class CrearReservaRequest {
     private Long idEmprendimiento;
     private LocalDateTime fechaHoraInicio;
     private LocalDateTime fechaHoraFin;
+    private Double totalGeneral;
     private List<CrearReservaDetalleRequest> detalles;
 }

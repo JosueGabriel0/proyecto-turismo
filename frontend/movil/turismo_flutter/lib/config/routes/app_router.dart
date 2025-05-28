@@ -7,6 +7,7 @@ import 'package:turismo_flutter/features/emprendedor/presentation/screens/empren
 import 'package:turismo_flutter/features/general/presentation/screens/bienvenida1.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/bienvenida2.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home.dart';
+import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/reservas_screen.dart';
 import 'package:turismo_flutter/features/usuario/presentation/screens/usuario_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -19,10 +20,6 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/bienvenida2',
       builder: (context, state) => const Bienvenida2(),
-    ),
-    GoRoute(
-      path: '/home',
-      builder: (context, state) => const Home(),
     ),
     GoRoute(
       path: '/login',
@@ -43,6 +40,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/emprendedor',
       builder: (context, state) => const EmprendedorScreen(),
+    ),
+    GoRoute(
+      path: '/home',
+      builder: (context, state) => const Home(), // solo carga el Home vacío
+    ),
+    GoRoute(
+      path: '/home/reserva',
+      builder: (context, state) => const Home(child: ReservasScreen(),),
     ),
   ],
 );

@@ -1,14 +1,22 @@
 class ReservaDetalleResponse {
-  int idReservaDetalle;
-  String descripcion;
-  double precio;
-  String? fechaCreacionReservaDetalle;
-  String? fechaModificacionReservaDetalle;
+  final int idReservaDetalle;
+  final String descripcion;
+  final int? cantidad;
+  final double? precioUnitario;
+  final double? total;
+  final String? tipoServicio;
+  final String? observaciones;
+  final DateTime? fechaCreacionReservaDetalle;
+  final DateTime? fechaModificacionReservaDetalle;
 
   ReservaDetalleResponse({
     required this.idReservaDetalle,
     required this.descripcion,
-    required this.precio,
+    this.cantidad,
+    this.precioUnitario,
+    this.total,
+    this.tipoServicio,
+    this.observaciones,
     this.fechaCreacionReservaDetalle,
     this.fechaModificacionReservaDetalle,
   });
@@ -17,9 +25,17 @@ class ReservaDetalleResponse {
     return ReservaDetalleResponse(
       idReservaDetalle: json['idReservaDetalle'],
       descripcion: json['descripcion'],
-      precio: json['precio'].toDouble(),
-      fechaCreacionReservaDetalle: json['fechaCreacionReservaDetalle'],
-      fechaModificacionReservaDetalle: json['fechaModificacionReservaDetalle'],
+      cantidad: json['cantidad'],
+      precioUnitario: (json['precioUnitario'] as num?)?.toDouble(),
+      total: (json['total'] as num?)?.toDouble(),
+      tipoServicio: json['tipoServicio'],
+      observaciones: json['observaciones'],
+      fechaCreacionReservaDetalle: json['fechaCreacionReservaDetalle'] != null
+          ? DateTime.parse(json['fechaCreacionReservaDetalle'])
+          : null,
+      fechaModificacionReservaDetalle: json['fechaModificacionReservaDetalle'] != null
+          ? DateTime.parse(json['fechaModificacionReservaDetalle'])
+          : null,
     );
   }
 
@@ -27,9 +43,13 @@ class ReservaDetalleResponse {
     return {
       'idReservaDetalle': idReservaDetalle,
       'descripcion': descripcion,
-      'precio': precio,
-      'fechaCreacionReservaDetalle': fechaCreacionReservaDetalle,
-      'fechaModificacionReservaDetalle': fechaModificacionReservaDetalle,
+      'cantidad': cantidad,
+      'precioUnitario': precioUnitario,
+      'total': total,
+      'tipoServicio': tipoServicio,
+      'observaciones': observaciones,
+      'fechaCreacionReservaDetalle': fechaCreacionReservaDetalle?.toIso8601String(),
+      'fechaModificacionReservaDetalle': fechaModificacionReservaDetalle?.toIso8601String(),
     };
   }
 }
