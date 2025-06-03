@@ -4,7 +4,7 @@ class ServicioTuristicoResponseGeneral {
   final String descripcion;
   final double precioUnitario;
   final String tipoServicio; // Puedes usar un enum si lo prefieres
-  final String imagenUrl;
+  final String? imagenUrl;
   final DateTime fechaCreacion;
   final DateTime? fechaModificacion;
 

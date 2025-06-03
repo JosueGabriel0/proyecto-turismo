@@ -16,6 +16,8 @@ class _RolScreenState extends State<RolScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchTerm = '';
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -93,13 +95,18 @@ class _RolScreenState extends State<RolScreen> {
                           onDismissed: (direction) {
                             context.read<RolBloc>().add(DeleteRolEvent(idRol: role.idRol));
                           },
-                          child: ListTile(
-                            title: Text(role.nombre),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                _showUpdateDialog(context, role);
-                              },
+                          child: Card(
+                            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            child: ListTile(
+                              title: Text(role.nombre),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.green,),
+                                onPressed: () {
+                                  _showUpdateDialog(context, role);
+                                },
+                              ),
                             ),
                           ),
                         );
@@ -127,10 +134,14 @@ class _RolScreenState extends State<RolScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Crear Rol'),
-          content: TextField(
-            controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Nombre del rol'),
+          title: const Text('Crear Rol', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+          content: Form(
+            key: _formKey, // Define un _formKey en tu State
+            child: TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Nombre del rol'),
+              validator: (v) => v == null || v.isEmpty ? "Campo requerido" : null,
+            ),
           ),
           actions: [
             TextButton(
@@ -140,8 +151,18 @@ class _RolScreenState extends State<RolScreen> {
             TextButton(
               onPressed: () {
                 final rolDto = RolDto(nombre: _nameController.text);
-                context.read<RolBloc>().add(CreateRolEvent(rolDto: rolDto));
-                Navigator.of(context).pop();
+                if (_formKey.currentState!.validate()) {
+                  context.read<RolBloc>().add(CreateRolEvent(rolDto: rolDto));
+                  Navigator.of(context).pop();
+                }else{
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Por favor, completa todos los campos requeridos.'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                }
               },
               child: const Text('Crear'),
             ),

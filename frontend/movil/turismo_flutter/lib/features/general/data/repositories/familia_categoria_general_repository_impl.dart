@@ -23,8 +23,10 @@ class FamiliaCategoriaGeneralRepositoryImpl implements FamiliaCategoriaGeneralRe
   }
 
   @override
-  Future<List<FamiliaCategoriaGeneralDtoResponse>> obtenerFamiliaCategoriaPorIdFamiliaGeneral(int idFamilia) {
-    return familiaCategoriaApiClient.obtenerFamiliaCategoriaPorIdFamilia(idFamilia);
+  Future<List<FamiliaCategoriaGeneralDtoResponse>> obtenerFamiliaCategoriaPorIdFamiliaGeneral(int idFamilia) async {
+    final result = await familiaCategoriaApiClient.obtenerFamiliaCategoriaPorIdFamilia(idFamilia);
+    print("Repository - datos recibidos para familia $idFamilia: ${result.map((e) => e.idCategoria).toList()}");
+    return result;
   }
 
   @override

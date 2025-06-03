@@ -7,7 +7,9 @@ class ObtenerPorIdFamiliaUsecaseGeneral {
   final FamiliaCategoriaGeneralRepository familiaCategoriaGeneralRepository;
   ObtenerPorIdFamiliaUsecaseGeneral(this.familiaCategoriaGeneralRepository);
 
-  Future<List<FamiliaCategoriaGeneralDtoResponse>> call(int idFamilia) async{
-    return await familiaCategoriaGeneralRepository.obtenerFamiliaCategoriaPorIdFamiliaGeneral(idFamilia);
+  Future<List<FamiliaCategoriaGeneralDtoResponse>> call(int idFamilia) async {
+    final result = await familiaCategoriaGeneralRepository.obtenerFamiliaCategoriaPorIdFamiliaGeneral(idFamilia);
+    print("Usecase - datos obtenidos para familia $idFamilia: ${result.map((e) => e.idCategoria).toList()}");
+    return result;
   }
 }

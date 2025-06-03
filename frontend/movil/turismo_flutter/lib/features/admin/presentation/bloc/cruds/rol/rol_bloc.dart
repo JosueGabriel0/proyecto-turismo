@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:turismo_flutter/features/admin/data/models/rol_dto.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/create_rol_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/delete_rol_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/get_rol_by_id_usecase.dart';

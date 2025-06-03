@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart' as imagePicker;
+import 'package:image_picker/image_picker.dart';
 import 'package:turismo_flutter/features/admin/data/models/servicio_turistico_dto.dart';
 import 'package:turismo_flutter/features/admin/data/models/servicio_turistico_response.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_bloc.dart';
@@ -51,13 +52,12 @@ class _ServicioTuristicoScreenState extends State<ServicioTuristicoScreen> {
     context.read<ServicioTuristicoBloc>().add(GetAllServiciosTuristicosEvent());
   }
 
-  Future<void> _pickImage() async {
-    final picker = imagePicker.ImagePicker();
-    final pickedImage = await picker.pickImage(source: imagePicker.ImageSource.gallery);
-    if (pickedImage != null) {
-      setState(() {
-        _imagenFile = File(pickedImage.path);
-      });
+  Future<void> _pickImage(Function() setStateCallback) async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      _imagenFile = File(image.path);
+      setStateCallback(); // Esto actualiza el diálogo
     }
   }
 
@@ -110,6 +110,15 @@ class _ServicioTuristicoScreenState extends State<ServicioTuristicoScreen> {
 
       _resetForm();
       Navigator.of(context).pop();
+    } else {
+      // Mostrar Snackbar si el formulario NO es válido
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Por favor, completa todos los campos requeridos.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -126,128 +135,173 @@ class _ServicioTuristicoScreenState extends State<ServicioTuristicoScreen> {
   void _mostrarFormulario(BuildContext context) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        content: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nombreController,
-                  decoration: const InputDecoration(labelText: "Nombre"),
-                  validator: (v) => v!.isEmpty ? "Campo requerido" : null,
-                ),
-                TextFormField(
-                  controller: _descripcionController,
-                  decoration: const InputDecoration(labelText: "Descripción"),
-                  validator: (v) => v!.isEmpty ? "Campo requerido" : null,
-                ),
-                TextFormField(
-                  controller: _precioController,
-                  decoration: const InputDecoration(labelText: "Precio Unitario"),
-                  keyboardType: TextInputType.number,
-                  validator: (v) => v!.isEmpty ? "Campo requerido" : null,
-                ),
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: "Tipo de Servicio"),
-                  value: _tipoServicioSeleccionado,
-                  items: tiposServicios.map((tipo) {
-                    return DropdownMenuItem<String>(
-                      value: tipo,
-                      child: Text(tipo),
-                    );
-                  }).toList(),
-                  onChanged: (valor) {
-                    setState(() {
-                      _tipoServicioSeleccionado = valor;
-                      _tipoServicioController.text = valor ?? '';
-                    });
-                  },
-                  validator: (v) => v == null || v.isEmpty ? "Campo requerido" : null,
-                ),
-                BlocBuilder<EmprendimientoBloc, EmprendimientoState>(
-                  builder: (context, emprendimientoState) {
-                    if (emprendimientoState is EmprendimientoListLoaded) {
-                      final emprendimientos = emprendimientoState.emprendimientos
-                          .map((e) => e.nombre)
-                          .toSet()
-                          .toList(); // elimina duplicados
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(_servicioEditandoId != null ? "Editar Servicio" : "Crear Servicio", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25), textAlign: TextAlign.center,),
+                      SizedBox(height: 10,),
+                      TextFormField(
+                        controller: _nombreController,
+                        decoration: const InputDecoration(labelText: "Nombre"),
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                      ),
+                      TextFormField(
+                        controller: _descripcionController,
+                        decoration: const InputDecoration(labelText: "Descripción"),
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                      ),
+                      TextFormField(
+                        controller: _precioController,
+                        decoration: const InputDecoration(labelText: "Precio Unitario"),
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            // Reemplaza la coma por punto mientras el usuario escribe
+                            final newText = newValue.text.replaceAll(',', '.');
+                            return TextEditingValue(
+                              text: newText,
+                              selection: TextSelection.collapsed(offset: newText.length),
+                            );
+                          }),
+                        ],
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return "Campo requerido";
+                          final number = double.tryParse(v.replaceAll(',', '.'));
+                          if (number == null) return "Ingrese un número válido";
+                          return null;
+                        },
+                      ),
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(labelText: "Tipo de Servicio"),
+                        value: _tipoServicioSeleccionado,
+                        items: tiposServicios.map((tipo) {
+                          return DropdownMenuItem<String>(
+                            value: tipo,
+                            child: Text(tipo),
+                          );
+                        }).toList(),
+                        onChanged: (valor) {
+                          setStateDialog(() {
+                            _tipoServicioSeleccionado = valor;
+                            _tipoServicioController.text = valor ?? '';
+                          });
+                        },
+                        validator: (v) => v == null || v.isEmpty ? "Campo requerido" : null,
+                      ),
+                      BlocBuilder<EmprendimientoBloc, EmprendimientoState>(
+                        builder: (context, emprendimientoState) {
+                          if (emprendimientoState is EmprendimientoListLoaded) {
+                            final emprendimientos = emprendimientoState.emprendimientos
+                                .map((e) => e.nombre)
+                                .toSet()
+                                .toList();
 
-                      // Asegúrate de que el valor actual está en la lista de items
-                      final currentValue = emprendimientos.contains(_nombreEmprendimientoController.text)
-                          ? _nombreEmprendimientoController.text
-                          : null;
+                            final currentValue = emprendimientos.contains(_nombreEmprendimientoController.text)
+                                ? _nombreEmprendimientoController.text
+                                : null;
 
-                      return SizedBox(
-                        width: 400, // Ancho fijo que puedes ajustar
-                        child: DropdownButtonFormField<String>(
-                          value: currentValue,
-                          decoration: const InputDecoration(labelText: "Emprendimiento"),
-                          items: emprendimientos.map((emprendimiento) {
-                            return DropdownMenuItem(
-                              value: emprendimiento,
-                              child: SizedBox(
-                                width: 259, // Cambia esto al ancho que necesites
-                                child: Text(
-                                  emprendimiento,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: false,
-                                ),
+                            return SizedBox(
+                              width: 400,
+                              child: DropdownButtonFormField<String>(
+                                value: currentValue,
+                                decoration: const InputDecoration(labelText: "Emprendimiento"),
+                                items: emprendimientos.map((emprendimiento) {
+                                  return DropdownMenuItem(
+                                    value: emprendimiento,
+                                    child: SizedBox(
+                                      width: 259,
+                                      child: Text(
+                                        emprendimiento,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setStateDialog(() {
+                                    _nombreEmprendimientoController.text = value!;
+                                  });
+                                },
+                                validator: (value) =>
+                                value == null || value.isEmpty ? 'Campo requerido' : null,
                               ),
                             );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _nombreEmprendimientoController.text = value!;
-                            });
-                          },
-                          validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo requerido' : null,
-                        ),
-                      );
-                    } else if (emprendimientoState is EmprendimientoLoading) {
-                      return const CircularProgressIndicator();
-                    } else if (emprendimientoState is EmprendimientoError) {
-                      return Text("Error al cargar emprendimeintos: ${emprendimientoState
-                          .message}");
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: _pickImage,
-                  child: const Text("Seleccionar Imagen"),
-                ),
-                if (_imagenFile != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text("Imagen seleccionada"),
+                          } else if (emprendimientoState is EmprendimientoLoading) {
+                            return const CircularProgressIndicator();
+                          } else if (emprendimientoState is EmprendimientoError) {
+                            return Text("Error al cargar emprendimientos: ${emprendimientoState.message}");
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              await _pickImage(() => setStateDialog(() {}));
+                            },
+                            child: const Text("Seleccionar Imagen"),
+                          ),
+                          const SizedBox(height: 10),
+                          if (_imagenFile == null)
+                            const Text("Ninguna imagen seleccionada")
+                          else
+                            Center(
+                              child: Container(
+                                width: 150,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black, width: 2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    _imagenFile!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _submitForm,
+                            child: Text(_servicioEditandoId == null ? "Crear" : "Actualizar"),
+                          ),
+                          const SizedBox(width: 8),
+                          OutlinedButton(
+                            onPressed: () {
+                              _resetForm();
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Cancelar"),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _submitForm,
-                      child: Text(_servicioEditandoId == null ? "Crear" : "Actualizar"),
-                    ),
-                    const SizedBox(width: 8),
-                    OutlinedButton(
-                      onPressed: () {
-                        _resetForm();
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text("Cancelar"),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -295,59 +349,101 @@ class _ServicioTuristicoScreenState extends State<ServicioTuristicoScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: const Icon(Icons.delete, color: Colors.white),
                             ),
-                            child: ListTile(
-                              leading: servicio.imagenUrl != null
-                                  ? FotoWidget(fileName: servicio.imagenUrl)
-                                  : const Icon(Icons.image_not_supported),
-                              title: Text(servicio.nombre),
-                              subtitle: Text(servicio.descripcion),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.info),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: Text("Información del servicio"),
-                                          content: SingleChildScrollView(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                if (servicio.imagenUrl != null)
-                                                  Center(
-                                                    child: FotoWidget(fileName: servicio.imagenUrl, size: 80,),
-                                                  ),
-                                                const SizedBox(height: 16),
-                                                Text("ID: ${servicio.idServicio}"),
-                                                Text("Nombre: ${servicio.nombre}"),
-                                                Text("Descripción: ${servicio.descripcion}"),
-                                                Text("Precio Unitario: ${servicio.precioUnitario}"),
-                                                Text("Tipo Servicio: ${servicio.tipoServicio}"),
-                                                Text("Fecha creación: ${servicio.fechaCreacion}"),
-                                                Text("Fecha modificación: ${servicio.fechaModificacion ?? '-'}"),
-                                              ],
-                                            ),
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  children: [
+                                    servicio.imagenUrl != null
+                                        ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: FotoWidget(
+                                        fileName: servicio.imagenUrl ?? "",
+                                        size: 60,
+                                      ),
+                                    )
+                                        : const Icon(Icons.image_not_supported, size: 60),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            servicio.nombre,
+                                            style: const TextStyle(
+                                                fontSize: 16, fontWeight: FontWeight.bold),
                                           ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.of(context).pop(),
-                                              child: const Text("Cerrar"),
-                                            )
-                                          ],
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            servicio.descripcion,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            "Precio: ${servicio.precioUnitario}",
+                                            style: const TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.info, color: Colors.blue),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (_) => AlertDialog(
+                                                title: Text("Información del servicio"),
+                                                content: SingleChildScrollView(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      if (servicio.imagenUrl != null)
+                                                        Center(
+                                                          child: FotoWidget(
+                                                              fileName: servicio.imagenUrl ?? "", size: 80),
+                                                        ),
+                                                      const SizedBox(height: 16),
+                                                      Text("ID: ${servicio.idServicio}"),
+                                                      Text("Nombre: ${servicio.nombre}"),
+                                                      Text("Descripción: ${servicio.descripcion}"),
+                                                      Text("Precio Unitario: ${servicio.precioUnitario}"),
+                                                      Text("Tipo Servicio: ${servicio.tipoServicio}"),
+                                                      Text("Fecha creación: ${servicio.fechaCreacion}"),
+                                                      Text(
+                                                          "Fecha modificación: ${servicio.fechaModificacion ?? '-'}"),
+                                                    ],
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.of(context).pop(),
+                                                    child: const Text("Cerrar"),
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          },
                                         ),
-                                      );
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () {
-                                      _cargarParaEditar(servicio);
-                                      _mostrarFormulario(context);
-                                    },
-                                  ),
-                                ],
+                                        IconButton(
+                                          icon: const Icon(Icons.edit, color: Colors.green),
+                                          onPressed: () {
+                                            _cargarParaEditar(servicio);
+                                            _mostrarFormulario(context);
+                                          },
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           );

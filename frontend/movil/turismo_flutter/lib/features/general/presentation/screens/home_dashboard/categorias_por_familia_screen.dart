@@ -27,11 +27,21 @@ class _CategoriasPorFamiliaScreenState extends State<CategoriasPorFamiliaScreen>
   void initState() {
     super.initState();
     if (widget.idFamilia != null) {
+      print("ID enviado al backend desde initState: ${widget.idFamilia}");
       context.read<FamiliaCategoriaGeneralBloc>().add(
         ObtenerPorIdFamiliaEventGeneral(widget.idFamilia!),
       );
-    } else {
-      // Manejo de error, mostrar alerta o retornar
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant CategoriasPorFamiliaScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.idFamilia != widget.idFamilia && widget.idFamilia != null) {
+      print("ID actualizado enviado al backend desde didUpdateWidget: ${widget.idFamilia}");
+      context.read<FamiliaCategoriaGeneralBloc>().add(
+        ObtenerPorIdFamiliaEventGeneral(widget.idFamilia!),
+      );
     }
   }
 
@@ -56,6 +66,12 @@ class _CategoriasPorFamiliaScreenState extends State<CategoriasPorFamiliaScreen>
             return const Center(child: CircularProgressIndicator());
           } else if (state is FamiliaCategoriaListLoadedGeneral) {
             final categorias = state.familiaCategoriaGeneralListResponse;
+
+            print('UI - Recibí estado con ${categorias.length} categorías, IDs: ${categorias.map((e) => e.idFamiliaCategoria).toList()}');
+            // 🔽 Agrega este print para mostrar los IDs
+            for (var item in categorias) {
+              print('ID de categoría: ${item.idCategoria}, ID familia-categoría: ${item.idFamiliaCategoria}');
+            }
 
             if (categorias.isEmpty) {
               return const Center(child: Text("No hay categorías asociadas."));
@@ -100,11 +116,11 @@ class _CategoriasPorFamiliaScreenState extends State<CategoriasPorFamiliaScreen>
                             children: [
                               Expanded(
                                 flex: 6,
-                                child: categoria.imagenUrl.isNotEmpty
+                                child: categoria.imagenUrl != null
                                     ? ClipRRect(
                                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                                   child: ImagenDescargadaWidget(
-                                    fileName: categoria.imagenUrl,
+                                    fileName: categoria.imagenUrl ?? "",
                                     fit: BoxFit.contain,
                                   ),
                                 )

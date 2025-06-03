@@ -47,16 +47,22 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
 
   String? _emprendimientoSeleccionado;
 
+  final List<String> _tiposDocumento = ['DNI', 'Pasaporte', 'Cédula', 'Otro'];
+  String? _tipoDocumentoSeleccionado;
+
   @override
   void initState() {
     super.initState();
     context.read<UsuarioBloc>().add(GetAllUsuariosEvent());
   }
 
-  void _pickImage() async {
+  Future<void> _pickImage(Function() setStateCallback) async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) setState(() => _imagen = File(image.path));
+    if (image != null) {
+      _imagen = File(image.path);
+      setStateCallback(); // Esto actualiza el diálogo
+    }
   }
 
   void _resetForm() {
@@ -67,8 +73,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     _nombreEmprendimientoController.clear();
     _nombresController.clear();
     _apellidosController.clear();
-    _tipoDocumentoController.clear();
     _numeroDocumentoController.clear();
+    _tipoDocumentoSeleccionado = null;
     _telefonoController.clear();
     _direccionController.clear();
     _correoElectronicoController.clear();
@@ -91,7 +97,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
             : null,
         nombres: _nombresController.text,
         apellidos: _apellidosController.text,
-        tipoDocumento: _tipoDocumentoController.text,
+        tipoDocumento: _tipoDocumentoSeleccionado!,
         numeroDocumento: _numeroDocumentoController.text,
         telefono: _telefonoController.text,
         direccion: _direccionController.text,
@@ -111,6 +117,16 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
       }
 
       _resetForm();
+      Navigator.of(context).pop();
+    } else {
+      // Mostrar Snackbar si el formulario NO es válido
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Por favor, completa todos los campos requeridos.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -124,7 +140,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
       _nombreRolController.text = usuario.rol?.nombre ?? '';
       _nombresController.text = usuario.persona?.nombres ?? 'Sin nombre';
       _apellidosController.text = usuario.persona?.apellidos ?? 'Sin nombre';
-      _tipoDocumentoController.text =
+      _tipoDocumentoSeleccionado =
           usuario.persona?.tipoDocumento ?? 'Sin nombre';
       _numeroDocumentoController.text =
           usuario.persona?.numeroDocumento ?? 'Sin nombre';
@@ -181,6 +197,8 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      Text(_usuarioEditandoId != null ? "Editando Usuario" : "Crear Usuario", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                      SizedBox(height: 10,),
                       TextFormField(
                         controller: _userNameController,
                         decoration: const InputDecoration(labelText: "Username"),
@@ -190,6 +208,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                         controller: _passwordController,
                         decoration: const InputDecoration(labelText: "Password"),
                         obscureText: true,
+                        validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
                       ),
                       DropdownButtonFormField<String>(
                         value: _estadoCuentaController.text.isNotEmpty
@@ -295,30 +314,79 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                       TextFormField(
                         controller: _nombresController,
                         decoration: const InputDecoration(labelText: "Nombres"),
+                        validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
                       ),
                       TextFormField(
                         controller: _apellidosController,
                         decoration: const InputDecoration(labelText: "Apellidos"),
+                        validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
                       ),
-                      TextFormField(
-                        controller: _tipoDocumentoController,
-                        decoration: const InputDecoration(labelText: "Tipo Documento"),
+                      DropdownButtonFormField<String>(
+                        value: _tipoDocumentoSeleccionado,
+                        items: _tiposDocumento.map((tipo) {
+                          return DropdownMenuItem<String>(
+                            value: tipo,
+                            child: Text(tipo),
+                          );
+                        }).toList(),
+                        decoration: const InputDecoration(
+                          labelText: 'Tipo Documento',
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _tipoDocumentoSeleccionado = value;
+                          });
+                        },
+                        validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
                       ),
                       TextFormField(
                         controller: _numeroDocumentoController,
                         decoration: const InputDecoration(labelText: "Número Documento"),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Campo requerido';
+                          }
+                          if (!RegExp(r'^\d+$').hasMatch(value)) {
+                            return 'Solo se permiten números';
+                          }
+                          return null;
+                        },
                       ),
                       TextFormField(
                         controller: _telefonoController,
                         decoration: const InputDecoration(labelText: "Teléfono"),
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Campo requerido';
+                          }
+                          if (!RegExp(r'^\d+$').hasMatch(value)) {
+                            return 'Solo se permiten números';
+                          }
+                          return null;
+                        },
                       ),
                       TextFormField(
                         controller: _direccionController,
                         decoration: const InputDecoration(labelText: "Dirección"),
+                        validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
                       ),
                       TextFormField(
                         controller: _correoElectronicoController,
                         decoration: const InputDecoration(labelText: "Correo Electrónico"),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Campo requerido';
+                          }
+                          // Expresión regular básica para correo electrónico
+                          final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                          if (!emailRegex.hasMatch(value)) {
+                            return 'Correo electrónico no válido';
+                          }
+                          return null;
+                        },
                       ),
                       TextFormField(
                         controller: _fechaNacimientoController,
@@ -345,16 +413,35 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                         value == null || value.isEmpty ? "Campo requerido" : null,
                       ),
                       const SizedBox(height: 10),
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ElevatedButton(
-                            onPressed: _pickImage,
+                            onPressed: () async {
+                              await _pickImage(() => setStateDialog(() {}));
+                            },
                             child: const Text("Seleccionar Imagen"),
                           ),
-                          if (_imagen != null)
-                            const Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Text("Imagen seleccionada"),
+                          const SizedBox(height: 10),
+                          if (_imagen == null)
+                            const Text("Ninguna imagen seleccionada")
+                          else
+                            Center(
+                              child: Container(
+                                width: 150,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black, width: 2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    _imagen!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
                             ),
                         ],
                       ),
@@ -365,7 +452,6 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                           ElevatedButton(
                             onPressed: () {
                               _submitForm();
-                              Navigator.of(context).pop();
                             },
                             child: Text(_usuarioEditandoId == null ? "Crear" : "Actualizar"),
                           ),
@@ -436,84 +522,87 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: const Icon(Icons.delete, color: Colors.white),
                             ),
-                            child: ListTile(
-                              leading: FotoWidget(
-                                fileName: usuario.persona?.fotoPerfil ?? "",
+                            child: Card(  // <-- Envuelves aquí con Card
+                              margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 0), // Puedes ajustar margenes
+                              elevation: 3, // Sombra, puedes modificar la intensidad
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              title: Text(usuario.username ?? 'Sin username'),
-                              subtitle: Text(usuario.persona?.nombres ?? 'Sin nombre'),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.info),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text('Información del Usuario'),
-                                          content: SingleChildScrollView(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Center(
-                                                  child: FotoWidget(
-                                                    fileName: usuario.persona?.fotoPerfil ?? '',
-                                                    size: 80,
+                              child: ListTile(
+                                leading: FotoWidget(
+                                  fileName: usuario.persona?.fotoPerfil ?? "",
+                                ),
+                                title: Text(usuario.username ?? 'Sin username',
+                                  style: const TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.bold),),
+                                subtitle: Text(usuario.persona?.nombres ?? 'Sin nombre'),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.info, color: Colors.blue),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            title: const Text('Información del Usuario'),
+                                            content: SingleChildScrollView(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Center(
+                                                    child: FotoWidget(
+                                                      fileName: usuario.persona?.fotoPerfil ?? '',
+                                                      size: 80,
+                                                    ),
                                                   ),
-                                                ),
-                                                const SizedBox(height: 16),
-                                                InfoRowWidget(label: "ID", value: usuario.idUsuario.toString()),
-                                                InfoRowWidget(label: "Username", value: usuario.username ?? 'Sin username'),
-                                                InfoRowWidget(label: "Password", value: "Encriptado"),
-                                                InfoRowWidget(label: "Estado", value: usuario.estado ?? 'Sin estado'),
-                                                InfoRowWidget(label: "Rol", value: usuario.rol?.nombre ?? 'Sin rol'),
-                                                InfoRowWidget(label: "Nombres", value: usuario.persona?.nombres ?? 'Sin nombres'),
-                                                InfoRowWidget(label: "Apellidos", value: usuario.persona?.apellidos ?? 'Sin apellidos'),
-                                                InfoRowWidget(label: "Tipo Documento", value: usuario.persona?.tipoDocumento ?? 'Sin tipo'),
-                                                InfoRowWidget(label: "Número Documento", value: usuario.persona?.numeroDocumento ?? 'Sin número'),
-                                                InfoRowWidget(label: "Teléfono", value: usuario.persona?.telefono ?? 'Sin teléfono'),
-                                                InfoRowWidget(label: "Dirección", value: usuario.persona?.direccion ?? 'Sin dirección'),
-                                                InfoRowWidget(label: "Correo", value: usuario.persona?.correoElectronico ?? 'Sin correo'),
-                                                InfoRowWidget(label: "Fecha Nacimiento", value: usuario.persona?.fechaNacimiento ?? 'Sin fecha'),
-                                                InfoRowWidget(label: "Reseñas", value: usuario.resenas?.toString() ?? 'Sin reseñas'),
-                                                InfoRowWidget(label: "Reservas", value: usuario.reservas?.toString() ?? 'Sin reservas'),
-                                                usuario.emprendimiento != null
-                                                    ? Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    SizedBox(height: 12),
-                                                    Text(
+                                                  const SizedBox(height: 16),
+                                                  InfoRowWidget(label: "ID", value: usuario.idUsuario.toString()),
+                                                  InfoRowWidget(label: "Username", value: usuario.username ?? 'Sin username'),
+                                                  InfoRowWidget(label: "Password", value: "Encriptado"),
+                                                  InfoRowWidget(label: "Estado", value: usuario.estado ?? 'Sin estado'),
+                                                  InfoRowWidget(label: "Rol", value: usuario.rol?.nombre ?? 'Sin rol'),
+                                                  InfoRowWidget(label: "Nombres", value: usuario.persona?.nombres ?? 'Sin nombres'),
+                                                  InfoRowWidget(label: "Apellidos", value: usuario.persona?.apellidos ?? 'Sin apellidos'),
+                                                  InfoRowWidget(label: "Tipo Documento", value: usuario.persona?.tipoDocumento ?? 'Sin tipo'),
+                                                  InfoRowWidget(label: "Número Documento", value: usuario.persona?.numeroDocumento ?? 'Sin número'),
+                                                  InfoRowWidget(label: "Teléfono", value: usuario.persona?.telefono ?? 'Sin teléfono'),
+                                                  InfoRowWidget(label: "Dirección", value: usuario.persona?.direccion ?? 'Sin dirección'),
+                                                  InfoRowWidget(label: "Correo", value: usuario.persona?.correoElectronico ?? 'Sin correo'),
+                                                  InfoRowWidget(label: "Fecha Nacimiento", value: usuario.persona?.fechaNacimiento ?? 'Sin fecha'),
+                                                  InfoRowWidget(label: "Reseñas", value: usuario.resenas?.toString() ?? 'Sin reseñas'),
+                                                  InfoRowWidget(label: "Reservas", value: usuario.reservas?.toString() ?? 'Sin reservas'),
+                                                  if (usuario.emprendimiento != null) ...[
+                                                    const SizedBox(height: 12),
+                                                    const Text(
                                                       'Emprendimiento:',
                                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                                                     ),
                                                     InfoRowWidget(label: "Nombre:", value: usuario.emprendimiento?.nombre),
                                                     InfoRowWidget(label: "Descripcion:", value: usuario.emprendimiento?.descripcion),
-
                                                   ],
-                                                )
-                                                    : SizedBox.shrink(),
-                                              ],
+                                                ],
+                                              ),
                                             ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.of(context).pop(),
+                                                child: const Text('Cerrar'),
+                                              ),
+                                            ],
                                           ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.of(context).pop(),
-                                              child: const Text('Cerrar'),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () {
-                                      _cargarParaEditar(usuario);
-                                      _mostrarFormulario(context);
-                                    },
-                                  ),
-                                ],
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.green),
+                                      onPressed: () {
+                                        _cargarParaEditar(usuario);
+                                        _mostrarFormulario(context);
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );

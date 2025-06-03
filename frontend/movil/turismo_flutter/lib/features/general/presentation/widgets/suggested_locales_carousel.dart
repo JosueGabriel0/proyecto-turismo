@@ -36,7 +36,7 @@ class SuggestedLocalesCarousel extends StatelessWidget {
               cs.CarouselSlider(
                 options: cs.CarouselOptions(
                   height: 330,
-                  viewportFraction: 0.55,
+                  viewportFraction: 0.49,
                   enableInfiniteScroll: true,
                   enlargeCenterPage: false,
                   padEnds: false,
@@ -74,7 +74,7 @@ class SuggestedLocalesCarousel extends StatelessWidget {
                                       height: 150,
                                       width: double.infinity,
                                       child: FotoRectanguloWidget(
-                                        fileName: empr.imagenUrl,
+                                        fileName: empr.imagenUrl ?? "",
                                         height: 150,
                                       ),
                                     ),

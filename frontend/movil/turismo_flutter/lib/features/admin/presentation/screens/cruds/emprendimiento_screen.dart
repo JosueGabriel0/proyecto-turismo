@@ -38,10 +38,13 @@ class _EmprendimientoScreenState extends State<EmprendimientoScreen> {
     context.read<EmprendimientoBloc>().add(GetEmprendimientosEvent());
   }
 
-  void _pickImage() async {
+  Future<void> _pickImage(Function() setStateCallback) async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) setState(() => _imagenController = File(image.path));
+    if (image != null) {
+      _imagenController = File(image.path);
+      setStateCallback(); // Esto actualiza el diálogo
+    }
   }
 
   Future<bool?> _onDismissed(BuildContext context, EmprendimientoResponse emprendimiento) async {
@@ -95,6 +98,16 @@ class _EmprendimientoScreenState extends State<EmprendimientoScreen> {
       }
 
       _resetForm();
+      Navigator.of(context).pop();
+    } else {
+      // Mostrar Snackbar si el formulario NO es válido
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Por favor, completa todos los campos requeridos.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -113,134 +126,202 @@ class _EmprendimientoScreenState extends State<EmprendimientoScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-            content: SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      controller: _nombreController,
-                      decoration: const InputDecoration(labelText: "Nombre"),
-                    ),
-                    TextFormField(
-                      controller: _descripcionController,
-                      decoration: const InputDecoration(labelText: "Descripción"),
-                    ),
-                    TextFormField(
-                      controller: _latitudController,
-                      decoration: const InputDecoration(labelText: "Latitud"),
-                      readOnly: true,
-                    ),
-                    TextFormField(
-                      controller: _longitudController,
-                      decoration: const InputDecoration(labelText: "Longitud"),
-                      readOnly: true,
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final resultado = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SeleccionUbicacionScreen(),
-                          ),
-                        );
-
-                        if (resultado != null) {
-                          final lat = resultado['lat'] as double;
-                          final lng = resultado['lng'] as double;
-
-                          setState(() {
-                            _latitudController.text = lat.toString();
-                            _longitudController.text = lng.toString();
-                          });
-                        }
-                      },
-                      child: Text(
-                        (_latitudController.text.isNotEmpty && _longitudController.text.isNotEmpty)
-                            ? 'Lat: ${_latitudController.text}, Lng: ${_longitudController.text}'
-                            : 'Seleccionar ubicación en el mapa',
-                        textAlign: TextAlign.center,
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Center(
+                        child: Text(
+                          _idEmprendimientoController != null ? "Editar Emprendimiento" : "Crear Emprendimiento",
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                          textAlign: TextAlign.center, // Alineación del texto
+                        ),
                       ),
-                    ),
-                    BlocBuilder<FamiliaCategoriaBloc, FamiliaCategoriaState>(
-                      builder: (context, familiaCategoriaState) {
-                        if (familiaCategoriaState is FamiliaCategoriaListLoaded) {
-                          final familiasCategorias = familiaCategoriaState.familiaCategoriaListResponse;
-
-                          final currentValue = int.tryParse(_idFamiliaCategoriaController.text);
-
-                          return SizedBox(
-                            width: 400,
-                            child: DropdownButtonFormField<int>(
-                              value: currentValue,
-                              decoration: const InputDecoration(labelText: "Familia categoría"),
-                              items: familiasCategorias.map((f) {
-                                return DropdownMenuItem<int>(
-                                  value: f.idFamiliaCategoria,
-                                  child: SizedBox(
-                                    width: 259,
-                                    child: Text(
-                                      '${f.nombreFamilia} - ${f.nombreCategoria}',
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: false,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _idFamiliaCategoriaController.text = value.toString();
-                                });
-                              },
-                              validator: (value) =>
-                              value == null ? 'Campo requerido' : null,
+                      SizedBox(height: 10,),
+                      TextFormField(
+                        controller: _nombreController,
+                        decoration: const InputDecoration(labelText: "Nombre"),
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                      ),
+                      TextFormField(
+                        controller: _descripcionController,
+                        decoration: const InputDecoration(labelText: "Descripción"),
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                      ),
+                      TextFormField(
+                        controller: _latitudController,
+                        decoration: const InputDecoration(labelText: "Latitud"),
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                        readOnly: true,
+                      ),
+                      TextFormField(
+                        controller: _longitudController,
+                        decoration: const InputDecoration(labelText: "Longitud"),
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                        readOnly: true,
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final resultado = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SeleccionUbicacionScreen(),
                             ),
                           );
-                        } else if (familiaCategoriaState is FamiliaCategoriaLoading) {
-                          return const CircularProgressIndicator();
-                        } else if (familiaCategoriaState is FamiliaCategoriaError) {
-                          return Text("Error al cargar familias con categorías: ${familiaCategoriaState.message}");
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    Column(
-                      children: [
-                        ElevatedButton(
-                            onPressed: _pickImage,
-                            child: const Text("Seleccionar imagen")),
-                        if (_imagenController != null)
-                          const Padding(
-                            padding: EdgeInsets.only(left: 10),
-                            child: Text("Imagen seleccionada"),
-                          ),
+
+                          if (resultado != null) {
+                            final lat = resultado['lat'] as double;
+                            final lng = resultado['lng'] as double;
+
+                            _latitudController.text = lat.toString();
+                            _longitudController.text = lng.toString();
+
+                            setStateDialog(() {}); // Refresca el contenido del diálogo
+                          }
+                        },
+                        child: Text(
+                          (_latitudController.text.isNotEmpty &&
+                              _longitudController.text.isNotEmpty)
+                              ? 'Lat: ${_latitudController.text}, Lng: ${_longitudController.text}'
+                              : 'Seleccionar ubicación en el mapa',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+
+                      // 🔍 Mostrar minimapa si hay lat/lng
+                      if (_latitudController.text.isNotEmpty &&
+                          _longitudController.text.isNotEmpty) ...[
+                        Builder(builder: (context) {
+                          final lat = _latitudController.text;
+                          final lng = _longitudController.text;
+
+                          final mapUrl =
+                              'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/'
+                              'pin-s+ff0000($lng,$lat)/'
+                              '$lng,$lat,14/300x200?access_token=pk.eyJ1Ijoiam9zdWUyMDAzIiwiYSI6ImNtYWI5eHB4aDFrOXQyam9pY2toMHg1dTEifQ.mioI8UDDcUa9pqKXIsEC6A';
+
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: SizedBox(
+                                width: 200,
+                                height: 200,
+                                child: Image.network(
+                                  mapUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
                       ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
+
+                      BlocBuilder<FamiliaCategoriaBloc, FamiliaCategoriaState>(
+                        builder: (context, familiaCategoriaState) {
+                          if (familiaCategoriaState is FamiliaCategoriaListLoaded) {
+                            final familiasCategorias = familiaCategoriaState.familiaCategoriaListResponse;
+
+                            final currentValue = int.tryParse(_idFamiliaCategoriaController.text);
+
+                            return SizedBox(
+                              width: 400,
+                              child: DropdownButtonFormField<int>(
+                                value: currentValue,
+                                decoration: const InputDecoration(labelText: "Familia categoría"),
+                                items: familiasCategorias.map((f) {
+                                  return DropdownMenuItem<int>(
+                                    value: f.idFamiliaCategoria,
+                                    child: SizedBox(
+                                      width: 259,
+                                      child: Text(
+                                        '${f.nombreFamilia} - ${f.nombreCategoria}',
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  _idFamiliaCategoriaController.text = value.toString();
+                                  setStateDialog(() {});
+                                },
+                                validator: (value) => value == null ? 'Campo requerido' : null,
+                              ),
+                            );
+                          } else if (familiaCategoriaState is FamiliaCategoriaLoading) {
+                            return const CircularProgressIndicator();
+                          } else if (familiaCategoriaState is FamiliaCategoriaError) {
+                            return Text("Error al cargar familias con categorías: ${familiaCategoriaState.message}");
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              await _pickImage(() => setStateDialog(() {}));
+                            },
+                            child: const Text("Seleccionar Imagen"),
+                          ),
+                          const SizedBox(height: 10),
+                          if (_imagenController == null)
+                            const Text("Ninguna imagen seleccionada")
+                          else
+                            Center(
+                              child: Container(
+                                width: 150,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black, width: 2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    _imagenController!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
                             onPressed: () {
                               _submitForm();
-                              Navigator.of(context).pop();
                             },
-                            child: Text(_idEmprendimientoController == null ? "Crear" : "Actualizar")),
-                        OutlinedButton(
+                            child: Text(_idEmprendimientoController == null ? "Crear" : "Actualizar"),
+                          ),
+                          OutlinedButton(
                             onPressed: () {
                               _resetForm();
                               Navigator.of(context).pop();
                             },
-                            child: const Text("Cancelar")),
-                      ],
-                    )
-                  ],
+                            child: const Text("Cancelar"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ));
+            );
+          },
+        );
       },
     );
   }
@@ -291,17 +372,23 @@ class _EmprendimientoScreenState extends State<EmprendimientoScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: const Icon(Icons.delete, color: Colors.white),
                             ),
-                            child: ListTile(
-                              leading: FotoWidget(fileName: emprendimiento.imagenUrl),
-                              title: Text(emprendimiento.nombre),
-                              subtitle: Text(emprendimiento.descripcion),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                      icon: const Icon(Icons.info),
-                                      onPressed: () {
-                                        showDialog(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                              child: Card(
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                child: ListTile(
+                                  leading: FotoWidget(fileName: emprendimiento.imagenUrl ?? ""),
+                                  title: Text(emprendimiento.nombre, style: const TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.bold),),
+                                  subtitle: Text(emprendimiento.descripcion),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.info, color: Colors.blue),
+                                        onPressed: () {
+                                          showDialog(
                                             context: context,
                                             builder: (_) => AlertDialog(
                                               title: const Text("Información del Emprendimiento"),
@@ -310,7 +397,7 @@ class _EmprendimientoScreenState extends State<EmprendimientoScreen> {
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Center(
-                                                      child: FotoWidget(fileName: emprendimiento.imagenUrl, size: 80),
+                                                      child: FotoWidget(fileName: emprendimiento.imagenUrl ?? "", size: 80),
                                                     ),
                                                     const SizedBox(height: 16),
                                                     InfoRowWidget(label: "ID", value: emprendimiento.idEmprendimiento.toString()),
@@ -323,19 +410,24 @@ class _EmprendimientoScreenState extends State<EmprendimientoScreen> {
                                               ),
                                               actions: [
                                                 TextButton(
-                                                    onPressed: () => Navigator.of(context).pop(),
-                                                    child: const Text("Cerrar"))
+                                                  onPressed: () => Navigator.of(context).pop(),
+                                                  child: const Text("Cerrar"),
+                                                ),
                                               ],
-                                            ));
-                                      }),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () {
-                                      _cargarParaEditar(emprendimiento);
-                                      _mostrarFormulario(context);
-                                    },
-                                  )
-                                ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.edit, color: Colors.green),
+                                        onPressed: () {
+                                          _cargarParaEditar(emprendimiento);
+                                          _mostrarFormulario(context);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           );

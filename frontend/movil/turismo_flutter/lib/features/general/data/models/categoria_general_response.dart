@@ -4,7 +4,7 @@ class CategoriaGeneralResponse {
   int idCategoria;
   String nombre;
   String descripcion;
-  String imagenUrl;
+  String? imagenUrl;
   String fechaCreacionCategoria;
   String? fechaModificacionCategoria;
 

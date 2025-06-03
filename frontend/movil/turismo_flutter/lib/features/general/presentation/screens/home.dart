@@ -9,6 +9,7 @@ import 'package:turismo_flutter/features/general/presentation/screens/home_dashb
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/emprendimiento_detalle_screen.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/emprendimientos_familia_categoria_screen.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/familias_lugares_screen.dart';
+import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/file_screen.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/home_main_dashboard.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/reserva_screen.dart';
 import 'package:turismo_flutter/features/usuario/data/models/usuario_user_response.dart';
@@ -39,8 +40,7 @@ class _HomeState extends State<Home> {
 
   void _navigateToIndex(int index) {
     setState(() {
-      _bottomNavIndex = index;
-      _screenIndex = index;  // sincroniza cuando viene del bottom nav
+      _screenIndex = index;
     });
   }
 
@@ -84,6 +84,7 @@ class _HomeState extends State<Home> {
           id: _selectedLugarId,
           onNavigateIndex: _navigateToIndex,),
         CategoriasPorFamiliaScreen(onNavigate: _navigateToScreen,
+          key: ValueKey(_selectedFamiliaId),
           idFamilia: _selectedFamiliaId,
           onNavigateIndex: _navigateToIndex,),
         EmprendimientosFamiliaCategoriaScreen(onNavigate: _navigateToScreen,

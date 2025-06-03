@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/categoria_api_client.dart';
+import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/dashboard_admin_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/emprendimiento_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/familia_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/familia_categoria_api_client.dart';
@@ -9,6 +10,7 @@ import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/rol_
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/servicio_turistico_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/usuario_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/categoria_repository_impl.dart';
+import 'package:turismo_flutter/features/admin/data/repositories/dashboard_admin_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/emprendimiento_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/familia_categoria_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/familia_repository_impl.dart';
@@ -17,6 +19,7 @@ import 'package:turismo_flutter/features/admin/data/repositories/rol_repository_
 import 'package:turismo_flutter/features/admin/data/repositories/servicio_turistico_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/usuario_respository_impl.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/categoria_repository.dart';
+import 'package:turismo_flutter/features/admin/domain/repositories/dashboard_admin_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/emprendimiento_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/familia_categoria_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/familia_repository.dart';
@@ -30,6 +33,7 @@ import 'package:turismo_flutter/features/admin/domain/usecases/categoria/get_cat
 import 'package:turismo_flutter/features/admin/domain/usecases/categoria/get_categorias_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/categoria/post_categoria_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/categoria/put_categoria_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/dashboard/get_dashboard_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/emprendimiento/buscar_emprendimientos_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/emprendimiento/delete_emprendimiento_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/emprendimiento/get_emprendimiento_by_id_usecase.dart';
@@ -72,6 +76,7 @@ import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuar
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuarios_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/update_usuario_usecase.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/dashboard/dashboard_admin_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/familia_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia_categoria/familia_categoria_bloc.dart';
@@ -416,6 +421,25 @@ void injectAdminDependencies() {
       updateServicioTuristicoUseCase: getIt<UpdateServicioTuristicoUseCase>(),
       deleteServicioTuristicoUsecase: getIt<DeleteServicioTuristicoUsecase>(),
       buscarServiciosTuristicosPorNombreUsecase: getIt<BuscarServiciosTuristicosPorNombreUsecase>(),
+    ),
+  );
+
+  // --------- DASHBOARD ---------
+  getIt.registerLazySingleton<DashboardAdminApiClient>(
+        () => DashboardAdminApiClient(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<DashboardAdminRepository>(
+        () => DashboardAdminRepositoryImpl(getIt<DashboardAdminApiClient>()),
+  );
+
+  getIt.registerLazySingleton<GetDashboardUseCase>(
+        () => GetDashboardUseCase(getIt<DashboardAdminRepository>()),
+  );
+
+  getIt.registerFactory<DashboardAdminBloc>(
+        () => DashboardAdminBloc(
+          getDashboardUseCase: getIt<GetDashboardUseCase>(),
     ),
   );
 }

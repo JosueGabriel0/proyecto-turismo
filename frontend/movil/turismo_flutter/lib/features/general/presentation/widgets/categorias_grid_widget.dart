@@ -47,7 +47,7 @@ class CategoriasGridWidget extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: FotoRectanguloWidget(
-                        fileName: categoria.imagenUrl,
+                        fileName: categoria.imagenUrl ?? "",
                         height: 70,
                         fit: BoxFit.contain, // Asegúrate que este parámetro exista en el widget
                       ),

@@ -11,6 +11,11 @@ import java.util.Optional;
 
 @Repository
 public interface EmprendimientoRepository extends JpaRepository<Emprendimiento, Long> {
+    long count();
+
+    @Query("SELECT fc.categoria.nombre, COUNT(e) FROM Emprendimiento e JOIN e.familiaCategoria fc GROUP BY fc.categoria.nombre")
+    List<Object[]> countByCategoria();
+
     Optional<Emprendimiento> findByNombre(String nombre);
 
     @Query("SELECT e FROM Emprendimiento e WHERE LOWER(e.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))")

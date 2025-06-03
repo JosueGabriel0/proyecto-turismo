@@ -7,7 +7,7 @@ class FamiliaGeneralResponse {
   int idFamilia;
   String nombre;
   String descripcion;
-  String imagenUrl;
+  String? imagenUrl;
   List<FamiliaCategoriaGeneralResponse>? familiaCategorias;
   String fechaCreacionFamilia;
   String? fechaModificacionFamilia;

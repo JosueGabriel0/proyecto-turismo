@@ -40,10 +40,13 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
     context.read<CategoriaBloc>().add(GetCategoriasEvent());
   }
 
-  void _pickImage() async{
+  Future<void> _pickImage(Function() setStateCallback) async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.gallery);
-    if(image != null) setState(() => _imagenController = File(image.path));
+    if (image != null) {
+      _imagenController = File(image.path);
+      setStateCallback(); // Esto actualiza el diálogo
+    }
   }
 
   Future<bool?> _onDismissed(BuildContext context, CategoriaResponse categoria) async{
@@ -93,6 +96,16 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
       }
 
       _resetForm();
+      Navigator.of(context).pop();
+    } else {
+      // Mostrar Snackbar si el formulario NO es válido
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Por favor, completa todos los campos requeridos.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -103,62 +116,92 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
       _descripcionController.text = categoria.descripcion;
     });
   }
-  void _mostrarFormulario(BuildContext context){
+
+  void _mostrarFormulario(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-            content: SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      controller: _nombreController,
-                      decoration: const InputDecoration(labelText: "Nombre"),
-                    ),
-                    TextFormField(
-                      controller: _descripcionController,
-                      decoration: const InputDecoration(labelText: "Descripcion"),
-                    ),
-                    const SizedBox(height: 10,),
-                    Column(
-                      children: [
-                        ElevatedButton(
-                            onPressed: _pickImage,
-                            child: const Text("Seleccionar imagen")
-                        ),
-                        if(_imagenController !=null) Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: const Text("Imagen seleccionada"),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
-                            onPressed: (){
-                              _submitForm();
-                              Navigator.of(context).pop();
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(_idCategoriaController != null ? "Editar Categoria" : "Crear Categoria", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                      SizedBox(height: 10,),
+                      TextFormField(
+                        controller: _nombreController,
+                        decoration: const InputDecoration(labelText: "Nombre"),
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                      ),
+                      TextFormField(
+                        controller: _descripcionController,
+                        decoration: const InputDecoration(labelText: "Descripcion"),
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              await _pickImage(() {
+                                setStateDialog(() {});  // Actualizas el estado local del diálogo
+                              });
                             },
-                            child: Text(_idCategoriaController == null ? "Crear" : "Actualizar")
-                        ),
-                        OutlinedButton(
-                            onPressed: (){
+                            child: const Text("Seleccionar Imagen"),
+                          ),
+                          const SizedBox(height: 10),
+                          if (_imagenController == null)
+                            const Text("Ninguna imagen seleccionada")
+                          else
+                            Center(
+                              child: Container(
+                                width: 150,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black, width: 2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    _imagenController!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              _submitForm();
+                            },
+                            child: Text(_idCategoriaController == null ? "Crear" : "Actualizar"),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {
                               _resetForm();
                               Navigator.of(context).pop();
                             },
-                            child: const Text("Cancelar")
-                        ),
-                      ],
-                    )
-                  ],
+                            child: const Text("Cancelar"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            )
+            );
+          },
         );
       },
     );
@@ -212,60 +255,87 @@ class _CategoriaScreenState extends State<CategoriaScreen>{
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: const Icon(Icons.delete, color: Colors.white),
                             ),
-                            child: ListTile(
-                              leading: FotoWidget(fileName: categoria.imagenUrl),
-                              title: Text(categoria.nombre),
-                              subtitle: Text(categoria.descripcion),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.info),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text("Información de la Categoría"),
-                                          content: SingleChildScrollView(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Center(
-                                                  child: FotoWidget(fileName: categoria.imagenUrl, size: 80),
-                                                ),
-                                                const SizedBox(height: 16),
-                                                InfoRowWidget(label: "ID", value: categoria.idCategoria.toString()),
-                                                InfoRowWidget(label: "Nombre", value: categoria.nombre),
-                                                InfoRowWidget(label: "Descripción", value: categoria.descripcion),
-                                                InfoRowWidget(label: "Fecha de creación", value: categoria.fechaCreacionCategoria),
-                                                InfoRowWidget(label: "Fecha de modificación", value: categoria.fechaModificacionCategoria ?? "No hay modificaciones"),
-                                              ],
-                                            ),
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  children: [
+                                    FotoWidget(fileName: categoria.imagenUrl ?? "", size: 60),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            categoria.nombre,
+                                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                           ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.of(context).pop(),
-                                              child: const Text("Cerrar"),
-                                            )
-                                          ],
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            categoria.descripcion,
+                                            style: const TextStyle(color: Colors.grey),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.info, color: Colors.blue),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (_) => AlertDialog(
+                                                title: const Text("Información de la Categoría"),
+                                                content: SingleChildScrollView(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Center(
+                                                        child: FotoWidget(fileName: categoria.imagenUrl ?? "", size: 80),
+                                                      ),
+                                                      const SizedBox(height: 16),
+                                                      InfoRowWidget(label: "ID", value: categoria.idCategoria.toString()),
+                                                      InfoRowWidget(label: "Nombre", value: categoria.nombre),
+                                                      InfoRowWidget(label: "Descripción", value: categoria.descripcion),
+                                                      InfoRowWidget(label: "Fecha de creación", value: categoria.fechaCreacionCategoria),
+                                                      InfoRowWidget(label: "Fecha de modificación", value: categoria.fechaModificacionCategoria ?? "No hay modificaciones"),
+                                                    ],
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.of(context).pop(),
+                                                    child: const Text("Cerrar"),
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          },
                                         ),
-                                      );
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () {
-                                      _cargarParaEditar(categoria);
-                                      _mostrarFormulario(context);
-                                    },
-                                  )
-                                ],
+                                        IconButton(
+                                          icon: const Icon(Icons.edit, color: Colors.green),
+                                          onPressed: () {
+                                            _cargarParaEditar(categoria);
+                                            _mostrarFormulario(context);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
                         },
                       ),
-                    ),
+                    )
                   ],
                 );
               } else if (state is CategoriaError) {

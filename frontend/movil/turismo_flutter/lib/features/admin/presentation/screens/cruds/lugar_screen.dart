@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart' as imagePiker;
+import 'package:image_picker/image_picker.dart';
 import 'package:turismo_flutter/features/admin/data/models/lugar_dto.dart';
 import 'package:turismo_flutter/features/admin/data/models/lugar_response.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_bloc.dart';
@@ -12,8 +12,6 @@ import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lug
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/selector_ubicacion_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/info_row_widget.dart';
-
-
 
 class LugarScreen extends StatefulWidget{
   const LugarScreen({super.key});
@@ -28,9 +26,6 @@ class _LugarScreenState extends State<LugarScreen>{
   final _nombreController = TextEditingController();
   final _descripcionController = TextEditingController();
   final _direccionController = TextEditingController();
-  final _ciudadController = TextEditingController();
-  final _provinciaController = TextEditingController();
-  final _paisController = TextEditingController();
   final _latitudController = TextEditingController();
   final _longitudController = TextEditingController();
   File? _imagenUrlController;
@@ -41,13 +36,78 @@ class _LugarScreenState extends State<LugarScreen>{
   @override
   void initState() {
     super.initState();
+
     context.read<LugarBloc>().add(GetAllLugaresEvent());
+
+    // Listeners para refrescar el minimapa
+    _latitudController.addListener(_onLatLngChanged);
+    _longitudController.addListener(_onLatLngChanged);
   }
 
-  void _pickImage() async {
-    final picker = imagePiker.ImagePicker();
-    final image = await picker.pickImage(source: imagePiker.ImageSource.gallery);
-    if(image != null) setState(() => _imagenUrlController = File(image.path));
+  void _onLatLngChanged() {
+    // Si ambos campos no están vacíos, refresca el widget
+    if (_latitudController.text.isNotEmpty && _longitudController.text.isNotEmpty) {
+      setState(() {});
+    }
+  }
+
+  // Listas de ejemplo
+  final List<String> _paises = ['Perú'];
+
+  final List<String> _provincias = [
+    'Lima',
+    'Arequipa',
+    'Cusco',
+    'La Libertad',
+    'Piura',
+    'Loreto',
+    'Junín',
+    'Puno',
+    'Cajamarca',
+    'Ica',
+  ];
+
+  final Map<String, List<String>> _ciudadesPorProvincia = {
+    'Lima': ['Lima', 'Miraflores', 'San Isidro', 'Surco'],
+    'Arequipa': ['Arequipa', 'Cayma', 'Yanahuara'],
+    'Cusco': ['Cusco', 'Wanchaq', 'San Sebastián'],
+    'La Libertad': ['Trujillo', 'El Porvenir', 'Florencia de Mora'],
+    'Piura': ['Piura', 'Sullana', 'Talara'],
+    'Loreto': ['Iquitos', 'Punchana', 'Belén'],
+    'Junín': ['Huancayo', 'El Tambo'],
+    'Puno': ['Puno', 'Juliaca', 'Capachica'],
+    'Cajamarca': ['Cajamarca', 'Baños del Inca'],
+    'Ica': ['Ica', 'Chincha', 'Nazca'],
+  };
+
+// Variables de selección
+  String? _paisSeleccionado = 'Perú';
+  String? _provinciaSeleccionada;
+  String? _ciudadSeleccionada;
+
+  @override
+  void dispose() {
+    _latitudController.removeListener(_onLatLngChanged);
+    _longitudController.removeListener(_onLatLngChanged);
+
+    _nombreController.dispose();
+    _descripcionController.dispose();
+    _direccionController.dispose();
+    _latitudController.dispose();
+    _longitudController.dispose();
+    _familiasController.dispose();
+    _searchController.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> _pickImage(Function() setStateCallback) async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      _imagenUrlController = File(image.path);
+      setStateCallback(); // Esto actualiza el diálogo
+    }
   }
 
   Future<bool?> _onDismissed(BuildContext context, LugarResponse lugar) async {
@@ -83,9 +143,9 @@ class _LugarScreenState extends State<LugarScreen>{
       _nombreController.text = lugar.nombre;
       _descripcionController.text = lugar.descripcion;
       _direccionController.text = lugar.descripcion;
-      _ciudadController.text = lugar.ciudad;
-      _provinciaController.text = lugar.provincia;
-      _paisController.text = lugar.pais;
+      _ciudadSeleccionada = lugar.ciudad;
+      _provinciaSeleccionada = lugar.provincia;
+      _paisSeleccionado = lugar.pais;
       _latitudController.text = lugar.latitud;
       _longitudController.text = lugar.longitud;
     });
@@ -97,9 +157,9 @@ class _LugarScreenState extends State<LugarScreen>{
           nombre: _nombreController.text,
           descripcion: _descripcionController.text,
           direccion: _descripcionController.text,
-          ciudad: _ciudadController.text,
-          provincia: _provinciaController.text,
-          pais: _paisController.text,
+          ciudad: _ciudadSeleccionada!,
+          provincia: _provinciaSeleccionada!,
+          pais: _paisSeleccionado!,
           latitud: _latitudController.text,
           longitud: _longitudController.text,
       );
@@ -111,6 +171,16 @@ class _LugarScreenState extends State<LugarScreen>{
       }
 
       _resetForm();
+      Navigator.of(context).pop();
+    } else {
+      // Mostrar Snackbar si el formulario NO es válido
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Por favor, completa todos los campos requeridos.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -118,64 +188,101 @@ class _LugarScreenState extends State<LugarScreen>{
     _nombreController.clear();
     _descripcionController.clear();
     _direccionController.clear();
-    _ciudadController.clear();
-    _provinciaController.clear();
-    _paisController.clear();
+    _ciudadSeleccionada = null;
+    _provinciaSeleccionada = null;
+    _paisSeleccionado = null;
     _latitudController.clear();
     _longitudController.clear();
     _imagenUrlController = null;
   }
 
-  void _mostrarFormulario(BuildContext context){
-    showDialog(context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: SingleChildScrollView(
-              child: Form(
+  void _mostrarFormulario(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              content: SingleChildScrollView(
+                child: Form(
                   key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      Text(_lugarEditandoId != null ? "Editar Lugar" : "Crear Lugar", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                      SizedBox(height: 10,),
                       TextFormField(
                         controller: _nombreController,
                         decoration: const InputDecoration(labelText: "Nombre"),
-                        validator: (v) => v!.isEmpty ? "Campo requerido": null,
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
                       ),
                       TextFormField(
                         controller: _descripcionController,
                         decoration: const InputDecoration(labelText: "Descripcion"),
-                        validator: (v) => v!.isEmpty ? "Campo requerido": null,
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
                       ),
                       TextFormField(
                         controller: _direccionController,
                         decoration: const InputDecoration(labelText: "Direccion"),
-                        validator: (v) => v!.isEmpty ? "Campo requerido": null,
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
                       ),
-                      TextFormField(
-                        controller: _ciudadController,
-                        decoration: const InputDecoration(labelText: "Ciudad"),
-                        validator: (v) => v!.isEmpty ? "Campo requerido": null,
+                      DropdownButtonFormField<String>(
+                        value: _paisSeleccionado,
+                        items: _paises.map((pais) => DropdownMenuItem(
+                          value: pais,
+                          child: Text(pais),
+                        )).toList(),
+                        decoration: const InputDecoration(labelText: 'País'),
+                        onChanged: (value) {
+                          setStateDialog(() {
+                            _paisSeleccionado = value;
+                          });
+                        },
+                        validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
                       ),
-                      TextFormField(
-                        controller: _provinciaController,
-                        decoration: const InputDecoration(labelText: "Provincia"),
-                        validator: (v) => v!.isEmpty ? "Campo requerido": null,
+
+                      DropdownButtonFormField<String>(
+                        value: _provinciaSeleccionada,
+                        items: _provincias.map((provincia) => DropdownMenuItem(
+                          value: provincia,
+                          child: Text(provincia),
+                        )).toList(),
+                        decoration: const InputDecoration(labelText: 'Provincia'),
+                        onChanged: (value) {
+                          setStateDialog(() {
+                            _provinciaSeleccionada = value;
+                            _ciudadSeleccionada = null; // Limpiar ciudad para que se actualice
+                          });
+                        },
+                        validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
                       ),
-                      TextFormField(
-                        controller: _paisController,
-                        decoration: const InputDecoration(labelText: "Pais"),
-                        validator: (v) => v!.isEmpty ? "Campo requerido": null,
+
+                      DropdownButtonFormField<String>(
+                        value: _ciudadSeleccionada,
+                        items: (_ciudadesPorProvincia[_provinciaSeleccionada] ?? [])
+                            .map((ciudad) => DropdownMenuItem(
+                          value: ciudad,
+                          child: Text(ciudad),
+                        ))
+                            .toList(),
+                        decoration: const InputDecoration(labelText: 'Ciudad'),
+                        onChanged: (value) {
+                          setStateDialog(() {
+                            _ciudadSeleccionada = value;
+                          });
+                        },
+                        validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
                       ),
                       TextFormField(
                         controller: _latitudController,
                         decoration: const InputDecoration(labelText: "Latitud"),
-                        validator: (v) => v!.isEmpty ? "Campo requerido": null,
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
                         readOnly: true,
                       ),
                       TextFormField(
                         controller: _longitudController,
                         decoration: const InputDecoration(labelText: "Longitud"),
-                        validator: (v) => v!.isEmpty ? "Campo requerido": null,
+                        validator: (v) => v!.isEmpty ? "Campo requerido" : null,
                         readOnly: true,
                       ),
                       ElevatedButton(
@@ -191,59 +298,109 @@ class _LugarScreenState extends State<LugarScreen>{
                             final lat = resultado['lat'] as double;
                             final lng = resultado['lng'] as double;
 
-                            setState(() {
-                              _latitudController.text = lat.toString();
-                              _longitudController.text = lng.toString();
-                            });
+                            _latitudController.text = lat.toString();
+                            _longitudController.text = lng.toString();
+
+                            setStateDialog(() {}); // <-- Esto actualiza el diálogo
                           }
                         },
                         child: Text(
-                          (_latitudController.text.isNotEmpty && _longitudController.text.isNotEmpty)
+                          (_latitudController.text.isNotEmpty &&
+                              _longitudController.text.isNotEmpty)
                               ? 'Lat: ${_latitudController.text}, Lng: ${_longitudController.text}'
                               : 'Seleccionar ubicación en el mapa',
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      const SizedBox(height: 10,),
+                      if (_latitudController.text.isNotEmpty &&
+                          _longitudController.text.isNotEmpty) ...[
+                        Builder(builder: (context) {
+                          final lat = _latitudController.text;
+                          final lng = _longitudController.text;
+
+                          final mapUrl =
+                              'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/'
+                              'pin-s+ff0000($lng,$lat)/'
+                              '$lng,$lat,14/300x200?access_token=pk.eyJ1Ijoiam9zdWUyMDAzIiwiYSI6ImNtYWI5eHB4aDFrOXQyam9pY2toMHg1dTEifQ.mioI8UDDcUa9pqKXIsEC6A';
+
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: SizedBox(
+                                width: 200,
+                                height: 200,
+                                child: Image.network(
+                                  mapUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                      const SizedBox(height: 10),
                       Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ElevatedButton(
-                              onPressed: _pickImage,
-                              child: const Text("Seleccionar Imagen"),
+                            onPressed: () async {
+                              await _pickImage(() => setStateDialog(() {}));
+                            },
+                            child: const Text("Seleccionar Imagen"),
                           ),
-                          if(_imagenUrlController != null) Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Text("Imagen seleccionada"),
-                          )
+                          const SizedBox(height: 10),
+                          if (_imagenUrlController == null)
+                            const Text("Ninguna imagen seleccionada")
+                          else
+                            Center(
+                              child: Container(
+                                width: 150,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.black, width: 2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    _imagenUrlController!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
-                      const SizedBox(height: 10,),
+                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ElevatedButton(
-                              onPressed: (){
-                                _submitForm();
-                                Navigator.of(context).pop();
-                                },
-                              child: Text(_lugarEditandoId == null ? "Crear" : "Actualizar")
+                            onPressed: () {
+                              _submitForm();
+                            },
+                            child: Text(_lugarEditandoId == null ? "Crear" : "Actualizar"),
                           ),
-                          const SizedBox(width: 8,),
+                          const SizedBox(width: 8),
                           OutlinedButton(
-                              onPressed: (){
-                                _resetForm();
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text("Cancelar")
+                            onPressed: () {
+                              _resetForm();
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Cancelar"),
                           ),
                         ],
-                      )
+                      ),
                     ],
-                  )
+                  ),
+                ),
               ),
-            ),
-          );
-        });
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -294,68 +451,74 @@ class _LugarScreenState extends State<LugarScreen>{
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: const Icon(Icons.delete, color: Colors.white),
                             ),
-                            child: ListTile(
-                              leading: FotoWidget(fileName: lugar.imagenUrl),
-                              title: Text(lugar.nombre),
-                              subtitle: Text(lugar.direccion),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.info),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text("Información del lugar"),
-                                          content: SingleChildScrollView(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Center(
-                                                  child: FotoWidget(fileName: lugar.imagenUrl, size: 80),
-                                                ),
-                                                const SizedBox(height: 16),
-                                                InfoRowWidget(label: "ID", value: lugar.idLugar.toString()),
-                                                InfoRowWidget(label: "Nombre", value: lugar.nombre),
-                                                InfoRowWidget(label: "Descripción", value: lugar.descripcion),
-                                                InfoRowWidget(label: "Dirección", value: lugar.direccion),
-                                                InfoRowWidget(label: "Ciudad", value: lugar.ciudad),
-                                                InfoRowWidget(label: "Provincia", value: lugar.provincia),
-                                                InfoRowWidget(label: "País", value: lugar.pais),
-                                                InfoRowWidget(label: "Longitud", value: lugar.longitud.toString()),
-                                                InfoRowWidget(label: "Latitud", value: lugar.latitud.toString()),
-                                                InfoRowWidget(label: "Imagen URL", value: lugar.imagenUrl),
-                                                InfoRowWidget(
-                                                  label: "Familias",
-                                                  value: (lugar.familias ?? [])
-                                                      .where((f) => f?.nombre != null)
-                                                      .map((f) => f!.nombre!)
-                                                      .join(', '),
-                                                ),
-                                                InfoRowWidget(label: "Fecha de creación", value: lugar.fechaCreacionLugar),
-                                                InfoRowWidget(label: "Fecha de modificación", value: lugar.fechaModificacionLugar.toString()),
-                                              ],
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              child: ListTile(
+                                leading: FotoWidget(fileName: lugar.imagenUrl ?? ""),
+                                title: Text(lugar.nombre, style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),),
+                                subtitle: Text(lugar.direccion),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.info, color: Colors.blue),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            title: const Text("Información del lugar"),
+                                            content: SingleChildScrollView(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Center(
+                                                    child: FotoWidget(fileName: lugar.imagenUrl ?? "", size: 80),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  InfoRowWidget(label: "ID", value: lugar.idLugar.toString()),
+                                                  InfoRowWidget(label: "Nombre", value: lugar.nombre),
+                                                  InfoRowWidget(label: "Descripción", value: lugar.descripcion),
+                                                  InfoRowWidget(label: "Dirección", value: lugar.direccion),
+                                                  InfoRowWidget(label: "Ciudad", value: lugar.ciudad),
+                                                  InfoRowWidget(label: "Provincia", value: lugar.provincia),
+                                                  InfoRowWidget(label: "País", value: lugar.pais),
+                                                  InfoRowWidget(label: "Longitud", value: lugar.longitud.toString()),
+                                                  InfoRowWidget(label: "Latitud", value: lugar.latitud.toString()),
+                                                  InfoRowWidget(label: "Imagen URL", value: lugar.imagenUrl),
+                                                  InfoRowWidget(
+                                                    label: "Familias",
+                                                    value: (lugar.familias ?? [])
+                                                        .where((f) => f?.nombre != null)
+                                                        .map((f) => f!.nombre!)
+                                                        .join(', '),
+                                                  ),
+                                                  InfoRowWidget(label: "Fecha de creación", value: lugar.fechaCreacionLugar),
+                                                  InfoRowWidget(label: "Fecha de modificación", value: lugar.fechaModificacionLugar.toString()),
+                                                ],
+                                              ),
                                             ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.of(context).pop(),
+                                                child: const Text("Cerrar"),
+                                              )
+                                            ],
                                           ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.of(context).pop(),
-                                              child: const Text("Cerrar"),
-                                            )
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () {
-                                      _cargarParaEditar(lugar);
-                                      _mostrarFormulario(context);
-                                    },
-                                  )
-                                ],
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.green),
+                                      onPressed: () {
+                                        _cargarParaEditar(lugar);
+                                        _mostrarFormulario(context);
+                                      },
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           );

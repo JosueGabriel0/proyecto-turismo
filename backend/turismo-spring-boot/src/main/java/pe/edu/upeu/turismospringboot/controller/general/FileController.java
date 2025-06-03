@@ -1,4 +1,4 @@
-package pe.edu.upeu.turismospringboot.controller.admin;
+package pe.edu.upeu.turismospringboot.controller.general;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;

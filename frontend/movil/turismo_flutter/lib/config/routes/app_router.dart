@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/admin_screen.dart';
+import 'package:turismo_flutter/features/admin/presentation/screens/noticias_screen.dart';
 import 'package:turismo_flutter/features/auth/presentation/screens/login_screen.dart';
 import 'package:turismo_flutter/features/auth/presentation/screens/register_screen.dart';
 import 'package:turismo_flutter/features/emprendedor/presentation/screens/emprendedor_screen.dart';
@@ -8,6 +9,7 @@ import 'package:turismo_flutter/features/general/presentation/screens/bienvenida
 import 'package:turismo_flutter/features/general/presentation/screens/bienvenida2.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/reservas_screen.dart';
+import 'package:turismo_flutter/features/general/presentation/screens/perfil_screen.dart';
 import 'package:turismo_flutter/features/usuario/presentation/screens/usuario_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -32,6 +34,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/admin',
       builder: (context, state) => const AdminScreen(),
+    ),
+    GoRoute(
+      path: '/admin/noticias',
+      builder: (context, state) => const AdminScreen(child: NoticiasScreen(),),
+    ),
+    GoRoute(
+      path: '/admin/perfil',
+      builder: (context, state) => const AdminScreen(child: PerfilScreen(),),
     ),
     GoRoute(
       path: '/usuario',

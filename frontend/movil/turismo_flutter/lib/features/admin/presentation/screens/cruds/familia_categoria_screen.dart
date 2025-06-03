@@ -42,7 +42,7 @@ class _FamiliaCategoriaScreenState extends State<FamiliaCategoriaScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Nueva relación Familia-Categoría"),
+          title: const Text("Nueva relación Familia-Categoría", style: TextStyle(fontWeight: FontWeight.bold),),
           content: SingleChildScrollView(
             child: Column(
               children: [
@@ -61,6 +61,7 @@ class _FamiliaCategoriaScreenState extends State<FamiliaCategoriaScreen> {
                         onChanged: (value) {
                           selectedFamiliaId = value;
                         },
+                        validator: (v) => v == null  ? "Campo requerido" : null,
                       );
                     }
                     return const CircularProgressIndicator();
@@ -82,6 +83,7 @@ class _FamiliaCategoriaScreenState extends State<FamiliaCategoriaScreen> {
                         onChanged: (value) {
                           selectedCategoriaId = value;
                         },
+                        validator: (v) => v == null ? "Campo requerido" : null,
                       );
                     }
                     return const CircularProgressIndicator();
@@ -106,9 +108,14 @@ class _FamiliaCategoriaScreenState extends State<FamiliaCategoriaScreen> {
                     AsociarFamiliaCategoriaEvent(dto),
                   );
                   Navigator.pop(context);
-                } else {
+                }  else {
+                  // Mostrar Snackbar si el formulario NO es válido
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Debes seleccionar ambos valores.")),
+                    SnackBar(
+                      content: Text('Por favor, completa todos los campos requeridos.'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 3),
+                    ),
                   );
                 }
               },

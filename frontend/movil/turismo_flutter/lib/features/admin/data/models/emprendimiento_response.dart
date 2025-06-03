@@ -4,7 +4,7 @@ class EmprendimientoResponse {
   int idEmprendimiento;
   String nombre;
   String descripcion;
-  String imagenUrl;
+  String? imagenUrl;
   String latitud;
   String longitud;
   List<ReservaResponse>? reservas; // Ahora puede ser null

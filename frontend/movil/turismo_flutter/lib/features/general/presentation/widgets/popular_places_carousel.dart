@@ -68,7 +68,7 @@ class PopularPlacesCarousel extends StatelessWidget {
                                     width: double.infinity,
                                     height: 130,
                                     child: FotoRectanguloWidget(
-                                      fileName: lugar.imagenUrl,
+                                      fileName: lugar.imagenUrl ?? "",
                                       height: 130,
                                     ),
                                   ),

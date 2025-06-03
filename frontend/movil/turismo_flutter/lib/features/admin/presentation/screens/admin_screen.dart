@@ -16,22 +16,91 @@ import 'package:turismo_flutter/features/admin/presentation/screens/cruds/lugar_
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/rol_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/servicio_turistico_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/usuario_screen.dart';
+import 'package:turismo_flutter/features/admin/presentation/screens/noticias_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/pages/home2_page.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/pages/home_page.dart';
 import 'package:turismo_flutter/features/emprendedor/presentation/screens/emprendedor_screen.dart';
+import 'package:turismo_flutter/features/general/presentation/screens/perfil_screen.dart';
 
 class AdminScreen extends StatefulWidget {
-  const AdminScreen({super.key});
+  final Widget? child;
+  const AdminScreen({super.key, this.child});
 
   @override
   _AdminScreenState createState() => _AdminScreenState();
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final tab = GoRouterState.of(context).uri.queryParameters['tab'];
+
+    switch (tab) {
+      case 'dashboard':
+        _setTabIndex(0);
+        break;
+      case 'roles':
+        _setTabIndex(1);
+        break;
+      case 'usuarios':
+        _setTabIndex(2);
+        break;
+      case 'lugares':
+        _setTabIndex(3);
+        break;
+      case 'familias':
+        _setTabIndex(4);
+        break;
+      case 'categorias':
+        _setTabIndex(5);
+        break;
+      case 'famcat':
+        _setTabIndex(6);
+        break;
+      case 'emprendimientos':
+        _setTabIndex(7);
+        break;
+      case 'servicios':
+        _setTabIndex(8);
+        break;
+      default:
+        _setTabIndex(0); // Dashboard por defecto
+    }
+  }
+
+  void _setTabIndex(int index) {
+    if (_selectedIndex != index) {
+      setState(() {
+        _selectedIndex = index;
+        _bottomNavIndex = 0;
+      });
+    }
+  }
+
   // Índice para controlar la pantalla actual
   int _selectedIndex = 0;
 
+  void _navigateToIndex(int index) {
+    setState(() {
+      _bottomNavIndex = index;
+      if (index == 0) {
+        _selectedIndex = 0;
+        context.go('/admin');
+      } else if (index == 1) {
+        _selectedIndex = 9;
+        context.go('/admin/noticias');
+      } else if (index == 2) {
+        _selectedIndex = 10;
+        context.go('/admin/perfil');
+      }
+    });
+  }
+
+  int _bottomNavIndex = 0;
   // Lista de pantallas que pueden mostrarse
   final List<Widget> _screens = [
     const AdminDashboardScreen(),
@@ -45,17 +114,33 @@ class _AdminScreenState extends State<AdminScreen> {
     const ServicioTuristicoScreen(),
   ];
 
+  final List<IconData> _icons = [
+    Icons.dashboard,          // Panel de Administración
+    Icons.admin_panel_settings, // Roles
+    Icons.person,             // Usuarios
+    Icons.place,              // Lugares
+    Icons.family_restroom,    // Familias
+    Icons.category,           // Categorias
+    Icons.merge_type,         // Familia Categoria
+    Icons.business,           // Emprendimientos
+    Icons.tour,               // Servicios turisticos
+    Icons.newspaper,
+    Icons.person_pin,
+  ];
+
   // Lista de títulos correspondientes a cada pantalla
   final List<String> _titles = [
-    'Panel de Administración',
-    'Gestión de roles',
-    'Gestión de usuarios',
-    'Gestión de lugares',
-    'Gestion de familias',
-    'Gestion de categorias',
-    'Gestion de familia con categoria',
-    'Gestion de emprendimientos',
-    'Gestion de servicios turisticos',
+    'Administración',
+    'Roles',
+    'Usuarios',
+    'Lugares',
+    'Familias',
+    'Categorias',
+    'Familia Categoria',
+    'Emprendimientos',
+    'Servicios turisticos',
+    'Noticias',
+    'Perfil'
   ];
 
   // Guardar el usuario en una variable para la pantalla
@@ -82,12 +167,75 @@ class _AdminScreenState extends State<AdminScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_titles[_selectedIndex], style: TextStyle(color: Colors.white),),
-          backgroundColor: Colors.blueGrey[800],
-          iconTheme: const IconThemeData(color: Colors.white),
+            title: Row(
+              children: [
+                Icon(_icons[_selectedIndex], color: Colors.white),
+                SizedBox(width: 8),
+                Expanded( // Esto limita el ancho del texto al espacio disponible
+                  child: Text(
+                    _titles[_selectedIndex],
+                    style: TextStyle(color: Colors.white),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.blueGrey[800],
+            iconTheme: const IconThemeData(color: Colors.white),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.notifications),
+                onPressed: () {
+                  // Acción de notificaciones
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  // Acción de configuración
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () async {
+                  final tokenService = TokenStorageService();
+                  await tokenService.clearToken();
+                  setState(() {
+                    _usuario = null;
+                  });
+                  context.go("/login");
+                },
+              ),
+            ]
         ),
         drawer: _buildDrawer(),
-        body: _screens[_selectedIndex], // Cambia el contenido basado en el índice seleccionado
+        body: Builder(
+          builder: (context) {
+            final uri = GoRouterState.of(context).uri;
+            final isAdminBase = uri.path == '/admin';
+            final tabParam = uri.queryParameters['tab'];
+
+            if (isAdminBase) {
+              return _screens[_selectedIndex];
+            } else if (uri.path == '/admin/noticias') {
+              return const NoticiasScreen();
+            } else if (uri.path == '/admin/perfil') {
+              return const PerfilScreen();
+            }
+
+            return widget.child ?? const SizedBox();
+          },
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _bottomNavIndex,
+          onTap: _navigateToIndex,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Inicio'),
+            BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: 'Noticias'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_pin), label: 'Perfil'),
+          ],
+        ),
       ),
     );
   }
@@ -143,31 +291,46 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.dashboard),
             title: const Text('Dashboard'),
             onTap: () {
-              setState(() => _selectedIndex = 0);
+              setState(() {
+                _selectedIndex = 0;
+                _bottomNavIndex = 0;
+              });
               Navigator.of(context).pop();
+              context.go('/admin?tab=dashboard');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.security),
+            leading: const Icon(Icons.admin_panel_settings),
             title: const Text('Roles'),
             onTap: () {
-              setState(() => _selectedIndex = 1);
+              setState(() {
+                _selectedIndex = 1;
+                _bottomNavIndex = 0;
+              });
               Navigator.of(context).pop();
+              context.go('/admin?tab=roles');
             },
           ),
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Usuarios'),
             onTap: () {
-              setState(() => _selectedIndex = 2);
+              setState(() {
+                _selectedIndex = 2;
+                _bottomNavIndex = 0;
+              });
               Navigator.of(context).pop();
+              context.go('/admin?tab=usuarios');
             },
           ),
           ListTile(
             leading: const Icon(Icons.place),
             title: const Text('Lugares'),
             onTap: () {
-              setState(() => _selectedIndex = 3);
+              setState(() {
+                _selectedIndex = 3;
+                _bottomNavIndex = 0;
+              });
               Navigator.of(context).pop();
             },
           ),
@@ -175,7 +338,10 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.family_restroom),
             title: const Text('Familias'),
             onTap: () {
-              setState(() => _selectedIndex = 4);
+              setState(() {
+                _selectedIndex = 4;
+                _bottomNavIndex = 0;
+              });
               Navigator.of(context).pop();
             },
           ),
@@ -183,7 +349,10 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.category),
             title: const Text('Categorias'),
             onTap: () {
-              setState(() => _selectedIndex = 5);
+              setState(() {
+                _selectedIndex = 5;
+                _bottomNavIndex = 0;
+              });
               Navigator.of(context).pop();
             },
           ),
@@ -191,7 +360,10 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.private_connectivity),
             title: const Text('Familias con Categorias'),
             onTap: () {
-              setState(() => _selectedIndex = 6);
+              setState(() {
+                _selectedIndex = 6;
+                _bottomNavIndex = 0;
+              });
               Navigator.of(context).pop();
             },
           ),
@@ -199,15 +371,21 @@ class _AdminScreenState extends State<AdminScreen> {
             leading: const Icon(Icons.store),
             title: const Text('Emprendimientos'),
             onTap: () {
-              setState(() => _selectedIndex = 7);
+              setState(() {
+                _selectedIndex = 7;
+                _bottomNavIndex = 0;
+              });
               Navigator.of(context).pop();
             },
           ),
           ListTile(
-            leading: const Icon(Icons.design_services),
+            leading: const Icon(Icons.tour),
             title: const Text('Servicios turisticos'),
             onTap: () {
-              setState(() => _selectedIndex = 8);
+              setState(() {
+                _selectedIndex = 8;
+                _bottomNavIndex = 0;
+              });
               Navigator.of(context).pop();
             },
           ),

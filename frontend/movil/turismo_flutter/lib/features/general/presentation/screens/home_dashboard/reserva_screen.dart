@@ -6,6 +6,7 @@ import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_w
 import 'package:turismo_flutter/features/general/presentation/bloc/servicio_turistico/servicio_turistico_general_bloc.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/servicio_turistico/servicio_turistico_general_event.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/servicio_turistico/servicio_turistico_general_state.dart';
+import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/file_screen.dart';
 import 'package:turismo_flutter/features/usuario/data/models/reserva_detalle_dto.dart';
 import 'package:turismo_flutter/features/usuario/data/models/reserva_dto.dart';
 import 'package:turismo_flutter/features/usuario/data/models/usuario_user_dto.dart';
@@ -506,15 +507,18 @@ ${d.observaciones != null && d.observaciones!.isNotEmpty ? '• Observaciones: $
 
                 // ✅ Generar PDF
                 final pdfFile = await generarPdfReserva(mensaje, "reserva_$idReservaCreada");
-                await guardarPdfEnDocumentos(pdfFile, "reserva_$idReservaCreada");
 
                 // ✅ Compartir PDF con el mensaje
                 await enviarMensajeWhatsApp(numeroTelefonoEmprendedor, mensaje);
 
-
                 // ✅ Redirigir
-                widget.onNavigateIndexBottomNav(2);
-                context.go("/home/reserva");
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => FileScreen(
+                      pdfFile: pdfFile,
+                    ),
+                  ),
+                );
               }
               else if (state is ReservaError) {
               ScaffoldMessenger.of(context).showSnackBar(

@@ -9,6 +9,8 @@ import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuar
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/get_usuarios_usecase.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_event.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/dashboard/dashboard_admin_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/dashboard/dashboard_admin_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/familia_bloc.dart';
@@ -56,6 +58,11 @@ void main() async{
         ),
         BlocProvider(
           create: (context) => RegisterBloc(registerUseCase: getIt()),
+        ),
+        BlocProvider<DashboardAdminBloc>(
+          create: (context) => DashboardAdminBloc(
+              getDashboardUseCase: getIt(),
+          )..add(LoadDashboardAdminEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<UsuarioUserBloc>(
           create: (context) => UsuarioUserBloc(
@@ -150,7 +157,7 @@ void main() async{
             obtenerPorIdCategoriaUsecaseGeneral: getIt(),
             obtenerPorIdFamiliaUsecaseGeneral: getIt(),
             getEmprendimientosPorFamiliaCategoriaUsecaseGeneral: getIt(),
-          )..add(ListarRelacionesEventGeneral()), // Esto garantiza que el RolBloc se inicialice correctamente
+          ), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<EmprendimientoBloc>(
           create: (context) => EmprendimientoBloc(

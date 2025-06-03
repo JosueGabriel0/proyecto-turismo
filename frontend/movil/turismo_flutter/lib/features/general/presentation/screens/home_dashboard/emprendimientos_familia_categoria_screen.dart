@@ -75,7 +75,7 @@ class _EmprendimientosFamiliaCategoriaScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         FotoRectanguloWidget(
-                          fileName: e.imagenUrl,
+                          fileName: e.imagenUrl ?? "",
                           height: 160,
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(12),

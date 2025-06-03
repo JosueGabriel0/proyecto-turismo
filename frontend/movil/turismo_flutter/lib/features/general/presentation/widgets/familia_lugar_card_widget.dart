@@ -29,7 +29,7 @@ class FamiliaLugarCardWidget extends StatelessWidget {
               children: [
                 // Imagen superior
                 FotoRectanguloWidget(
-                  fileName: familia.imagenUrl,
+                  fileName: familia.imagenUrl ?? "",
                   height: 180,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 ),

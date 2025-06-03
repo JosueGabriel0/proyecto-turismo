@@ -63,6 +63,8 @@ dependencies:
   url_launcher: ^6.2.6
   pdf: ^3.10.4
   path_provider: ^2.1.2
+  open_file: ^3.3.2
+  flutter_pdfview: ^1.2.7
 
 
 dev_dependencies:

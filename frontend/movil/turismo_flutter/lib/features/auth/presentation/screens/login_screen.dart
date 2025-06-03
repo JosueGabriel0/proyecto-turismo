@@ -40,6 +40,9 @@ class _LoginContentState extends State<LoginContent> {
   final FocusNode passwordFocusNode = FocusNode();
   final TextEditingController passwordController = TextEditingController();
 
+  bool _isPasswordVisible = false;
+  bool _isBlinking = false;
+
   rive.StateMachineController? controller;
   rive.SMIInput<bool>? isChecking;
   rive.SMIInput<double>? numLook;
@@ -176,7 +179,31 @@ class _LoginContentState extends State<LoginContent> {
                           controller: passwordController,
                           focusNode: passwordFocusNode,
                           hint: "Password",
-                          obscure: true,
+                          obscure: !_isPasswordVisible,
+                          suffixIcon: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                            child: IconButton(
+                              key: ValueKey<int>(DateTime.now().millisecondsSinceEpoch), // Forzar redibujado
+                              icon: Icon(
+                                _isBlinking
+                                    ? Icons.remove_red_eye // Ícono intermedio (simula ojo entrecerrado)
+                                    : (_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isBlinking = true;
+                                });
+
+                                Future.delayed(const Duration(milliseconds: 150), () {
+                                  setState(() {
+                                    _isBlinking = false;
+                                    _isPasswordVisible = !_isPasswordVisible;
+                                  });
+                                });
+                              },
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 32),
                         SizedBox(
@@ -237,6 +264,7 @@ class _LoginContentState extends State<LoginContent> {
         required String hint,
         bool obscure = false,
         void Function(String)? onChanged,
+        Widget? suffixIcon,
       }) {
     return Container(
       decoration: BoxDecoration(
@@ -251,6 +279,7 @@ class _LoginContentState extends State<LoginContent> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hint,
+          suffixIcon: suffixIcon,
         ),
         style: Theme.of(context).textTheme.bodyMedium,
         onChanged: onChanged,

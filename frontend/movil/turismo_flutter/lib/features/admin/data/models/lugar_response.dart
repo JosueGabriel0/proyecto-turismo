@@ -10,7 +10,7 @@ class LugarResponse {
   String pais;
   String latitud;
   String longitud;
-  String imagenUrl;
+  String? imagenUrl;
   List<FamiliaResponse?>? familias;
   String fechaCreacionLugar;
   String? fechaModificacionLugar;

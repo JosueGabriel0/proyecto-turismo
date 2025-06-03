@@ -10,6 +10,7 @@ import 'package:turismo_flutter/features/emprendedor/data/models/emprendimiento_
 import 'package:turismo_flutter/features/emprendedor/presentation/bloc/emprendimiento/emprendimiento_emprendedor_bloc.dart';
 import 'package:turismo_flutter/features/emprendedor/presentation/bloc/emprendimiento/emprendimiento_emprendedor_event.dart';
 import 'package:turismo_flutter/features/emprendedor/presentation/bloc/emprendimiento/emprendimiento_emprendedor_state.dart';
+import 'package:turismo_flutter/features/emprendedor/presentation/screens/editar_emprendimiento_dialog.dart';
 import 'package:turismo_flutter/features/general/presentation/widgets/foto_rectangulo_widget.dart';
 
 class MiEmprendimientoScreen extends StatefulWidget {
@@ -83,18 +84,30 @@ class _MiEmprendimientoScreenState extends State<MiEmprendimientoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<EmprendimientoEmprendedorBloc, EmprendimientoEmprendedorState>(
-        listener: (context, state) {
-          if (state is EmprendimientoEmprendedorUpdated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('¡Emprendimiento actualizado con éxito!')),
-            );
-          } else if (state is EmprendimientoEmprendedorError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
-          }
-        },
+      appBar: AppBar(
+        title: const Text("Mi Emprendimiento"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              if (_idEmprendimiento != null) {
+                showDialog(
+                  context: context,
+                  builder: (_) => EditarEmprendimientoDialog(
+                    idEmprendimiento: _idEmprendimiento!,
+                    nombre: _nombreController.text,
+                    descripcion: _descripcionController.text,
+                    latitud: _latitudController.text,
+                    longitud: _longitudController.text,
+                    idFamiliaCategoria: _idFamiliaCategoria ?? 1,
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+      body: BlocBuilder<EmprendimientoEmprendedorBloc, EmprendimientoEmprendedorState>(
         builder: (context, state) {
           if (state is EmprendimientoEmprendedorLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -104,46 +117,24 @@ class _MiEmprendimientoScreenState extends State<MiEmprendimientoScreen> {
             _descripcionController.text = emprendimiento.descripcion;
             _latitudController.text = emprendimiento.latitud;
             _longitudController.text = emprendimiento.longitud;
-            _idFamiliaCategoria = 1; // ← reemplaza esto según tu lógica
+            _idFamiliaCategoria = 1;
             _idEmprendimiento = emprendimiento.idEmprendimiento;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _selectedImage != null
-                      ? Image.file(_selectedImage!, height: 200)
-                      : FotoRectanguloWidget(fileName: emprendimiento.imagenUrl),
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    onPressed: _pickImage,
-                    icon: const Icon(Icons.image),
-                    label: const Text('Cambiar imagen'),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _nombreController,
-                    decoration: const InputDecoration(labelText: 'Nombre'),
-                  ),
-                  TextField(
-                    controller: _descripcionController,
-                    decoration: const InputDecoration(labelText: 'Descripción'),
-                  ),
-                  TextField(
-                    controller: _latitudController,
-                    decoration: const InputDecoration(labelText: 'Latitud'),
-                  ),
-                  TextField(
-                    controller: _longitudController,
-                    decoration: const InputDecoration(labelText: 'Longitud'),
-                  ),
+                  FotoRectanguloWidget(fileName: emprendimiento.imagenUrl),
                   const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: _updateEmprendimiento,
-                    icon: const Icon(Icons.save),
-                    label: const Text('Actualizar'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-                  ),
+                  Text("Nombre: ${emprendimiento.nombre}", style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 10),
+                  Text("Descripción: ${emprendimiento.descripcion}"),
+                  const SizedBox(height: 10),
+                  Text("Latitud: ${emprendimiento.latitud}"),
+                  Text("Longitud: ${emprendimiento.longitud}"),
+                  const SizedBox(height: 10),
+                  Text("Fecha de creación: ${emprendimiento.fechaCreacionEmprendimiento}"),
                 ],
               ),
             );

@@ -57,7 +57,7 @@ class _EmprendimientoDetalleScreenState extends State<EmprendimientoDetalleScree
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FotoRectanguloWidget(fileName: e.imagenUrl, height: 200),
+                  FotoRectanguloWidget(fileName: e.imagenUrl ?? "", height: 200),
                   const SizedBox(height: 16),
                   Text(e.nombre, style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 8),

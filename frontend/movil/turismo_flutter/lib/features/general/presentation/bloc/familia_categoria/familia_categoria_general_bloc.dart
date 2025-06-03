@@ -40,12 +40,20 @@ class FamiliaCategoriaGeneralBloc extends Bloc<FamiliaCategoriaGeneralEvent, Fam
       }
     });
 
-    on<ObtenerPorIdFamiliaEventGeneral> ((event, emit) async {
+    on<ObtenerPorIdFamiliaEventGeneral>((event, emit) async {
       emit(FamiliaCategoriaLoadingGeneral());
-      try{
-        final categorias = await obtenerPorIdFamiliaUsecaseGeneral(event.idFamilia); // <- debe retornar una lista
-        emit(FamiliaCategoriaListLoadedGeneral(categorias)); // ← EMITIR RESULTADO
-      }catch (e) {
+
+      try {
+        final categorias = await obtenerPorIdFamiliaUsecaseGeneral(event.idFamilia);
+
+        print("Bloc - datos cargados para familia ${event.idFamilia}: ${categorias.map((e) => e.idCategoria).toList()}");
+        print("Bloc - datos a emitir para familia ${event.idFamilia}: ${categorias.map((e) => e.idFamiliaCategoria).toList()}");
+
+        // 🔴 Emite estado vacío antes de emitir el resultado real
+        emit(FamiliaCategoriaListLoadedGeneral([]));
+        emit(FamiliaCategoriaListLoadedGeneral(categorias));
+
+      } catch (e) {
         emit(FamiliaCategoriaErrorGeneral("Error al obtener por id familia: $e"));
       }
     });
