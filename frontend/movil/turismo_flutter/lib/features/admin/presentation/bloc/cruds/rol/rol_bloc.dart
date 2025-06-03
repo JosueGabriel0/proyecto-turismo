@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/rol/buscar_roles_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/create_rol_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/delete_rol_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/get_rol_by_id_usecase.dart';
@@ -15,6 +16,7 @@ class RolBloc extends Bloc<RolEvent, RolState> {
   final GetRolByIdUseCase getRolByIdUseCase;
   final UpdateRolUseCase updateRolUseCase;
   final DeleteRolUseCase deleteRolUseCase;
+  final BuscarRolesPorNombreUsecase buscarRolesPorNombreUsecase;
 
   RolBloc({
     required this.createRolUseCase,
@@ -22,6 +24,7 @@ class RolBloc extends Bloc<RolEvent, RolState> {
     required this.getRolByIdUseCase,
     required this.updateRolUseCase,
     required this.deleteRolUseCase,
+    required this.buscarRolesPorNombreUsecase,
   }) : super(RolInitialState()) {
     on<GetRolesEvent>(_onGetRoles);
     on<GetRolByIdEvent>(_onGetRolById);
@@ -30,8 +33,7 @@ class RolBloc extends Bloc<RolEvent, RolState> {
     on<DeleteRolEvent>(_onDeleteRol);
     on<BuscarRolPorNombreEvent>(
       _onBuscarRolesPorNombre,
-      transformer: (events, mapper) =>
-          events.debounceTime(const Duration(milliseconds: 300)).switchMap(mapper),
+      transformer: debounceRestartable(const Duration(milliseconds: 300)),
     );
   }
 
@@ -114,15 +116,19 @@ class RolBloc extends Bloc<RolEvent, RolState> {
       BuscarRolPorNombreEvent event,
       Emitter<RolState> emit,
       ) async {
-    emit(RolLoadingState());
     try {
-      final roles = await getRolesUseCase.execute();
-      final filtrados = roles
-          .where((rol) => rol.nombre.toLowerCase().contains(event.nombre.toLowerCase()))
-          .toList();
-      emit(RolLoadedState(roles: filtrados));
-    } catch (e) {
+      final resultados = await buscarRolesPorNombreUsecase(event.nombre);
+      emit(RolLoadedState(roles: resultados));
+    } catch (e, stackTrace) {
+      print("🔴 Error al buscar roles: $e");
+      print("🔍 StackTrace:\n$stackTrace");
       emit(RolErrorState(message: "Error al buscar roles: $e"));
     }
+  }
+
+  EventTransformer<T> debounceRestartable<T>(Duration duration) {
+    return (events, mapper) => events
+        .debounceTime(duration)
+        .switchMap(mapper); // evita búsquedas obsoletas
   }
 }

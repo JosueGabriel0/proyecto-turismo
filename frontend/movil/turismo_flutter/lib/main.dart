@@ -78,6 +78,7 @@ void main() async{
             createRolUseCase: getIt(),
             updateRolUseCase: getIt(),
             deleteRolUseCase: getIt(),
+           buscarRolesPorNombreUsecase: getIt()
           )..add(GetRolesEvent()), // Esto garantiza que el RolBloc se inicialice correctamente
         ),
         BlocProvider<UsuarioBloc>(
