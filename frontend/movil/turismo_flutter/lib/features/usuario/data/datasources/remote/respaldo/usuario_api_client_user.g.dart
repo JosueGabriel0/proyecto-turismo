@@ -45,10 +45,10 @@ class _UsuarioApiClientUser implements UsuarioApiClientUser {
   }
 
   @override
-  Future<UsuarioUserResponse> putUsuarioCompleto(
+  Future<UsuarioUserResponse> putUsuarioCompletoUser(
     int idUsuario,
     String usuarioJson,
-      MultipartFile? file,
+    MultipartFile? file,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -111,4 +111,4 @@ class _UsuarioApiClientUser implements UsuarioApiClientUser {
     return Uri.parse(dioBaseUrl).resolveUri(url).toString();
   }
 }
-*/
+ */

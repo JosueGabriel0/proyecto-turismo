@@ -1,10 +1,12 @@
 package pe.edu.upeu.turismospringboot.service.impl;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upeu.turismospringboot.model.dto.UsuarioCompletoDto;
+import pe.edu.upeu.turismospringboot.model.dto.UsuarioDtoUser;
 import pe.edu.upeu.turismospringboot.model.entity.Emprendimiento;
 import pe.edu.upeu.turismospringboot.model.entity.Persona;
 import pe.edu.upeu.turismospringboot.model.entity.Rol;
@@ -166,5 +168,48 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
     @Override
     public List<Usuario> buscarUsuariosPorUsername(String username) {
         return usuarioRepository.buscarPorUsername(username);
+    }
+
+    @Transactional
+    @Override
+    public Usuario actualizarUsuarioCompletoPorUsuario(Long idUsuario, UsuarioDtoUser usuarioDtoUser, MultipartFile file, Usuario usuarioAutenticado) {
+        // Verificar que el usuario autenticado es el dueño del perfil
+        if (!usuarioAutenticado.getIdUsuario().equals(idUsuario)) {
+            throw new RuntimeException("No tienes permiso para modificar este usuario.");
+        }
+
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Persona persona = usuario.getPersona();
+
+        // Actualizar foto si se proporciona
+        if (file != null && !file.isEmpty()) {
+            String fileName = saveFile(file);
+            persona.setFotoPerfil(fileName);
+        }
+
+        // Actualizar datos personales
+        persona.setNombres(usuarioDtoUser.getNombres());
+        persona.setApellidos(usuarioDtoUser.getApellidos());
+        persona.setTipoDocumento(usuarioDtoUser.getTipoDocumento());
+        persona.setNumeroDocumento(usuarioDtoUser.getNumeroDocumento());
+        persona.setTelefono(usuarioDtoUser.getTelefono());
+        persona.setDireccion(usuarioDtoUser.getDireccion());
+        persona.setCorreoElectronico(usuarioDtoUser.getCorreoElectronico());
+        persona.setFechaNacimiento(usuarioDtoUser.getFechaNacimiento());
+
+        personaRepository.save(persona);
+
+        usuario.setUsername(usuarioDtoUser.getUsername());
+
+        String nuevaPassword = usuarioDtoUser.getPassword();
+        if (nuevaPassword != null && !nuevaPassword.isBlank()) {
+            if (!passwordEncoder.matches(nuevaPassword, usuario.getPassword())) {
+                usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+            }
+        }
+
+        return usuarioRepository.save(usuario);
     }
 }

@@ -9,7 +9,7 @@ import 'package:turismo_flutter/features/general/presentation/screens/bienvenida
 import 'package:turismo_flutter/features/general/presentation/screens/bienvenida2.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/reservas_screen.dart';
-import 'package:turismo_flutter/features/general/presentation/screens/perfil_screen.dart';
+import 'package:turismo_flutter/features/usuario/presentation/screens/perfil_screen.dart';
 import 'package:turismo_flutter/features/usuario/presentation/screens/usuario_screen.dart';
 
 final GoRouter appRouter = GoRouter(

@@ -17,11 +17,12 @@ import 'package:turismo_flutter/features/admin/presentation/screens/cruds/rol_sc
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/servicio_turistico_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/usuario_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/noticias_screen.dart';
+import 'package:turismo_flutter/features/admin/presentation/screens/perfil_admin_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/pages/home2_page.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/pages/home_page.dart';
 import 'package:turismo_flutter/features/emprendedor/presentation/screens/emprendedor_screen.dart';
-import 'package:turismo_flutter/features/general/presentation/screens/perfil_screen.dart';
+import 'package:turismo_flutter/features/usuario/presentation/screens/perfil_screen.dart';
 
 class AdminScreen extends StatefulWidget {
   final Widget? child;
@@ -85,8 +86,6 @@ class _AdminScreenState extends State<AdminScreen> {
   int _selectedIndex = 0;
 
   void _navigateToIndex(int index) {
-    setState(() {
-      _bottomNavIndex = index;
       if (index == 0) {
         _selectedIndex = 0;
         context.go('/admin');
@@ -97,7 +96,6 @@ class _AdminScreenState extends State<AdminScreen> {
         _selectedIndex = 10;
         context.go('/admin/perfil');
       }
-    });
   }
 
   int _bottomNavIndex = 0;
@@ -157,6 +155,17 @@ class _AdminScreenState extends State<AdminScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final uri = GoRouterState.of(context).uri;
+    final path = uri.path;
+
+    // Detecta y ajusta los índices correctamente desde la ruta
+    if (path == '/admin') {
+      _bottomNavIndex = 0;
+    } else if (path == '/admin/noticias') {
+      _bottomNavIndex = 1;
+    } else if (path == '/admin/perfil') {
+      _bottomNavIndex = 2;
+    }
     return BlocListener<UsuarioBloc, UsuarioState>(
       listener: (context, state) {
         if (state is UsuarioProfileLoaded) {
@@ -221,7 +230,7 @@ class _AdminScreenState extends State<AdminScreen> {
             } else if (uri.path == '/admin/noticias') {
               return const NoticiasScreen();
             } else if (uri.path == '/admin/perfil') {
-              return const PerfilScreen();
+              return const PerfilAdminScreen();
             }
 
             return widget.child ?? const SizedBox();
@@ -230,6 +239,8 @@ class _AdminScreenState extends State<AdminScreen> {
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _bottomNavIndex,
           onTap: _navigateToIndex,
+          selectedItemColor: Colors.blueGrey[800],
+          unselectedItemColor: Colors.grey,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Inicio'),
             BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: 'Noticias'),
@@ -332,6 +343,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 _bottomNavIndex = 0;
               });
               Navigator.of(context).pop();
+              context.go('/admin?tab=lugares');
             },
           ),
           ListTile(
@@ -343,6 +355,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 _bottomNavIndex = 0;
               });
               Navigator.of(context).pop();
+              context.go('/admin?tab=familias');
             },
           ),
           ListTile(
@@ -354,10 +367,11 @@ class _AdminScreenState extends State<AdminScreen> {
                 _bottomNavIndex = 0;
               });
               Navigator.of(context).pop();
+              context.go('/admin?tab=categorias');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.private_connectivity),
+            leading: const Icon(Icons.merge_type),
             title: const Text('Familias con Categorias'),
             onTap: () {
               setState(() {
@@ -365,6 +379,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 _bottomNavIndex = 0;
               });
               Navigator.of(context).pop();
+              context.go('/admin?tab=famcat');
             },
           ),
           ListTile(
@@ -376,6 +391,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 _bottomNavIndex = 0;
               });
               Navigator.of(context).pop();
+              context.go('/admin?tab=emprendimientos');
             },
           ),
           ListTile(
@@ -387,6 +403,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 _bottomNavIndex = 0;
               });
               Navigator.of(context).pop();
+              context.go('/admin?tab=servicios');
             },
           ),
 

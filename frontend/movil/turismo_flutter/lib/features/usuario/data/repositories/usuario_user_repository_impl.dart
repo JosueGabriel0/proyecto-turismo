@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart'; // <== ESTE ES EL IMPORT FALTANTE
 import 'package:turismo_flutter/features/usuario/data/datasources/remote/usuario_api_client_user.dart';
-import 'package:turismo_flutter/features/usuario/data/models/usuario_user_dto.dart';
+import 'package:turismo_flutter/features/usuario/data/models/usuario_dto_user.dart';
 import 'package:turismo_flutter/features/usuario/data/models/usuario_user_response.dart';
 import 'package:turismo_flutter/features/usuario/domain/repositories/usuario_user_repository.dart';
 
@@ -19,7 +19,7 @@ class UsuarioUserRepositoryImpl implements UsuarioUserRepository {
   }
 
   @override
-  Future<UsuarioUserResponse> putUsuarioCompleto(int id, UsuarioUserDto usuario, File? imagen) async {
+    Future<UsuarioUserResponse> putUsuarioCompleto(int id, UsuarioDtoUser usuario, File? imagen) async {
     final usuarioJson = jsonEncode(usuario.toJson());
     MultipartFile? multipartFile;
 
@@ -31,6 +31,6 @@ class UsuarioUserRepositoryImpl implements UsuarioUserRepository {
       );
     }
 
-    return apiClient.putUsuarioCompleto(id, usuarioJson, multipartFile);
+    return apiClient.putUsuarioCompletoUser(id, usuarioJson, multipartFile);
   }
 }

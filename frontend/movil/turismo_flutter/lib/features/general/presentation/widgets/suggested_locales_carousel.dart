@@ -36,7 +36,7 @@ class SuggestedLocalesCarousel extends StatelessWidget {
               cs.CarouselSlider(
                 options: cs.CarouselOptions(
                   height: 330,
-                  viewportFraction: 0.49,
+                  viewportFraction: 0.50,
                   enableInfiniteScroll: true,
                   enlargeCenterPage: false,
                   padEnds: false,

@@ -5,10 +5,6 @@ import 'package:turismo_flutter/features/emprendedor/domain/usecases/usuario/get
 import 'package:turismo_flutter/features/emprendedor/domain/usecases/usuario/put_usuario_emprendedor_usecase.dart';
 import 'package:turismo_flutter/features/emprendedor/presentation/bloc/usuario/usuario_emprendedor_event.dart';
 import 'package:turismo_flutter/features/emprendedor/presentation/bloc/usuario/usuario_emprendedor_state.dart';
-import 'package:turismo_flutter/features/usuario/domain/usecases/usuario/get_usuario_by_id_user_usecase.dart';
-import 'package:turismo_flutter/features/usuario/domain/usecases/usuario/put_usuario_user_usecase.dart';
-import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuario_user_event.dart';
-import 'package:turismo_flutter/features/usuario/presentation/bloc/usuario/usuario_user_state.dart';
 
 class UsuarioEmprendedorBloc extends Bloc<UsuarioEmprendedorEvent, UsuarioEmprendedorState> {
   final GetUsuarioByIdEmprendedorUsecase getUsuarioByIdEmprendedorUsecase;

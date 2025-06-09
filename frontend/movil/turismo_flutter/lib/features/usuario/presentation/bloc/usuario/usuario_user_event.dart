@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
-import 'package:turismo_flutter/features/admin/data/models/usuario_completo_dto.dart';
-import 'package:turismo_flutter/features/usuario/data/models/usuario_user_dto.dart';
+import 'package:turismo_flutter/features/usuario/data/models/usuario_dto_user.dart';
 
 abstract class UsuarioUserEvent extends Equatable {
   const UsuarioUserEvent();
@@ -19,7 +18,7 @@ class GetUsuarioByIdUserEvent extends UsuarioUserEvent {
 
 class PutUsuarioUserEvent extends UsuarioUserEvent {
   final int id;
-  final UsuarioUserDto usuario;
+  final UsuarioDtoUser usuario;
   final File? imagen;
   const PutUsuarioUserEvent(this.id, this.usuario, this.imagen);
   @override

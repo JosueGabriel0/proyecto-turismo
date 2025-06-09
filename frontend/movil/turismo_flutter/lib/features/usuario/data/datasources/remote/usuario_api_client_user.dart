@@ -16,7 +16,7 @@ abstract class UsuarioApiClientUser {
   // Actualizar un usuario con foto (multipart)
   @PUT("/usuario/usuarioCompleto/{idUsuario}")
   @MultiPart()
-  Future<UsuarioUserResponse> putUsuarioCompleto(
+  Future<UsuarioUserResponse> putUsuarioCompletoUser(
       @Path("idUsuario") int idUsuario,
       @Part(name: "usuario") String usuarioJson,
       @Part(name: "file") MultipartFile? file);

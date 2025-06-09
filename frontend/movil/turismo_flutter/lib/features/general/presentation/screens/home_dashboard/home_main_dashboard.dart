@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
+import 'package:turismo_flutter/features/general/presentation/screens/mapa_general_screen.dart';
 import 'package:turismo_flutter/features/general/presentation/widgets/custom_progress_card.dart';
 import 'package:turismo_flutter/features/general/presentation/widgets/categorias_grid_widget.dart';
 import 'package:turismo_flutter/features/general/presentation/widgets/popular_places_carousel.dart';
@@ -85,6 +87,43 @@ class _HomeMainDashboardState extends State<HomeMainDashboard> {
                     ),
                   ],
                 ),
+                SizedBox(height: 20,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MapaGeneralScreen(
+                              ubicaciones: [
+                                {'lat': -17.7828, 'lng': -63.1821, 'titulo': 'Lugar A'},
+                                {'lat': -17.7891, 'lng': -63.1964, 'titulo': 'Lugar B'},
+                                {'lat': -17.7801, 'lng': -63.1702, 'titulo': 'Lugar C'},
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.location_on),
+                      label: const Text('Explorar mapa'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF5AC7F5),
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(
+                            color: Colors.black,
+                            width: 2, // Puedes ajustar el grosor del borde
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 10),
                 CustomProgressCard(
                   title: "Conoce todo a tu alrededor",
@@ -153,8 +192,11 @@ class _HomeMainDashboardState extends State<HomeMainDashboard> {
                   offset: const Offset(0, -30), // Mueve hacia arriba 10px
                   child: SuggestedLocalesCarousel(),
                 ),
-                const SizedBox(height: 20),
-                CategoriasGridWidget()
+
+                Transform.translate(
+                  offset: const Offset(0, -30), // Mueve hacia arriba 10px
+                  child: CategoriasGridWidget(),
+                ),
 
               ],
             ),

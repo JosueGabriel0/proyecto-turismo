@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/servicio_turistico/servicio_turistico_general_bloc.dart';
@@ -9,7 +8,7 @@ import 'package:turismo_flutter/features/general/presentation/bloc/servicio_turi
 import 'package:turismo_flutter/features/general/presentation/screens/home_dashboard/file_screen.dart';
 import 'package:turismo_flutter/features/usuario/data/models/reserva_detalle_dto.dart';
 import 'package:turismo_flutter/features/usuario/data/models/reserva_dto.dart';
-import 'package:turismo_flutter/features/usuario/data/models/usuario_user_dto.dart';
+import 'package:turismo_flutter/features/usuario/data/models/usuario_dto_user.dart';
 import 'package:turismo_flutter/features/usuario/data/models/usuario_user_response.dart';
 import 'package:turismo_flutter/features/usuario/presentation/bloc/reserva/reserva_bloc.dart';
 import 'package:turismo_flutter/features/usuario/presentation/bloc/reserva/reserva_event.dart';
@@ -204,11 +203,9 @@ class _ReservaScreenState extends State<ReservaScreen> {
     setState(() => _wasUpdated = true);
     if (_usuario == null) return;
 
-    final usuarioDto = UsuarioUserDto(
+    final usuarioDto = UsuarioDtoUser(
       username: _usuario!.username ?? '',
       password: null,
-      estadoCuenta: _usuario!.estado ?? '',
-      nombreRol: _usuario!.rol?.nombre ?? '',
       nombres: _nombresController.text,
       apellidos: _usuario!.persona?.apellidos ?? '',
       tipoDocumento: _tipoDocumentoController.text,

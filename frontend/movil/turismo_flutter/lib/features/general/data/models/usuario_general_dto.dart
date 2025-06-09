@@ -1,8 +1,17 @@
-class UsuarioUserDto {
+import 'dart:convert';
+
+UsuarioGeneralDto usuarioGeneralDtoFromJson(String str) =>
+    UsuarioGeneralDto.fromJson(json.decode(str));
+
+String usuarioGeneralDtoToJson(UsuarioGeneralDto data) =>
+    json.encode(data.toJson());
+
+class UsuarioGeneralDto {
   String username;
-  String? password;
+  String password;
   String estadoCuenta;
   String nombreRol;
+  String? nombreEmprendimiento;
   String nombres;
   String apellidos;
   String tipoDocumento;
@@ -12,11 +21,12 @@ class UsuarioUserDto {
   String correoElectronico;
   String fechaNacimiento;
 
-  UsuarioUserDto({
+  UsuarioGeneralDto({
     required this.username,
     required this.password,
     required this.estadoCuenta,
     required this.nombreRol,
+    required this.nombreEmprendimiento,
     required this.nombres,
     required this.apellidos,
     required this.tipoDocumento,
@@ -27,12 +37,13 @@ class UsuarioUserDto {
     required this.fechaNacimiento,
   });
 
-  factory UsuarioUserDto.fromJson(Map<String, dynamic> json) =>
-      UsuarioUserDto(
+  factory UsuarioGeneralDto.fromJson(Map<String, dynamic> json) =>
+      UsuarioGeneralDto(
         username: json["username"],
         password: json["password"],
         estadoCuenta: json["estadoCuenta"],
         nombreRol: json["nombreRol"],
+        nombreEmprendimiento: json["nombreEmprendimiento"],
         nombres: json["nombres"],
         apellidos: json["apellidos"],
         tipoDocumento: json["tipoDocumento"],
@@ -48,6 +59,7 @@ class UsuarioUserDto {
     "password": password,
     "estadoCuenta": estadoCuenta,
     "nombreRol": nombreRol,
+    "nombreEmprendimiento": nombreEmprendimiento,
     "nombres": nombres,
     "apellidos": apellidos,
     "tipoDocumento": tipoDocumento,
@@ -57,4 +69,23 @@ class UsuarioUserDto {
     "correoElectronico": correoElectronico,
     "fechaNacimiento": fechaNacimiento,
   };
+
+  @override
+  String toString() {
+    return 'UsuarioCompletoDto('
+        'username: $username, '
+        'password: $password, '
+        'estadoCuenta: $estadoCuenta, '
+        'nombreRol: $nombreRol, '
+        'nombreEmprendimiento: $nombreEmprendimiento, '
+        'nombres: $nombres, '
+        'apellidos: $apellidos, '
+        'tipoDocumento: $tipoDocumento, '
+        'numeroDocumento: $numeroDocumento, '
+        'telefono: $telefono, '
+        'direccion: $direccion, '
+        'correoElectronico: $correoElectronico, '
+        'fechaNacimiento: $fechaNacimiento'
+        ')';
+  }
 }

@@ -1,4 +1,4 @@
-class UsuarioEmprendedorDto {
+class UsuarioDtoUser {
   String username;
   String? password;
   String nombres;
@@ -10,7 +10,7 @@ class UsuarioEmprendedorDto {
   String correoElectronico;
   String fechaNacimiento;
 
-  UsuarioEmprendedorDto({
+  UsuarioDtoUser({
     required this.username,
     required this.password,
     required this.nombres,
@@ -23,8 +23,8 @@ class UsuarioEmprendedorDto {
     required this.fechaNacimiento,
   });
 
-  factory UsuarioEmprendedorDto.fromJson(Map<String, dynamic> json) {
-    return UsuarioEmprendedorDto(
+  factory UsuarioDtoUser.fromJson(Map<String, dynamic> json) {
+    return UsuarioDtoUser(
       username: json['username'],
       password: json['password'],
       nombres: json['nombres'],

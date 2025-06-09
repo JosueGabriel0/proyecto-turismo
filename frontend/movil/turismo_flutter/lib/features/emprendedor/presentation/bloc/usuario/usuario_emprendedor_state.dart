@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:turismo_flutter/features/admin/data/models/usuario_completo_response.dart';
 import 'package:turismo_flutter/features/emprendedor/data/models/usuario_emprendedor_response.dart';
-import 'package:turismo_flutter/features/usuario/data/models/usuario_user_response.dart';
 
 abstract class UsuarioEmprendedorState extends Equatable {
   const UsuarioEmprendedorState();

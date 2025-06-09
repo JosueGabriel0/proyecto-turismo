@@ -14,7 +14,6 @@ class RolScreen extends StatefulWidget {
 
 class _RolScreenState extends State<RolScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchTerm = '';
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -38,17 +37,14 @@ class _RolScreenState extends State<RolScreen> {
               return Center(child: Text('Error: ${state.message}'));
             }
             if (state is RolLoadedState) {
-              final filteredRoles = state.roles.where((role) =>
-                  role.nombre.toLowerCase().contains(_searchTerm.toLowerCase())).toList();
-
               return Column(
                 children: [
                   TextField(
                     controller: _searchController,
                     onChanged: (value) {
-                      setState(() {
-                        _searchTerm = value;
-                      });
+                      context
+                          .read<RolBloc>()
+                          .add(BuscarRolPorNombreEvent(value));
                     },
                     decoration: const InputDecoration(
                       labelText: 'Buscar rol...',
@@ -59,9 +55,9 @@ class _RolScreenState extends State<RolScreen> {
                   const SizedBox(height: 16),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: filteredRoles.length,
+                      itemCount: state.roles.length,
                       itemBuilder: (context, index) {
-                        final role = filteredRoles[index];
+                        final role = state.roles[index];
                         return Dismissible(
                           key: Key(role.idRol.toString()),
                           direction: DismissDirection.endToStart,
