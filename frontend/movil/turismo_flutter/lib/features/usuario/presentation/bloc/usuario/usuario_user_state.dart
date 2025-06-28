@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:turismo_flutter/features/admin/data/models/usuario_completo_response.dart';
+import 'package:turismo_flutter/features/usuario/data/models/usuario_id_mensaje_usuario_dto_response.dart';
 import 'package:turismo_flutter/features/usuario/data/models/usuario_user_response.dart';
 
 abstract class UsuarioUserState extends Equatable {
@@ -33,4 +34,20 @@ class UsuarioUserError extends UsuarioUserState {
   const UsuarioUserError(this.message);
   @override
   List<Object?> get props => [message];
+}
+
+class BuscarIdInitialUser extends UsuarioUserState {}
+
+class BuscarIdLoadingUser extends UsuarioUserState {}
+
+class BuscarIdSuccessUser extends UsuarioUserState {
+  final UsuarioIdMensajeUsuarioDtoResponse usuario;
+
+  BuscarIdSuccessUser(this.usuario);
+}
+
+class BuscarIdErrorUser extends UsuarioUserState {
+  final String mensaje;
+
+  BuscarIdErrorUser(this.mensaje);
 }

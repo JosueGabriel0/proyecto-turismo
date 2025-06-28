@@ -80,6 +80,17 @@ class _SeleccionUbicacionScreenState extends State<SeleccionUbicacionScreen> {
               ),
             ),
           ),
+          Positioned(
+            bottom: 100, // Asegúrate de que no choque con el Card de guardar
+            right: 20,
+            child: FloatingActionButton(
+              heroTag: 'gps_button',
+              mini: true,
+              backgroundColor: Colors.white,
+              onPressed: _centrarEnUbicacionActual,
+              child: const Icon(Icons.my_location, color: Colors.blue),
+            ),
+          ),
         ],
       ),
     );
@@ -182,5 +193,27 @@ class _SeleccionUbicacionScreenState extends State<SeleccionUbicacionScreen> {
   Future<Uint8List> loadHQMarkerImage() async {
     final byteData = await rootBundle.load("assets/images/marker_red.png");
     return byteData.buffer.asUint8List();
+  }
+
+  Future<void> _centrarEnUbicacionActual() async {
+    final serviceEnabled = await gl.Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+
+    var permission = await gl.Geolocator.checkPermission();
+    if (permission == gl.LocationPermission.denied) {
+      permission = await gl.Geolocator.requestPermission();
+      if (permission == gl.LocationPermission.denied) return;
+    }
+
+    if (permission == gl.LocationPermission.deniedForever) return;
+
+    final position = await gl.Geolocator.getCurrentPosition();
+
+    await mapboxMapController?.setCamera(
+      mp.CameraOptions(
+        center: mp.Point(coordinates: mp.Position(position.longitude, position.latitude)),
+        zoom: 15,
+      ),
+    );
   }
 }

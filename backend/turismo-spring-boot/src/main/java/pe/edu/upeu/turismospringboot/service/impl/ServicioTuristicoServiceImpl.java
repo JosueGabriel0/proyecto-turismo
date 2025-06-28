@@ -10,6 +10,7 @@ import pe.edu.upeu.turismospringboot.model.entity.ServicioTuristico;
 import pe.edu.upeu.turismospringboot.repository.EmprendimientoRepository;
 import pe.edu.upeu.turismospringboot.repository.ServicioTuristicoRepository;
 import pe.edu.upeu.turismospringboot.service.ServicioTuristicoService;
+import pe.edu.upeu.turismospringboot.util.ArchivoUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class ServicioTuristicoServiceImpl implements ServicioTuristicoService {
         servicioTuristico.setEmprendimiento(emprendimientoEncontrado);
 
         if(multipartFile != null && !multipartFile.isEmpty()) {
-            String fileName = saveFile(multipartFile);
+            String fileName = ArchivoUtil.saveFile(multipartFile);
             servicioTuristico.setImagenUrl(fileName);
         }
         return servicioTuristicoRepository.save(servicioTuristico);
@@ -70,7 +71,7 @@ public class ServicioTuristicoServiceImpl implements ServicioTuristicoService {
         servicioTuristicoEncontrado.setEmprendimiento(emprendimientoEncontrado);
 
         if(multipartFile != null && !multipartFile.isEmpty()) {
-            String fileName = saveFile(multipartFile);
+            String fileName = ArchivoUtil.saveFile(multipartFile);
             servicioTuristicoEncontrado.setImagenUrl(fileName);
         }
         return servicioTuristicoRepository.save(servicioTuristicoEncontrado);
@@ -91,21 +92,5 @@ public class ServicioTuristicoServiceImpl implements ServicioTuristicoService {
         Emprendimiento emprendimiento = emprendimientoRepository.findById(idEmprendimiento).orElseThrow(() -> new RuntimeException("No se encontro el emprendimiento con id "+idEmprendimiento));
         List<ServicioTuristico> servicioTuristicos = emprendimiento.getServicioTuristicos();
         return servicioTuristicos;
-    }
-
-    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/upload/";
-    private String saveFile(MultipartFile file) {
-        try {
-            File uploadPath = new File(UPLOAD_DIR);
-            if (!uploadPath.exists()) {
-                uploadPath.mkdirs();
-            }
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            File destinationFile = new File(uploadPath, fileName);
-            file.transferTo(destinationFile);
-            return fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
-        }
     }
 }

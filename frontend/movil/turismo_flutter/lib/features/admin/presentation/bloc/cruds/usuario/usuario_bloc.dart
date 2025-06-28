@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:turismo_flutter/core/services/token_storage_service.dart';
 import 'package:turismo_flutter/core/utils/auth_utils.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/usuario/buscar_id_por_username_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/buscar_usuarios_completos_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/create_usuario_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/delete_usuario_usecase.dart';
@@ -18,6 +19,7 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
   final UpdateUsuarioUseCase updateUsuarioUseCase;
   final DeleteUsuarioUseCase deleteUsuarioUseCase;
   final BuscarUsuariosCompletosPorNombreUsecase buscarUsuariosCompletosPorNombreUsecase;
+  final BuscarIdPorUsernameUsecase buscarIdPorUsernameUsecase;
   final TokenStorageService tokenStorageService;
 
   UsuarioBloc({
@@ -27,6 +29,7 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
     required this.updateUsuarioUseCase,
     required this.deleteUsuarioUseCase,
     required this.buscarUsuariosCompletosPorNombreUsecase,
+    required this.buscarIdPorUsernameUsecase,
     required this.tokenStorageService,
   }) : super(UsuarioInitial()) {
     on<GetAllUsuariosEvent>((event, emit) async {
@@ -53,7 +56,7 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
       emit(UsuarioLoading());
       try {
         await createUsuarioUseCase(event.usuario, event.imagen);
-        final usuarios = await getAllUsuariosUseCase(); // Recargar lista
+        final usuarios = await getAllUsuariosUseCase();
         emit(UsuarioListLoaded(usuarios));
       } catch (e) {
         emit(UsuarioError("Error al crear usuario: $e"));
@@ -64,7 +67,7 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
       emit(UsuarioLoading());
       try {
         await updateUsuarioUseCase(event.id, event.usuario, event.imagen);
-        final usuarios = await getAllUsuariosUseCase(); // Recargar lista
+        final usuarios = await getAllUsuariosUseCase();
         emit(UsuarioListLoaded(usuarios));
       } catch (e) {
         emit(UsuarioError("Error al actualizar usuario: $e"));
@@ -75,7 +78,7 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
       emit(UsuarioLoading());
       try {
         await deleteUsuarioUseCase(event.id);
-        final usuarios = await getAllUsuariosUseCase(); // Recargar lista
+        final usuarios = await getAllUsuariosUseCase();
         emit(UsuarioListLoaded(usuarios));
       } catch (e) {
         emit(UsuarioError("Error al eliminar usuario: $e"));
@@ -100,7 +103,10 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
         }
 
         final usuario = await getUsuarioByIdUseCase(id);
-        emit(UsuarioProfileLoaded(usuario)); // <- CAMBIO AQUÍ
+
+        // ✅ Aquí se emite el estado correcto
+        emit(UsuarioProfileLoaded(usuario));
+
       } catch (e) {
         emit(UsuarioError("Error al obtener datos del usuario actual: $e"));
       }
@@ -117,5 +123,16 @@ class UsuarioBloc extends Bloc<UsuarioEvent, UsuarioState> {
       },
       transformer: (events, mapper) => events.debounceTime(const Duration(milliseconds: 300)).switchMap(mapper),
     );
+
+    on<BuscarIdPorUsernameEvent>((event, emit) async {
+      emit(BuscarIdLoading());
+
+      try {
+        final result = await buscarIdPorUsernameUsecase.call(event.username);
+        emit(BuscarIdSuccess(result));
+      } catch (e) {
+        emit(BuscarIdError("No se pudo obtener el ID del usuario"));
+      }
+    });
   }
 }

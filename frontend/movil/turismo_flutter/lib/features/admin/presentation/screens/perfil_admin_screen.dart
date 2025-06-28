@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:turismo_flutter/features/admin/data/models/usuario_completo_response.dart';
-import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
-import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_event.dart';
-import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_state.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/perfil/perfil_admin_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/perfil/perfil_admin_event.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/perfil/perfil_admin_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/formulario_actualizar_usuario.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
 
@@ -18,17 +18,24 @@ class _PerfilAdminScreenState extends State<PerfilAdminScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<UsuarioBloc>().add(GetMyUsuarioEvent());
+    context.read<PerfilAdminBloc>().add(LoadPerfilAdminEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<UsuarioBloc, UsuarioState>(
+      body: BlocBuilder<PerfilAdminBloc, PerfilAdminState>(
+        buildWhen: (previous, current) =>
+        current is PerfilAdminLoading ||
+            current is PerfilAdminLoaded ||
+            current is PerfilAdminError,
         builder: (context, state) {
-          if (state is UsuarioLoading) {
+          print('[PerfilAdminScreen] Estado actual: $state');
+          if (state is PerfilAdminLoading) {
+            print('[PerfilAdminScreen] Mostrando indicador de carga...');
             return const Center(child: CircularProgressIndicator());
-          } else if (state is UsuarioProfileLoaded) {
+          } else if (state is PerfilAdminLoaded) {
+            print('[PerfilAdminScreen] Usuario cargado: ${state.usuario}');
             final UsuarioCompletoResponse usuario = state.usuario;
 
             return Column(
@@ -106,28 +113,30 @@ class _PerfilAdminScreenState extends State<PerfilAdminScreen> {
                       backgroundColor: Colors.blueGrey, // color del botón
                       foregroundColor: Colors.white,    // color del texto/icono
                     ),
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                        ),
-                        builder: (context) => Padding(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom,
+                      onPressed: () async {
+                        final result = await showModalBottomSheet<bool>(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                           ),
-                          child: FormularioActualizarUsuario(usuario: usuario),
-                        ),
-                      );
-                    },
+                          builder: (context) => Padding(
+                            padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).viewInsets.bottom,
+                            ),
+                            child: FormularioActualizarUsuario(usuario: usuario),
+                          ),
+                        );
+                      }
                   ),
                 ),
               ],
             );
-          } else if (state is UsuarioError) {
+          } else if (state is PerfilAdminError) {
+            print('[PerfilAdminScreen] Error: ${state.message}');
             return Center(child: Text(state.message));
           } else {
+            print('[PerfilAdminScreen] Estado no reconocido o sin datos');
             return const Center(child: Text('No se encontró información del usuario.'));
           }
         },

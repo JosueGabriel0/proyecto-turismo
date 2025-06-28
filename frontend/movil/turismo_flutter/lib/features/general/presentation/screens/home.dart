@@ -135,17 +135,17 @@ class _HomeState extends State<Home> {
       case '/home/reserva':
         newIndex = 2;
         break;
-      case '/mensajes':
+      case '/home/chat':
         newIndex = 3;
         break;
-      case '/usuario':
+      case '/home/perfil':
         newIndex = 4;
         break;
     }
 
     if (newIndex != null && newIndex != _bottomNavIndex) {
       setState(() {
-        _bottomNavIndex = newIndex!;
+        _bottomNavIndex = newIndex ?? 0;
       });
     }
   }
@@ -180,9 +180,9 @@ class _HomeState extends State<Home> {
       return 'Rate';
     } else if (uri == '/home/reserva') {
       return 'Reservas';
-    } else if (uri == '/mensajes') {
-      return 'Mensajes';
-    } else if (uri == '/usuario') {
+    } else if (uri == '/home/chat') {
+      return 'Chat';
+    } else if (uri == '/home/perfil') {
       return 'Usuario';
     }
     return 'Turismo App';
@@ -309,10 +309,10 @@ class _HomeState extends State<Home> {
                 context.go('/home/reserva');
                 break;
               case 3:
-                context.go('/mensajes');
+                context.go('/home/chat');
                 break;
               case 4:
-                context.go('/usuario');
+                context.go('/home/perfil');
                 break;
             }
           },
@@ -320,7 +320,7 @@ class _HomeState extends State<Home> {
             BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
             BottomNavigationBarItem(icon: Icon(Icons.star_rate), label: 'Rate'),
             BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Reserva'),
-            BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Mensaje'),
+            BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Chat'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Usuario'),
           ],
         ),
@@ -347,9 +347,9 @@ class _HomeState extends State<Home> {
                       backgroundColor: Colors.white,
                       child: Icon(Icons.person, size: 36, color: Colors.blueGrey),
                     )
-                  else if (_usuario!.persona?.fotoPerfil != null)
+                  else if (_usuario?.persona?.fotoPerfil != null)
                     FotoWidget(
-                      fileName: _usuario!.persona!.fotoPerfil!,
+                      fileName: _usuario?.persona?.fotoPerfil ?? "",
                       size: 60,
                     )
                   else

@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart'; // <== ESTE ES EL IMPORT FALTANTE
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/usuario_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/models/usuario_completo_dto.dart';
 import 'package:turismo_flutter/features/admin/data/models/usuario_completo_response.dart';
+import 'package:turismo_flutter/features/admin/data/models/usuario_id_mensaje_dto_response.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/usuario_repository.dart';
 
 class UsuarioRepositoryImpl implements UsuarioRepository {
@@ -63,5 +64,10 @@ class UsuarioRepositoryImpl implements UsuarioRepository {
   @override
   Future<List<UsuarioCompletoResponse>> buscarUsuariosCompletosPorNombre(String username) {
     return apiClient.buscarUsuariosPorNombre(username);
+  }
+
+  @override
+  Future<UsuarioIdMensajeDtoResponse> buscarIdPorUsername(String userName){
+    return apiClient.buscarIdPorUsername(userName);
   }
 }

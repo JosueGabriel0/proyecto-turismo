@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upeu.turismospringboot.model.dto.UsuarioCompletoDto;
 import pe.edu.upeu.turismospringboot.model.dto.UsuarioDtoUser;
+import pe.edu.upeu.turismospringboot.model.dto.UsuarioIdMensajeDtoResponse;
 import pe.edu.upeu.turismospringboot.model.entity.Emprendimiento;
 import pe.edu.upeu.turismospringboot.model.entity.Persona;
 import pe.edu.upeu.turismospringboot.model.entity.Rol;
@@ -17,6 +18,7 @@ import pe.edu.upeu.turismospringboot.repository.PersonaRepository;
 import pe.edu.upeu.turismospringboot.repository.RolRepository;
 import pe.edu.upeu.turismospringboot.repository.UsuarioRepository;
 import pe.edu.upeu.turismospringboot.service.UsuarioCompletoService;
+import pe.edu.upeu.turismospringboot.util.ArchivoUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +55,7 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
     @Override
     public Usuario crearUsuarioCompleto(UsuarioCompletoDto usuarioCompleto, MultipartFile file) {
         if (file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             usuarioCompleto.setFotoPerfil(fileName);
         }
 
@@ -98,7 +100,7 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
 
         // Si se proporciona un archivo nuevo, lo guardamos y actualizamos la foto
         if (file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             persona.setFotoPerfil(fileName);
         } else {
             // Si no se envió una nueva imagen, conservamos la existente
@@ -149,22 +151,6 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
         usuarioRepository.deleteById(idUsuario);
     }
 
-    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/upload/";
-    private String saveFile(MultipartFile file) {
-        try {
-            File uploadPath = new File(UPLOAD_DIR);
-            if (!uploadPath.exists()) {
-                uploadPath.mkdirs();
-            }
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            File destinationFile = new File(uploadPath, fileName);
-            file.transferTo(destinationFile);
-            return fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
-        }
-    }
-
     @Override
     public List<Usuario> buscarUsuariosPorUsername(String username) {
         return usuarioRepository.buscarPorUsername(username);
@@ -185,7 +171,7 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
 
         // Actualizar foto si se proporciona
         if (file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             persona.setFotoPerfil(fileName);
         }
 
@@ -211,5 +197,15 @@ public class UsuarioCompletoServiceImpl implements UsuarioCompletoService {
         }
 
         return usuarioRepository.save(usuario);
+    }
+
+    @Override
+    public UsuarioIdMensajeDtoResponse buscarIdUsuarioPorUsername(String username){
+        Usuario usuarioEncontrado = usuarioRepository.findByUsername(username).orElseThrow(
+                () -> new RuntimeException("Usuario con "+username+" no encontrado")
+        );
+        UsuarioIdMensajeDtoResponse usuarioIdMensajeDtoResponse = new UsuarioIdMensajeDtoResponse();
+        usuarioIdMensajeDtoResponse.setUsuarioId(usuarioEncontrado.getIdUsuario());
+        return usuarioIdMensajeDtoResponse;
     }
 }

@@ -17,12 +17,17 @@ class GetUsuarioByIdEmprendedorEvent extends UsuarioEmprendedorEvent {
 }
 
 class PutUsuarioEmprendedorEvent extends UsuarioEmprendedorEvent {
-  final int id;
   final UsuarioEmprendedorDto usuario;
   final File? imagen;
-  const PutUsuarioEmprendedorEvent(this.id, this.usuario, this.imagen);
+  const PutUsuarioEmprendedorEvent(this.usuario, this.imagen);
   @override
-  List<Object?> get props => [id, usuario, imagen];
+  List<Object?> get props => [usuario, imagen];
 }
 
 class GetMyUsuarioEmprendedorEvent extends UsuarioEmprendedorEvent {}
+
+class BuscarIdPorUsernameEmprendedorEvent extends UsuarioEmprendedorEvent {
+  final String username;
+
+  BuscarIdPorUsernameEmprendedorEvent(this.username);
+}

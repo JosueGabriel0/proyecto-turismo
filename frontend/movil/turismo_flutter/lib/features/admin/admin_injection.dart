@@ -5,7 +5,9 @@ import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/dash
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/emprendimiento_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/familia_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/familia_categoria_api_client.dart';
+import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/file_admin_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/lugar_api_client.dart';
+import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/mensaje_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/rol_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/servicio_turistico_api_client.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/usuario_api_client.dart';
@@ -14,7 +16,9 @@ import 'package:turismo_flutter/features/admin/data/repositories/dashboard_admin
 import 'package:turismo_flutter/features/admin/data/repositories/emprendimiento_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/familia_categoria_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/familia_repository_impl.dart';
+import 'package:turismo_flutter/features/admin/data/repositories/file_admin_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/lugar_repository_impl.dart';
+import 'package:turismo_flutter/features/admin/data/repositories/mensaje_admin_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/rol_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/servicio_turistico_repository_impl.dart';
 import 'package:turismo_flutter/features/admin/data/repositories/usuario_respository_impl.dart';
@@ -23,7 +27,9 @@ import 'package:turismo_flutter/features/admin/domain/repositories/dashboard_adm
 import 'package:turismo_flutter/features/admin/domain/repositories/emprendimiento_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/familia_categoria_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/familia_repository.dart';
+import 'package:turismo_flutter/features/admin/domain/repositories/file_admin_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/lugar_respository.dart';
+import 'package:turismo_flutter/features/admin/domain/repositories/mensaje_admin_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/rol_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/servicio_turistico_repository.dart';
 import 'package:turismo_flutter/features/admin/domain/repositories/usuario_repository.dart';
@@ -51,12 +57,16 @@ import 'package:turismo_flutter/features/admin/domain/usecases/familia_categoria
 import 'package:turismo_flutter/features/admin/domain/usecases/familia_categoria/listar_relaciones_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/familia_categoria/obtener_por_id_categoria_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/familia_categoria/obtener_por_id_familia_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/file/download_file_admin_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/file/upload_file_admin_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/lugar/buscar_lugares_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/lugar/create_lugar_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/lugar/delete_lugar_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/lugar/get_lugar_by_id_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/lugar/get_lugares_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/lugar/update_lugar_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/mensaje/obtener_chats_recientes_admin_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/mensaje/obtener_historial_admin_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/buscar_roles_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/create_rol_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/rol/delete_rol_usecase.dart';
@@ -69,6 +79,7 @@ import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistic
 import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistico/get_servicio_turistico_by_id_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistico/get_servicios_turisticos_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/servicio_turistico/upgrate_servicio_turistico_usecase.dart';
+import 'package:turismo_flutter/features/admin/domain/usecases/usuario/buscar_id_por_username_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/buscar_usuarios_completos_por_nombre_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/create_usuario_usecase.dart';
 import 'package:turismo_flutter/features/admin/domain/usecases/usuario/delete_usuario_usecase.dart';
@@ -81,8 +92,11 @@ import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendim
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia/familia_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/familia_categoria/familia_categoria_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/lugar/lugar_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/mensaje/mensaje_admin_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/perfil/perfil_admin_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/servicio_turistico/servicio_turistico_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/file/file_admin_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -153,6 +167,10 @@ void injectAdminDependencies() {
         () => BuscarUsuariosCompletosPorNombreUsecase(getIt<UsuarioRepository>()),
   );
 
+  getIt.registerLazySingleton<BuscarIdPorUsernameUsecase>(
+        () => BuscarIdPorUsernameUsecase(getIt<UsuarioRepository>()),
+  );
+
   getIt.registerFactory<UsuarioBloc>(
         () => UsuarioBloc(
       getAllUsuariosUseCase: getIt<GetAllUsuariosUseCase>(),
@@ -161,7 +179,16 @@ void injectAdminDependencies() {
       updateUsuarioUseCase: getIt<UpdateUsuarioUseCase>(),
       deleteUsuarioUseCase: getIt<DeleteUsuarioUseCase>(),
           buscarUsuariosCompletosPorNombreUsecase: getIt<BuscarUsuariosCompletosPorNombreUsecase>(),
+          buscarIdPorUsernameUsecase: getIt<BuscarIdPorUsernameUsecase>(),
           tokenStorageService: getIt(),
+    ),
+  );
+
+  getIt.registerFactory<PerfilAdminBloc>(
+        () => PerfilAdminBloc(
+      getUsuarioByIdUseCase: getIt<GetUsuarioByIdUseCase>(),
+      updateUsuarioUseCase: getIt<UpdateUsuarioUseCase>(),
+      tokenStorageService: getIt(),
     ),
   );
 
@@ -440,6 +467,54 @@ void injectAdminDependencies() {
   getIt.registerFactory<DashboardAdminBloc>(
         () => DashboardAdminBloc(
           getDashboardUseCase: getIt<GetDashboardUseCase>(),
+    ),
+  );
+
+  // --------- MENSAJE ---------
+  getIt.registerLazySingleton<MensajeApiClient>(
+        () => MensajeApiClient(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<MensajeAdminRepository>(
+        () => MensajeAdminRepositoryImpl(getIt<MensajeApiClient>()),
+  );
+
+  getIt.registerLazySingleton<ObtenerChatsRecientesAdminUsecase>(
+        () => ObtenerChatsRecientesAdminUsecase(getIt<MensajeAdminRepository>()),
+  );
+
+  getIt.registerLazySingleton<ObtenerHistorialAdminUsecase>(
+        () => ObtenerHistorialAdminUsecase(getIt<MensajeAdminRepository>()),
+  );
+
+  getIt.registerFactory<MensajeAdminBloc>(
+        () => MensajeAdminBloc(
+      obtenerChatsRecientes: getIt<ObtenerChatsRecientesAdminUsecase>(),
+      obtenerHistorial: getIt<ObtenerHistorialAdminUsecase>(),
+    ),
+  );
+
+  // --------- FILE ADMIN ---------
+  getIt.registerLazySingleton<FileAdminApiClient>(
+        () => FileAdminApiClient(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<FileAdminRepository>(
+        () => FileAdminRepositoryImpl(getIt<FileAdminApiClient>()),
+  );
+
+  getIt.registerLazySingleton<DownloadFileAdminUsecase>(
+        () => DownloadFileAdminUsecase(getIt<FileAdminRepository>()),
+  );
+
+  getIt.registerLazySingleton<UploadFileAdminUsecase>(
+        () => UploadFileAdminUsecase(getIt<FileAdminRepository>()),
+  );
+
+  getIt.registerFactory<FileAdminBloc>(
+        () => FileAdminBloc(
+      downloadUsecase: getIt<DownloadFileAdminUsecase>(),
+      uploadUsecase: getIt<UploadFileAdminUsecase>(),
     ),
   );
 }

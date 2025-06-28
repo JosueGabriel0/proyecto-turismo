@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart'; // <== ESTE ES EL IMPORT FALTANTE
 import 'package:turismo_flutter/features/emprendedor/data/datasources/remote/usuario_emprendedor_api_client.dart';
 import 'package:turismo_flutter/features/emprendedor/data/models/usuario_emprendedor_dto.dart';
 import 'package:turismo_flutter/features/emprendedor/data/models/usuario_emprendedor_response.dart';
+import 'package:turismo_flutter/features/emprendedor/data/models/usuario_id_mensaje_emprendedor_dto_response.dart';
 import 'package:turismo_flutter/features/emprendedor/domain/repositories/usuario_emprendedor_repository.dart';
 
 class UsuarioEmprendedorRepositoryImpl implements UsuarioEmprendedorRepository {
@@ -32,5 +33,10 @@ class UsuarioEmprendedorRepositoryImpl implements UsuarioEmprendedorRepository {
     }
 
     return apiClient.putUsuarioCompleto(id, usuarioJson, multipartFile);
+  }
+
+  @override
+  Future<UsuarioIdMensajeEmprendedorDtoResponse> buscarIdPorUsername(String userName){
+    return apiClient.buscarIdPorUsername(userName);
   }
 }

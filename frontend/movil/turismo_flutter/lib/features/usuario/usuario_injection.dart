@@ -78,6 +78,7 @@ import 'package:turismo_flutter/features/usuario/domain/usecases/reserva/crear_r
 import 'package:turismo_flutter/features/usuario/domain/usecases/reserva/obtener_reserva_por_id_usecase.dart';
 import 'package:turismo_flutter/features/usuario/domain/usecases/reserva/obtener_reservas_por_id_usuari_usecase.dart';
 import 'package:turismo_flutter/features/usuario/domain/usecases/reserva/obtener_telefono_usecase.dart';
+import 'package:turismo_flutter/features/usuario/domain/usecases/usuario/buscar_id_por_username_user_usecase.dart';
 import 'package:turismo_flutter/features/usuario/domain/usecases/usuario/get_usuario_by_id_user_usecase.dart';
 import 'package:turismo_flutter/features/usuario/domain/usecases/usuario/put_usuario_user_usecase.dart';
 import 'package:turismo_flutter/features/usuario/presentation/bloc/reserva/reserva_bloc.dart';
@@ -104,10 +105,15 @@ void injectUsuarioDependencies() {
         () => PutUsuarioUserUseCase(getIt<UsuarioUserRepository>()),
   );
 
+  getIt.registerLazySingleton<BuscarIdPorUsernameUserUsecase>(
+        () => BuscarIdPorUsernameUserUsecase(getIt<UsuarioUserRepository>()),
+  );
+
   getIt.registerFactory<UsuarioUserBloc>(
         () => UsuarioUserBloc(
       getUsuarioByIdUserUseCase: getIt<GetUsuarioByIdUserUseCase>(),
       putUsuarioUserUseCase:  getIt<PutUsuarioUserUseCase>(),
+      buscarIdPorUsernameUserUsecase: getIt<BuscarIdPorUsernameUserUsecase>(),
       tokenStorageService: getIt(),
     ),
   );

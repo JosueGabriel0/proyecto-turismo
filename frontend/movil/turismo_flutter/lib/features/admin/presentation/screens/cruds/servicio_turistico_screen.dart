@@ -6,6 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:turismo_flutter/features/admin/data/models/servicio_turistico_dto.dart';
 import 'package:turismo_flutter/features/admin/data/models/servicio_turistico_response.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_event.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/categoria/categoria_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/emprendimiento/emprendimiento_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/servicio_turistico/servicio_turistico_bloc.dart';
@@ -50,6 +53,7 @@ class _ServicioTuristicoScreenState extends State<ServicioTuristicoScreen> {
   void initState() {
     super.initState();
     context.read<ServicioTuristicoBloc>().add(GetAllServiciosTuristicosEvent());
+    context.read<CategoriaBloc>().add(GetCategoriasEvent()); // 👈
   }
 
   Future<void> _pickImage(Function() setStateCallback) async {
@@ -179,22 +183,36 @@ class _ServicioTuristicoScreenState extends State<ServicioTuristicoScreen> {
                           return null;
                         },
                       ),
-                      DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(labelText: "Tipo de Servicio"),
-                        value: _tipoServicioSeleccionado,
-                        items: tiposServicios.map((tipo) {
-                          return DropdownMenuItem<String>(
-                            value: tipo,
-                            child: Text(tipo),
-                          );
-                        }).toList(),
-                        onChanged: (valor) {
-                          setStateDialog(() {
-                            _tipoServicioSeleccionado = valor;
-                            _tipoServicioController.text = valor ?? '';
-                          });
+                      BlocBuilder<CategoriaBloc, CategoriaState>(
+                        builder: (context, state) {
+                          if (state is CategoriaListLoaded) {
+                            final categorias = state.categorias;
+
+                            return DropdownButtonFormField<String>(
+                              decoration: const InputDecoration(labelText: "Tipo de Servicio"),
+                              value: _tipoServicioSeleccionado,
+                              items: categorias.map((categoria) {
+                                return DropdownMenuItem<String>(
+                                  value: categoria.nombre, // Asegúrate que 'nombre' sea la propiedad correcta
+                                  child: Text(categoria.nombre),
+                                );
+                              }).toList(),
+                              onChanged: (valor) {
+                                setStateDialog(() {
+                                  _tipoServicioSeleccionado = valor;
+                                  _tipoServicioController.text = valor ?? '';
+                                });
+                              },
+                              validator: (v) => v == null || v.isEmpty ? "Campo requerido" : null,
+                            );
+                          } else if (state is CategoriaLoading) {
+                            return const CircularProgressIndicator();
+                          } else if (state is CategoriaError) {
+                            return Text('Error al cargar categorías: ${state.message}');
+                          }
+
+                          return const SizedBox(); // Por defecto
                         },
-                        validator: (v) => v == null || v.isEmpty ? "Campo requerido" : null,
                       ),
                       BlocBuilder<EmprendimientoBloc, EmprendimientoState>(
                         builder: (context, emprendimientoState) {

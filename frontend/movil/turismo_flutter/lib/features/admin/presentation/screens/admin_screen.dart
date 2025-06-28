@@ -4,9 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:turismo_flutter/core/services/token_storage_service.dart';
 import 'package:turismo_flutter/features/admin/data/models/usuario_completo_response.dart';
-import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_bloc.dart';
-import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_event.dart';
-import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/usuario/usuario_state.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/perfil/perfil_admin_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/perfil/perfil_admin_event.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/perfil/perfil_admin_state.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/admin_dashboard_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/categoria_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/cruds/emprendimiento_screen.dart';
@@ -19,10 +19,6 @@ import 'package:turismo_flutter/features/admin/presentation/screens/cruds/usuari
 import 'package:turismo_flutter/features/admin/presentation/screens/noticias_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/screens/perfil_admin_screen.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
-import 'package:turismo_flutter/features/admin/presentation/widgets/pages/home2_page.dart';
-import 'package:turismo_flutter/features/admin/presentation/widgets/pages/home_page.dart';
-import 'package:turismo_flutter/features/emprendedor/presentation/screens/emprendedor_screen.dart';
-import 'package:turismo_flutter/features/usuario/presentation/screens/perfil_screen.dart';
 
 class AdminScreen extends StatefulWidget {
   final Widget? child;
@@ -94,6 +90,9 @@ class _AdminScreenState extends State<AdminScreen> {
         context.go('/admin/noticias');
       } else if (index == 2) {
         _selectedIndex = 10;
+        context.go('/admin/chat');
+      } else if (index == 3) {
+        _selectedIndex = 11;
         context.go('/admin/perfil');
       }
   }
@@ -147,9 +146,9 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   void initState() {
     super.initState();
-    print("Bloc encontrado: ${context.read<UsuarioBloc>()}");
+    print("Bloc encontrado: ${context.read<PerfilAdminBloc>()}");
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<UsuarioBloc>().add(GetMyUsuarioEvent());
+      context.read<PerfilAdminBloc>().add(LoadPerfilAdminEvent());
     });
   }
 
@@ -158,17 +157,18 @@ class _AdminScreenState extends State<AdminScreen> {
     final uri = GoRouterState.of(context).uri;
     final path = uri.path;
 
-    // Detecta y ajusta los índices correctamente desde la ruta
-    if (path == '/admin') {
+    if (path.startsWith('/admin/chat')) {
+      _bottomNavIndex = 2;
+    } else if (path == '/admin') {
       _bottomNavIndex = 0;
     } else if (path == '/admin/noticias') {
       _bottomNavIndex = 1;
     } else if (path == '/admin/perfil') {
-      _bottomNavIndex = 2;
+      _bottomNavIndex = 3;
     }
-    return BlocListener<UsuarioBloc, UsuarioState>(
+    return BlocListener<PerfilAdminBloc, PerfilAdminState>(
       listener: (context, state) {
-        if (state is UsuarioProfileLoaded) {
+        if (state is PerfilAdminLoaded) {
           setState(() {
             _usuario = state.usuario;  // Actualizamos el estado del usuario
           });
@@ -244,6 +244,7 @@ class _AdminScreenState extends State<AdminScreen> {
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Inicio'),
             BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: 'Noticias'),
+            BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Chat'),
             BottomNavigationBarItem(icon: Icon(Icons.person_pin), label: 'Perfil'),
           ],
         ),

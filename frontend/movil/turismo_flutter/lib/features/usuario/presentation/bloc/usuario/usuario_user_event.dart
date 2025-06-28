@@ -17,12 +17,17 @@ class GetUsuarioByIdUserEvent extends UsuarioUserEvent {
 }
 
 class PutUsuarioUserEvent extends UsuarioUserEvent {
-  final int id;
   final UsuarioDtoUser usuario;
   final File? imagen;
-  const PutUsuarioUserEvent(this.id, this.usuario, this.imagen);
+  const PutUsuarioUserEvent(this.usuario, this.imagen);
   @override
-  List<Object?> get props => [id, usuario, imagen];
+  List<Object?> get props => [usuario, imagen];
 }
 
 class GetMyUsuarioUserEvent extends UsuarioUserEvent {}
+
+class BuscarIdPorUsernameUserEvent extends UsuarioUserEvent {
+  final String username;
+
+  BuscarIdPorUsernameUserEvent(this.username);
+}

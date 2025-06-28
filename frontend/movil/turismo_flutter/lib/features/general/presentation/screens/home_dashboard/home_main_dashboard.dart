@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/categoria/categoria_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/categoria/categoria_event.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/emprendimiento/emprendimiento_general_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/emprendimiento/emprendimiento_general_event.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/lugar/lugar_general_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/lugar/lugar_general_event.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/ubicacion/ubicacion_bloc.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/ubicacion/ubicacion_event.dart';
+import 'package:turismo_flutter/features/general/presentation/bloc/ubicacion/ubicacion_state.dart';
 import 'package:turismo_flutter/features/general/presentation/screens/mapa_general_screen.dart';
 import 'package:turismo_flutter/features/general/presentation/widgets/custom_progress_card.dart';
 import 'package:turismo_flutter/features/general/presentation/widgets/categorias_grid_widget.dart';
@@ -32,26 +41,42 @@ class _HomeMainDashboardState extends State<HomeMainDashboard> {
     });
   }
 
+  Future<void> _onRefresh() async {
+    final usuarioBloc = BlocProvider.of<UsuarioUserBloc>(context);
+    final lugarGeneralBloc = BlocProvider.of<LugarGeneralBloc>(context);
+    final emprendimientoGeneralBloc = BlocProvider.of<EmprendimientoGeneralBloc>(context);
+    final categoriaGeneralBloc = BlocProvider.of<CategoriaGeneralBloc>(context);
 
+    usuarioBloc.add(GetMyUsuarioUserEvent());
+    lugarGeneralBloc.add(GetAllLugaresGeneralEvent());
+    emprendimientoGeneralBloc.add(GetEmprendimientosGeneralEvent());
+    categoriaGeneralBloc.add(GetCategoriasGeneralEvent());
+
+    // Esperar un poco para permitir que los datos se actualicen visualmente.
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<UsuarioUserBloc, UsuarioUserState>(
-      listener: (context, state) {
-        if (state is UsuarioUserProfileLoaded) {
-          setState(() {
-            _usuario = state.usuario;
-          });
-        }
-      },
-      child: Scaffold(
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 5),
+        listener: (context, state) {
+      if (state is UsuarioUserProfileLoaded) {
+        setState(() {
+          _usuario = state.usuario;
+        });
+      }
+    },
+    child: Scaffold(
+    body: SafeArea(
+    child: RefreshIndicator(
+    onRefresh: _onRefresh,
+    child: SingleChildScrollView(
+    physics: const AlwaysScrollableScrollPhysics(),
+    padding: const EdgeInsets.all(16),
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    const SizedBox(height: 5),
                 Row(
                   children: [
                     _usuario != null && _usuario!.persona?.fotoPerfil != null
@@ -92,35 +117,70 @@ class _HomeMainDashboardState extends State<HomeMainDashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MapaGeneralScreen(
-                              ubicaciones: [
-                                {'lat': -17.7828, 'lng': -63.1821, 'titulo': 'Lugar A'},
-                                {'lat': -17.7891, 'lng': -63.1964, 'titulo': 'Lugar B'},
-                                {'lat': -17.7801, 'lng': -63.1702, 'titulo': 'Lugar C'},
-                              ],
+                    child: BlocConsumer<UbicacionBloc, UbicacionState>(
+                      listener: (context, state) {
+                        if (state is UbicacionLoaded) {
+                          // Navegar al mapa con datos reales
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MapaGeneralScreen(
+                                ubicaciones: state.ubicaciones
+                                    .map((u) => {
+                                  'lat': u.lat,
+                                  'lng': u.lng,
+                                  'titulo': u.titulo,
+                                  'tipo': u.tipo,
+                                  'descripcion': u.descripcion,
+                                  'imagen': u.imagen,
+                                })
+                                    .toList(),
+                              ),
                             ),
-                          ),
+                          );
+                        } else if (state is UbicacionError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(state.mensaje)),
+                          );
+                        }
+                      },
+                      builder: (context, state) {
+                        final isLoading = state is UbicacionLoading;
+
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                  context.read<UbicacionBloc>().add(ObtenerUbicacionesEvent());
+                                },
+                                icon: const Icon(Icons.location_on),
+                                label: const Text('Explorar mapa'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF5AC7F5),
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: const BorderSide(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (isLoading)
+                              const Positioned(
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                          ],
                         );
                       },
-                      icon: const Icon(Icons.location_on),
-                      label: const Text('Explorar mapa'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5AC7F5),
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(
-                            color: Colors.black,
-                            width: 2, // Puedes ajustar el grosor del borde
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),
@@ -203,6 +263,7 @@ class _HomeMainDashboardState extends State<HomeMainDashboard> {
           ),
         ),
       ),
+    ),
     );
   }
 }

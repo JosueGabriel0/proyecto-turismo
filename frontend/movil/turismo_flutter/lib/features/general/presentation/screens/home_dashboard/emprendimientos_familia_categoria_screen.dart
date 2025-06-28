@@ -28,11 +28,15 @@ class _EmprendimientosFamiliaCategoriaScreenState
   @override
   void initState() {
     super.initState();
-    context.read<FamiliaCategoriaGeneralBloc>().add(
-      GetEmprendimientosPorFamiliaCategoriaEvent(
-        widget.idFamiliaCategoria!,
-      ),
-    );
+    final id = widget.idFamiliaCategoria;
+    if (id != null) {
+      context.read<FamiliaCategoriaGeneralBloc>().add(
+        GetEmprendimientosPorFamiliaCategoriaEvent(id),
+      );
+    } else {
+      // Opcional: mostrar un error, redirigir, o hacer algo por defecto
+      debugPrint('idFamiliaCategoria es null');
+    }
   }
 
   @override

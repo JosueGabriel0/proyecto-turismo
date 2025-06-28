@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
+import 'package:turismo_flutter/features/usuario/data/models/usuario_id_mensaje_usuario_dto_response.dart';
 import 'package:turismo_flutter/features/usuario/data/models/usuario_user_response.dart';
 
 part 'usuario_api_client_user.g.dart';
@@ -20,4 +21,9 @@ abstract class UsuarioApiClientUser {
       @Path("idUsuario") int idUsuario,
       @Part(name: "usuario") String usuarioJson,
       @Part(name: "file") MultipartFile? file);
+
+  @GET("/usuario/usuarioCompleto/buscarIdPorUsername/{userName}")
+  Future<UsuarioIdMensajeUsuarioDtoResponse> buscarIdPorUsername(
+      @Path("userName") String userName
+      );
 }

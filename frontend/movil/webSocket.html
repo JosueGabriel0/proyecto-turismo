@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Chat WebSocket con Archivos</title>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+
+<body>
+  <h2>Conectado como <span id="user"></span></h2>
+
+  <input type="text" id="receptor" placeholder="Usuario receptor">
+  <input type="text" id="mensaje" placeholder="Mensaje de texto">
+  <button onclick="enviarMensaje()">Enviar Solo Texto</button>
+
+  <hr>
+
+  <input type="file" id="archivo">
+  <select id="tipoArchivo">
+    <option value="IMAGEN">Imagen</option>
+    <option value="VIDEO">Video</option>
+    <option value="AUDIO">Audio</option>
+    <option value="DOCUMENTO">Documento</option>
+  </select>
+  <button onclick="subirYEnviarArchivo()">Subir Archivo y Enviar</button>
+
+  <h3>Mensajes:</h3>
+  <ul id="mensajes"></ul>
+
+  <script>
+    const username = prompt("Ingresa tu username:");
+    const token = prompt("Pega tu JWT (sin 'Bearer'):");
+
+    document.getElementById("user").textContent = username;
+
+    const socket = new WebSocket(`ws://localhost:8080/ws-chat?token=${token}`);
+    const stompClient = Stomp.over(socket);
+    stompClient.debug = null;
+
+    stompClient.connect({}, function (frame) {
+      console.log("✅ Conectado:", frame);
+
+      stompClient.subscribe("/user/queue/mensajes", function (mensaje) {
+        const body = JSON.parse(mensaje.body);
+        renderizarMensaje(body);
+
+        // Marcar como entregado
+        stompClient.send("/app/chat/marcar-entregado", {}, JSON.stringify({
+          emisorUsername: body.emisorUsername,
+          receptorUsername: username
+        }));
+      });
+
+      stompClient.subscribe("/user/queue/estado", function (mensajeEstado) {
+        const estadoMsg = JSON.parse(mensajeEstado.body);
+        const li = document.getElementById(`mensaje-${estadoMsg.id}`);
+        if (li) {
+          const estadoElemento = li.querySelector(".estado");
+          if (estadoElemento) {
+            estadoElemento.textContent = `Estado: ${estadoMsg.estado}`;
+          } else {
+            const small = document.createElement("small");
+            small.className = "estado";
+            small.style.color = "gray";
+            small.textContent = `Estado: ${estadoMsg.estado}`;
+            li.appendChild(small);
+          }
+        }
+      });
+
+      stompClient.subscribe("/user/queue/mensaje-editado", function (editadoMsg) {
+        const body = JSON.parse(editadoMsg.body);
+        const li = document.getElementById(`mensaje-${body.id}`);
+        if (li) {
+          const p = li.querySelector("p");
+          if (p) {
+            p.innerHTML = `💬 De ${body.emisorUsername}: ${body.contenidoTexto} <em style="color:gray">(editado)</em>`;
+          }
+        }
+      });
+
+    }, function (error) {
+      console.error("❌ Error al conectar:", error);
+    });
+
+    function enviarMensaje() {
+      const receptor = document.getElementById("receptor").value;
+      const contenidoTexto = document.getElementById("mensaje").value;
+
+      if (!contenidoTexto.trim()) {
+        alert("El mensaje no puede estar vacío");
+        return;
+      }
+
+      const mensaje = {
+        emisorUsername: username,
+        receptorUsername: receptor,
+        contenidoTexto: contenidoTexto,
+        contenidoArchivo: null,
+        tipo: "TEXTO"
+      };
+
+      stompClient.send("/app/chat/enviar", {}, JSON.stringify(mensaje));
+      document.getElementById("mensaje").value = "";
+    }
+
+    async function subirYEnviarArchivo() {
+      const receptor = document.getElementById("receptor").value;
+      const tipo = document.getElementById("tipoArchivo").value;
+      const fileInput = document.getElementById("archivo");
+      const mensajeTexto = document.getElementById("mensaje").value;
+
+      if (!fileInput.files.length) {
+        alert("Selecciona un archivo");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+      formData.append("tipo", tipo);
+
+      try {
+        const res = await fetch("http://localhost:8080/usuario/file/upload", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+
+        if (!res.ok) throw new Error("Error subiendo archivo");
+
+        const fileUrl = await res.text();
+
+        const mensaje = {
+          emisorUsername: username,
+          receptorUsername: receptor,
+          contenidoTexto: mensajeTexto || null,
+          contenidoArchivo: fileUrl,
+          tipo: mensajeTexto ? "TEXTO_ARCHIVO" : tipo
+        };
+
+        stompClient.send("/app/chat/enviar", {}, JSON.stringify(mensaje));
+
+        fileInput.value = "";
+        document.getElementById("mensaje").value = "";
+
+      } catch (e) {
+        console.error("Error al subir archivo:", e);
+        alert("Error al subir archivo");
+      }
+    }
+
+    function renderizarMensaje(body) {
+      const li = document.createElement("li");
+      li.id = `mensaje-${body.id}`;
+
+      const editado = body.editado ? " <em style='color:gray'>(editado)</em>" : "";
+      let texto = body.contenidoTexto
+        ? `<p>💬 De ${body.emisorUsername}: ${body.contenidoTexto}${editado}</p>`
+        : "";
+
+      let archivo = "";
+      if (body.contenidoArchivo) {
+        const ruta = "/" + body.contenidoArchivo;
+        switch (body.tipo) {
+          case "IMAGEN":
+          case "TEXTO_ARCHIVO":
+            archivo = `<img src="${ruta}" style="max-width:200px;">`;
+            break;
+          case "VIDEO":
+            archivo = `<video controls src="${ruta}" style="max-width:300px;"></video>`;
+            break;
+          case "AUDIO":
+            archivo = `<audio controls src="${ruta}"></audio>`;
+            break;
+          case "DOCUMENTO":
+            archivo = `<a href="${ruta}" target="_blank">📄 Abrir documento</a>`;
+            break;
+        }
+      }
+
+      li.innerHTML = texto + archivo;
+
+      if (body.estado) {
+        const small = document.createElement("small");
+        small.className = "estado";
+        small.style.color = "gray";
+        small.textContent = "Estado: " + body.estado;
+        li.appendChild(small);
+      }
+
+      // Solo permitir editar si el mensaje es del usuario actual y no ha sido leído
+      if (body.emisorUsername === username && body.estado !== "LEIDO") {
+        const btnEditar = document.createElement("button");
+        btnEditar.textContent = "✏️ Editar";
+        btnEditar.onclick = () => editarMensaje(body);
+        li.appendChild(btnEditar);
+      }
+
+      document.getElementById("mensajes").appendChild(li);
+    }
+
+    function editarMensaje(body) {
+      const nuevoTexto = prompt("Editar mensaje:", body.contenidoTexto || "");
+      if (nuevoTexto && nuevoTexto !== body.contenidoTexto) {
+        stompClient.send("/app/chat/editar", {}, JSON.stringify({
+          id: body.id,
+          contenidoTexto: nuevoTexto,
+          emisorUsername: username
+        }));
+      }
+    }
+
+    async function obtenerIdPorUsername(username) {
+      const res = await fetch(`http://localhost:8080/usuario/usuarioCompleto/buscarIdPorUsername/${username}`, {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error("No se pudo obtener el ID del usuario");
+      }
+
+      const data = await res.json();
+      return data.usuarioId;
+    }
+
+    async function cargarHistorialCon(usernameReceptor) {
+      try {
+        const receptorId = await obtenerIdPorUsername(usernameReceptor);
+
+        const res = await fetch(`http://localhost:8080/usuario/mensajes/historial?usuarioId=${receptorId}`, {
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+
+        if (!res.ok) throw new Error("Error al obtener historial");
+
+        const mensajes = await res.json();
+        document.getElementById("mensajes").innerHTML = "";
+        mensajes.forEach(renderizarMensaje);
+
+        // ✅ Marcar como leído todos los mensajes recibidos de ese usuario que no estén leídos
+        const noLeidos = mensajes.filter(msg =>
+          msg.emisorUsername === usernameReceptor && msg.estado !== "LEIDO"
+        );
+
+        if (noLeidos.length > 0) {
+          stompClient.send("/app/chat/marcar-leido", {}, JSON.stringify({
+            emisorUsername: usernameReceptor,
+            receptorUsername: username
+          }));
+        }
+
+      } catch (error) {
+        console.error("Error:", error);
+        alert("No se pudo cargar el historial");
+      }
+    }
+
+
+    document.getElementById("receptor").addEventListener("change", function () {
+      const receptorUsername = this.value.trim();
+      if (receptorUsername) {
+        cargarHistorialCon(receptorUsername);
+      }
+    });
+  </script>
+</body>
+
+</html>

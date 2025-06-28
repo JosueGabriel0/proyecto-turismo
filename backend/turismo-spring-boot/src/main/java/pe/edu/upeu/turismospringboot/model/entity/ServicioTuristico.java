@@ -3,7 +3,6 @@ package pe.edu.upeu.turismospringboot.model.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import pe.edu.upeu.turismospringboot.model.enums.TipoServicio;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +21,7 @@ public class ServicioTuristico {
 
     private Double precioUnitario;
 
-    private TipoServicio tipoServicio;
+    private String tipoServicio;
 
     private String imagenUrl;
 

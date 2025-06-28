@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:turismo_flutter/features/admin/data/models/usuario_completo_dto.dart';
 import 'package:turismo_flutter/features/admin/data/models/usuario_completo_response.dart';
+import 'package:turismo_flutter/features/admin/data/models/usuario_id_mensaje_dto_response.dart';
 
 part 'usuario_api_client.g.dart';
 
@@ -42,5 +43,10 @@ abstract class UsuarioApiClient {
   @GET("/admin/usuarioCompleto/buscar")
   Future<List<UsuarioCompletoResponse>> buscarUsuariosPorNombre(
       @Query("username") String username,
+      );
+
+  @GET("/admin/usuarioCompleto/buscarIdPorUsername/{userName}")
+  Future<UsuarioIdMensajeDtoResponse> buscarIdPorUsername(
+      @Path("userName") String userName
       );
 }

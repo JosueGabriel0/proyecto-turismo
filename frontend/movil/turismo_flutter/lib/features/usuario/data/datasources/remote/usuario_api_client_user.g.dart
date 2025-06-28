@@ -55,7 +55,7 @@ class _UsuarioApiClientUser implements UsuarioApiClientUser {
     final _headers = <String, dynamic>{};
     final _data = FormData();
     _data.fields.add(MapEntry('usuario', usuarioJson));
-    if(file != null){
+    if (file != null) {
       _data.files.add(MapEntry('file', file));
     }
     final _options = _setStreamType<UsuarioUserResponse>(
@@ -77,6 +77,35 @@ class _UsuarioApiClientUser implements UsuarioApiClientUser {
     late UsuarioUserResponse _value;
     try {
       _value = UsuarioUserResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<UsuarioIdMensajeUsuarioDtoResponse> buscarIdPorUsername(
+    String userName,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<UsuarioIdMensajeUsuarioDtoResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/usuario/usuarioCompleto/buscarIdPorUsername/${userName}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late UsuarioIdMensajeUsuarioDtoResponse _value;
+    try {
+      _value = UsuarioIdMensajeUsuarioDtoResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

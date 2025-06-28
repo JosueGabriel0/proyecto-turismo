@@ -9,6 +9,7 @@ import 'package:turismo_flutter/features/general/data/datasources/remote/familia
 import 'package:turismo_flutter/features/general/data/datasources/remote/file_api_client.dart';
 import 'package:turismo_flutter/features/general/data/datasources/remote/lugar_general_api_client.dart';
 import 'package:turismo_flutter/features/general/data/datasources/remote/servicio_turistico_general_api_client.dart';
+import 'package:turismo_flutter/features/general/data/datasources/remote/ubicacion_general_api_client.dart';
 import 'package:turismo_flutter/features/general/data/repositories/categoria_general_repository_impl.dart';
 import 'package:turismo_flutter/features/general/data/repositories/emprendimiento_general_repository_impl.dart';
 import 'package:turismo_flutter/features/general/data/repositories/familia_categoria_general_repository_impl.dart';
@@ -16,6 +17,7 @@ import 'package:turismo_flutter/features/general/data/repositories/familia_gener
 import 'package:turismo_flutter/features/general/data/repositories/file_repository_impl.dart';
 import 'package:turismo_flutter/features/general/data/repositories/lugar_general_repository_impl.dart';
 import 'package:turismo_flutter/features/general/data/repositories/servicio_turistico_general_repository_impl.dart';
+import 'package:turismo_flutter/features/general/data/repositories/ubicacion_repository_impl.dart';
 import 'package:turismo_flutter/features/general/domain/repositories/categoria_general_repository.dart';
 import 'package:turismo_flutter/features/general/domain/repositories/emprendimiento_general_repository.dart';
 import 'package:turismo_flutter/features/general/domain/repositories/familia_categoria_general_repository.dart';
@@ -23,6 +25,7 @@ import 'package:turismo_flutter/features/general/domain/repositories/familia_gen
 import 'package:turismo_flutter/features/general/domain/repositories/file_repository.dart';
 import 'package:turismo_flutter/features/general/domain/repositories/lugar_general_respository.dart';
 import 'package:turismo_flutter/features/general/domain/repositories/servicio_turistico_general_repository.dart';
+import 'package:turismo_flutter/features/general/domain/repositories/ubicacion_repository.dart';
 import 'package:turismo_flutter/features/general/domain/usecases/categoria/buscar_categorias_por_nombre_usecase_general.dart';
 import 'package:turismo_flutter/features/general/domain/usecases/categoria/get_categoria_by_id_usecase_general.dart';
 import 'package:turismo_flutter/features/general/domain/usecases/categoria/get_categorias_usecase_general.dart';
@@ -41,6 +44,7 @@ import 'package:turismo_flutter/features/general/domain/usecases/lugar/buscar_lu
 import 'package:turismo_flutter/features/general/domain/usecases/lugar/get_familias_por_lugar_general_usecase.dart';
 import 'package:turismo_flutter/features/general/domain/usecases/lugar/get_lugares_general_usecase.dart';
 import 'package:turismo_flutter/features/general/domain/usecases/servicio_turistico/get_servicios_por_emprendimiento_usecase.dart';
+import 'package:turismo_flutter/features/general/domain/usecases/ubicacion/obtener_ubicaciones_usecase.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/categoria/categoria_bloc.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/categoria/categoria_event.dart';
 import 'package:turismo_flutter/features/general/presentation/bloc/file/file_bloc.dart';
@@ -195,5 +199,19 @@ void injectGeneralDependencies() {
 
   getIt.registerLazySingleton<GetServiciosPorEmprendimientoUseCase>(
         () => GetServiciosPorEmprendimientoUseCase(getIt<ServicioTuristicoGeneralRepository>()),
+  );
+
+  // ---------- UBICACION ----------
+  getIt.registerLazySingleton<UbicacionGeneralApiClient>(
+        () => UbicacionGeneralApiClient(getIt<Dio>(instanceName: "noAuth")),
+    instanceName: "noAuthClient",
+  );
+
+  getIt.registerLazySingleton<UbicacionRepository>(
+        () => UbicacionRepositoryImpl(getIt<UbicacionGeneralApiClient>(instanceName: "noAuthClient")),
+  );
+
+  getIt.registerLazySingleton<ObtenerUbicacionesUseCase>(
+        () => ObtenerUbicacionesUseCase(getIt<UbicacionRepository>()),
   );
   }

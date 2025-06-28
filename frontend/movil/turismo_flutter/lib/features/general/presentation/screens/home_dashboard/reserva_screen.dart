@@ -216,7 +216,7 @@ class _ReservaScreenState extends State<ReservaScreen> {
       fechaNacimiento: _usuario!.persona?.fechaNacimiento ?? '',
     );
 
-    context.read<UsuarioUserBloc>().add(PutUsuarioUserEvent(_usuario!.idUsuario, usuarioDto, null));
+    context.read<UsuarioUserBloc>().add(PutUsuarioUserEvent(usuarioDto, null));
   }
 
   void _crearReserva() async {

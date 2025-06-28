@@ -1,7 +1,6 @@
 package pe.edu.upeu.turismospringboot.model.dto;
 
 import lombok.Data;
-import pe.edu.upeu.turismospringboot.model.enums.TipoServicio;
 
 @Data
 public class ServicioTuristicoDto {
@@ -14,7 +13,7 @@ public class ServicioTuristicoDto {
 
     private Double precioUnitario;
 
-    private TipoServicio tipoServicio;
+    private String tipoServicio;
 
     private String nombreEmprendimiento;
 }

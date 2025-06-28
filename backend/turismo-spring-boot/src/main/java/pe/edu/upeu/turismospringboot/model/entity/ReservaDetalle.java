@@ -3,8 +3,6 @@ package pe.edu.upeu.turismospringboot.model.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import pe.edu.upeu.turismospringboot.model.entity.Reserva;
-import pe.edu.upeu.turismospringboot.model.enums.TipoServicio;
 
 import java.time.LocalDateTime;
 
@@ -25,8 +23,7 @@ public class ReservaDetalle {
 
     private Double total; // precioUnitario * cantidad
 
-    @Enumerated(EnumType.STRING)
-    private TipoServicio tipoServicio; // Ej: "habitacion", "plato", "artesania", "actividad"
+    private String tipoServicio; // Ej: "habitacion", "plato", "artesania", "actividad"
 
     private String observaciones; // Comentarios adicionales si los hay
 

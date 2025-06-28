@@ -28,10 +28,15 @@ class _EmprendimientoDetalleScreenState extends State<EmprendimientoDetalleScree
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isLoaded) {
-      print("idEmprendimiento recibido en pantalla: ${widget.idEmprendimiento}");
-      context.read<EmprendimientoGeneralBloc>().add(
-        GetEmprendimientoByIdGeneralEvent(widget.idEmprendimiento!),
-      );
+      if (widget.idEmprendimiento != null) {
+        print("idEmprendimiento recibido en pantalla: ${widget.idEmprendimiento}");
+        context.read<EmprendimientoGeneralBloc>().add(
+          GetEmprendimientoByIdGeneralEvent(widget.idEmprendimiento!),
+        );
+      } else {
+        print("⚠️ idEmprendimiento es null");
+        // Aquí puedes mostrar un error o navegar hacia atrás
+      }
       _isLoaded = true;
     }
   }

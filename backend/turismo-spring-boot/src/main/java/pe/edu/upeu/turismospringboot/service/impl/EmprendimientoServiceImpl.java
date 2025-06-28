@@ -11,6 +11,7 @@ import pe.edu.upeu.turismospringboot.repository.EmprendimientoRepository;
 import pe.edu.upeu.turismospringboot.repository.FamiliaCategoriaRepository;
 import pe.edu.upeu.turismospringboot.repository.UsuarioRepository;
 import pe.edu.upeu.turismospringboot.service.EmprendimientoService;
+import pe.edu.upeu.turismospringboot.util.ArchivoUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
         emprendimiento.setLatitud(emprendimientoDto.getLatitud());
         emprendimiento.setLongitud(emprendimientoDto.getLongitud());
         if(file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             emprendimiento.setImagenUrl(fileName);
         }
         emprendimiento.setFamiliaCategoria(familiaCategoria);
@@ -62,7 +63,7 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
         emprendimientoEncontrado.setLatitud(emprendimientoDto.getLatitud());
         emprendimientoEncontrado.setLongitud(emprendimientoDto.getLongitud());
         if(file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             emprendimientoEncontrado.setImagenUrl(fileName);
         }
         emprendimientoEncontrado.setFamiliaCategoria(familiaCategoria);
@@ -72,22 +73,6 @@ public class EmprendimientoServiceImpl implements EmprendimientoService {
     @Override
     public void deleteEmprendimiento(Long idEmprendimiento) {
         emprendimientoRepository.deleteById(idEmprendimiento);
-    }
-
-    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/upload/";
-    private String saveFile(MultipartFile file) {
-        try {
-            File uploadPath = new File(UPLOAD_DIR);
-            if (!uploadPath.exists()) {
-                uploadPath.mkdirs();
-            }
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            File destinationFile = new File(uploadPath, fileName);
-            file.transferTo(destinationFile);
-            return fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
-        }
     }
 
     @Override

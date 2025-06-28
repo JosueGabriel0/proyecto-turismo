@@ -230,11 +230,12 @@ class _LoginContentState extends State<LoginContent> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF183454),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
-                            child: const Text("Login"),
+                            child: const Text("Login", style: TextStyle(color: Colors.white),),
                           ),
                         ),
                       ],

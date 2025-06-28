@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upeu.turismospringboot.model.dto.UsuarioCompletoDto;
 import pe.edu.upeu.turismospringboot.model.dto.UsuarioDtoUser;
+import pe.edu.upeu.turismospringboot.model.dto.UsuarioIdMensajeDtoResponse;
 import pe.edu.upeu.turismospringboot.model.entity.Usuario;
 import pe.edu.upeu.turismospringboot.service.UsuarioCompletoService;
 
@@ -45,5 +46,10 @@ public class UsuarioControllerUser {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/buscarIdPorUsername/{userName}")
+    public ResponseEntity<UsuarioIdMensajeDtoResponse> buscarIdPorUsername(@PathVariable("userName") String userName) {
+        return ResponseEntity.ok(usuarioCompletoService.buscarIdUsuarioPorUsername(userName));
     }
 }

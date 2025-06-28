@@ -52,3 +52,9 @@ class BuscarUsuarioPorNombreEvent extends UsuarioEvent {
   @override
   List<Object?> get props => [username];
 }
+
+class BuscarIdPorUsernameEvent extends UsuarioEvent {
+  final String username;
+
+  BuscarIdPorUsernameEvent(this.username);
+}

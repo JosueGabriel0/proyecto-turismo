@@ -9,6 +9,7 @@ import pe.edu.upeu.turismospringboot.model.entity.Lugar;
 import pe.edu.upeu.turismospringboot.repository.FamiliaRepository;
 import pe.edu.upeu.turismospringboot.repository.LugarRepository;
 import pe.edu.upeu.turismospringboot.service.FamiliaService;
+import pe.edu.upeu.turismospringboot.util.ArchivoUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class FamiliaServiceImpl implements FamiliaService {
         familia.setDescripcion(familiaDto.getDescripcion());
         familia.setLugar(lugar);
         if(file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             familia.setImagenUrl(fileName);
         }
         return familiaRepository.save(familia);
@@ -54,7 +55,7 @@ public class FamiliaServiceImpl implements FamiliaService {
         familia.setDescripcion(familiaDto.getDescripcion());
         familia.setLugar(lugar);
         if(file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             familia.setImagenUrl(fileName);
         }
         return familiaRepository.save(familia);
@@ -63,22 +64,6 @@ public class FamiliaServiceImpl implements FamiliaService {
     @Override
     public void deleteFamilia(Long idFamilia) {
         familiaRepository.deleteById(idFamilia);
-    }
-
-    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/upload/";
-    private String saveFile(MultipartFile file) {
-        try {
-            File uploadPath = new File(UPLOAD_DIR);
-            if (!uploadPath.exists()) {
-                uploadPath.mkdirs();
-            }
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            File destinationFile = new File(uploadPath, fileName);
-            file.transferTo(destinationFile);
-            return fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
-        }
     }
 
     @Override

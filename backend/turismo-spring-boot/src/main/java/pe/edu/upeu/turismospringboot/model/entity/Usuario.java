@@ -32,6 +32,8 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     private EstadoCuenta estado;
 
+    private LocalDateTime ultimaConexion;
+
     @ManyToOne
     @JoinColumn(name = "id_rol", nullable = false)
     @JsonManagedReference

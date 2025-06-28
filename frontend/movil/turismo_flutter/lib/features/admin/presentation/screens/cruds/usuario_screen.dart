@@ -41,6 +41,10 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
   int? _usuarioEditandoId;
   final _searchController = TextEditingController();
 
+  late final TextEditingController confirmPasswordCtrl;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
   final DateFormat _formatter = DateFormat('yyyy-MM-dd');
 
   String? _rolSeleccionado;
@@ -54,6 +58,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
   void initState() {
     super.initState();
     context.read<UsuarioBloc>().add(GetAllUsuariosEvent());
+    confirmPasswordCtrl = TextEditingController();
   }
 
   Future<void> _pickImage(Function() setStateCallback) async {
@@ -68,6 +73,7 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
   void _resetForm() {
     _userNameController.clear();
     _passwordController.clear();
+    confirmPasswordCtrl.clear();
     _estadoCuentaController.clear();
     _nombreRolController.clear();
     _nombreEmprendimientoController.clear();
@@ -184,6 +190,21 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
     return confirmacion; // 👈 Esto es lo que necesita confirmDismiss
   }
 
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) return 'Campo requerido';
+    final passwordRegex =
+    RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$');
+    if (!passwordRegex.hasMatch(value)) {
+      return 'Debe tener 8+ caracteres, mayúscula, minúscula, número y símbolo';
+    }
+    return null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value != _passwordController.text) return 'Las contraseñas no coinciden';
+    return null;
+  }
+
   void _mostrarFormulario(BuildContext context) {
     showDialog(
       context: context,
@@ -206,9 +227,41 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
                       ),
                       TextFormField(
                         controller: _passwordController,
-                        decoration: const InputDecoration(labelText: "Password"),
-                        obscureText: true,
-                        validator: (value) => value == null || value.isEmpty ? 'Campo requerido' : null,
+                        obscureText: _obscurePassword,
+                        decoration: InputDecoration(
+                          labelText: "Contraseña",
+                          errorMaxLines: 3,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            ),
+                            onPressed: () {
+                              setStateDialog(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                        ),
+                        validator: _validatePassword,
+                      ),
+                      TextFormField(
+                        controller: confirmPasswordCtrl,
+                        obscureText: _obscureConfirmPassword,
+                        decoration: InputDecoration(
+                          labelText: "Confirmar Contraseña",
+                          errorMaxLines: 2,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                            ),
+                            onPressed: () {
+                              setStateDialog(() {
+                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
+                        ),
+                        validator: _validateConfirmPassword,
                       ),
                       DropdownButtonFormField<String>(
                         value: _estadoCuentaController.text.isNotEmpty

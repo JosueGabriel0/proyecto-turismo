@@ -9,6 +9,7 @@ import pe.edu.upeu.turismospringboot.model.entity.Familia;
 import pe.edu.upeu.turismospringboot.repository.CategoriaRepository;
 import pe.edu.upeu.turismospringboot.repository.FamiliaRepository;
 import pe.edu.upeu.turismospringboot.service.CategoriaService;
+import pe.edu.upeu.turismospringboot.util.ArchivoUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         categoria.setDescripcion(categoriaDto.getDescripcion());
 
         if(file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             categoria.setImagenUrl(fileName);
         }
 
@@ -49,7 +50,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         categoriaEncontrada.setNombre(categoriaDto.getNombre());
         categoriaEncontrada.setDescripcion(categoriaDto.getDescripcion());
         if(file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             categoriaEncontrada.setImagenUrl(fileName);
         }
 
@@ -59,22 +60,6 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     public void deleteCategoria(Long idCategoria) {
         categoriaRepository.deleteById(idCategoria);
-    }
-
-    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/upload/";
-    private String saveFile(MultipartFile file) {
-        try {
-            File uploadPath = new File(UPLOAD_DIR);
-            if (!uploadPath.exists()) {
-                uploadPath.mkdirs();
-            }
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            File destinationFile = new File(uploadPath, fileName);
-            file.transferTo(destinationFile);
-            return fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
-        }
     }
 
     @Override

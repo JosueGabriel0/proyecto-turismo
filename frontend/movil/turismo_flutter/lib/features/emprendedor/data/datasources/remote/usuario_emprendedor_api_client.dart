@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 import 'package:turismo_flutter/features/emprendedor/data/models/usuario_emprendedor_response.dart';
+import 'package:turismo_flutter/features/emprendedor/data/models/usuario_id_mensaje_emprendedor_dto_response.dart';
 
 part 'usuario_emprendedor_api_client.g.dart';
 
@@ -21,4 +22,9 @@ abstract class UsuarioEmprendedorApiClient {
       @Path("idUsuario") int idUsuario,
       @Part(name: "usuario") String usuarioJson,
       @Part(name: "file") MultipartFile? file);
+
+  @GET("/emprendedor/usuarioCompleto/buscarIdPorUsername/{userName}")
+  Future<UsuarioIdMensajeEmprendedorDtoResponse> buscarIdPorUsername(
+      @Path("userName") String userName
+      );
 }

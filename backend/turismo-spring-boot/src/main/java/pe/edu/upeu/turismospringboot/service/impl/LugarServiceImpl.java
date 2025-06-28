@@ -8,6 +8,7 @@ import pe.edu.upeu.turismospringboot.model.entity.Familia;
 import pe.edu.upeu.turismospringboot.model.entity.Lugar;
 import pe.edu.upeu.turismospringboot.repository.LugarRepository;
 import pe.edu.upeu.turismospringboot.service.LugarService;
+import pe.edu.upeu.turismospringboot.util.ArchivoUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class LugarServiceImpl implements LugarService {
         lugarCreado.setLatitud(lugarDto.getLatitud());
         lugarCreado.setLongitud(lugarDto.getLongitud());
         if (file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             lugarCreado.setImagenUrl(fileName);
         }
         return lugarRepository.save(lugarCreado);
@@ -59,7 +60,7 @@ public class LugarServiceImpl implements LugarService {
         lugarEncontrado.setLatitud(lugarDto.getLatitud());
         lugarEncontrado.setLongitud(lugarDto.getLongitud());
         if (file != null && !file.isEmpty()) {
-            String fileName = saveFile(file);
+            String fileName = ArchivoUtil.saveFile(file);
             lugarEncontrado.setImagenUrl(fileName);
         }
         return lugarRepository.save(lugarEncontrado);
@@ -68,22 +69,6 @@ public class LugarServiceImpl implements LugarService {
     @Override
     public void deleteLugar(Long idLugar) {
         lugarRepository.deleteById(idLugar);
-    }
-
-    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/upload/";
-    private String saveFile(MultipartFile file) {
-        try {
-            File uploadPath = new File(UPLOAD_DIR);
-            if (!uploadPath.exists()) {
-                uploadPath.mkdirs();
-            }
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            File destinationFile = new File(uploadPath, fileName);
-            file.transferTo(destinationFile);
-            return fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
-        }
     }
 
     @Override
