@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:turismo_flutter/features/admin/domain/repositories/file_admin_repository.dart';
 
 class DownloadFileAdminUsecase {
@@ -5,11 +6,12 @@ class DownloadFileAdminUsecase {
 
   DownloadFileAdminUsecase(this.repository);
 
-  /// Descarga un archivo y retorna los bytes del contenido.
-  Future<List<int>> call({
+  /// Descarga un archivo y retorna los bytes del contenido como Uint8List.
+  Future<Uint8List> call({
     required String tipo,
     required String filename,
   }) async {
-    return await repository.downloadFile(tipo: tipo, filename: filename);
+    final bytes = await repository.downloadFile(tipo: tipo, filename: filename);
+    return Uint8List.fromList(bytes); // ✅ conversión explícita
   }
 }

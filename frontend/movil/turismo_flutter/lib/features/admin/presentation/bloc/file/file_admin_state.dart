@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
 
 abstract class FileAdminState extends Equatable {
@@ -13,15 +15,16 @@ class FileAdminLoading extends FileAdminState {}
 
 class FileUploadSuccess extends FileAdminState {
   final String fileName;
+  final String tipoArchivo;
 
-  const FileUploadSuccess(this.fileName);
+  const FileUploadSuccess(this.fileName, this.tipoArchivo);
 
   @override
-  List<Object?> get props => [fileName];
+  List<Object?> get props => [fileName, tipoArchivo];
 }
 
 class FileDownloadSuccess extends FileAdminState {
-  final List<int> bytes;
+  final Uint8List bytes;
 
   const FileDownloadSuccess(this.bytes);
 

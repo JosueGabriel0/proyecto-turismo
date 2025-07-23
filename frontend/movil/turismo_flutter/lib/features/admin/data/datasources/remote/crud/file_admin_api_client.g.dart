@@ -54,15 +54,12 @@ class _FileAdminApiClient implements FileAdminApiClient {
   }
 
   @override
-  Future<HttpResponse<List<int>>> downloadFile(
-    String tipo,
-    String filename,
-  ) async {
+  Future<Uint8List> downloadFile(String tipo, String filename) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<HttpResponse<List<int>>>(
+    final _options = _setStreamType<Uint8List>(
       Options(
             method: 'GET',
             headers: _headers,
@@ -77,16 +74,15 @@ class _FileAdminApiClient implements FileAdminApiClient {
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<int> _value;
+    final _result = await _dio.fetch<Uint8List>(_options);
+    late Uint8List _value;
     try {
-      _value = _result.data!.cast<int>();
+      _value = _result.data!;
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
     }
-    final httpResponse = HttpResponse(_value, _result);
-    return httpResponse;
+    return _value;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

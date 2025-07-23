@@ -24,7 +24,7 @@ class FileAdminBloc extends Bloc<FileAdminEvent, FileAdminState> {
         file: event.file,
         tipo: event.tipo,
       );
-      emit(FileUploadSuccess(fileName));
+      emit(FileUploadSuccess(fileName, event.tipo));
     } catch (e) {
       emit(FileAdminError("Error al subir archivo: $e"));
     }

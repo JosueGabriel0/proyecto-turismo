@@ -11,6 +11,11 @@ import 'package:turismo_flutter/features/admin/data/models/chat_resumen_dto.dart
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/mensaje/mensaje_admin_bloc.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/mensaje/mensaje_admin_event.dart';
 import 'package:turismo_flutter/features/admin/presentation/bloc/cruds/mensaje/mensaje_admin_state.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/file/file_admin_bloc.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/file/file_admin_event.dart';
+import 'package:turismo_flutter/features/admin/presentation/bloc/file/file_admin_state.dart';
+import 'package:turismo_flutter/features/admin/presentation/widgets/chat/imagen_mensaje_widget.dart';
+import 'package:turismo_flutter/features/admin/presentation/widgets/chat/video_mensaje_widget.dart';
 import 'package:turismo_flutter/features/admin/presentation/widgets/cruds/foto_widget.dart';
 import 'package:turismo_flutter/features/chat/domain/entities/mensaje.dart';
 import 'package:turismo_flutter/features/chat/presentation/bloc/chat_bloc.dart';
@@ -19,6 +24,8 @@ import 'package:turismo_flutter/features/chat/presentation/bloc/chat_state.dart'
 import 'package:url_launcher/url_launcher.dart';
 import 'package:turismo_flutter/features/chat/data/mappers/mensaje_mapper.dart';
 import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ChatAdminPersonalScreen extends StatefulWidget {
   final String? idUsuario;
@@ -160,10 +167,8 @@ class _ChatAdminPersonalScreenState extends State<ChatAdminPersonalScreen> {
 
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
-        _scrollController.animateTo(
+        _scrollController.jumpTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
         );
       }
     });
@@ -221,32 +226,23 @@ class _ChatAdminPersonalScreenState extends State<ChatAdminPersonalScreen> {
 
     print("Redibujando mensaje: ${msg.idTemporal ?? msg.id}, estado: ${msg.estado}");
 
-    return Align(
-      alignment: esMio ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 280),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: esMio ? myColor : otherColor,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(12),
-            topRight: const Radius.circular(12),
-            bottomLeft: Radius.circular(esMio ? 12 : 0),
-            bottomRight: Radius.circular(esMio ? 0 : 12),
-          ),
-        ),
-        child: msg.tipo == 'IMAGEN'
-            ? Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Image.network('${ApiConstants.baseUrlDevWebSocket}/${msg.archivo}'),
-            const SizedBox(height: 4),
-            metadata,
-          ],
-        )
-            : msg.tipo == 'DOCUMENTO'
-            ? Column(
+    // AQUÍ pegamos el bloque del switch
+    Widget contenidoMensaje;
+    switch (msg.tipo) {
+      case 'IMAGEN':
+        contenidoMensaje = ImagenMensajeWidget(
+          nombreArchivo: msg.archivo ?? '',
+          esMio: esMio,
+          fecha: msg.fecha ?? DateTime.now(),
+          estado: msg.estado ?? '',
+          myColor: myColor,
+          otherColor: otherColor,
+          estadoColor: esMio ? Colors.white : otherTextoColor,
+        );
+        break;
+
+      case 'DOCUMENTO':
+        contenidoMensaje = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextButton(
@@ -255,8 +251,66 @@ class _ChatAdminPersonalScreenState extends State<ChatAdminPersonalScreen> {
             ),
             metadata,
           ],
-        )
-            : Row(
+        );
+        break;
+
+      /*case 'AUDIO':
+        contenidoMensaje = AudioMensajeWidget(
+          url: msg.archivo!,
+          esMio: esMio,
+          metadata: metadata,
+        );
+        break;*/
+      case 'VIDEO':
+        contenidoMensaje = VideoMensajeWidget(
+          nombreArchivo: msg.archivo ?? '',
+          esMio: esMio,
+          fecha: msg.fecha ?? DateTime.now(),
+          estado: msg.estado ?? '',
+          myColor: myColor,
+          otherColor: otherColor,
+          estadoColor: esMio ? Colors.white : otherTextoColor,
+        );
+        break;
+
+
+      case 'EMOJI':
+        contenidoMensaje = Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              msg.texto ?? '🙂',
+              style: TextStyle(fontSize: 28),
+            ),
+            metadata,
+          ],
+        );
+        break;
+
+      case 'TEXTO_ARCHIVO':
+        contenidoMensaje = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              msg.texto ?? '',
+              style: TextStyle(
+                fontSize: 16,
+                color: esMio ? Colors.white : otherTextoColor,
+              ),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () => launchUrl(Uri.parse('${ApiConstants.baseUrlDevWebSocket}/${msg.archivo}')),
+              child: const Text("📎 Ver archivo adjunto"),
+            ),
+            metadata,
+          ],
+        );
+        break;
+
+      case 'TEXTO':
+      default:
+        contenidoMensaje = Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -273,7 +327,25 @@ class _ChatAdminPersonalScreenState extends State<ChatAdminPersonalScreen> {
             const SizedBox(width: 8),
             metadata,
           ],
+        );
+    }
+
+    return Align(
+      alignment: esMio ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 280),
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: esMio ? myColor : otherColor,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(12),
+            topRight: const Radius.circular(12),
+            bottomLeft: Radius.circular(esMio ? 12 : 0),
+            bottomRight: Radius.circular(esMio ? 0 : 12),
+          ),
         ),
+        child: contenidoMensaje,
       ),
     );
   }
@@ -293,21 +365,22 @@ class _ChatAdminPersonalScreenState extends State<ChatAdminPersonalScreen> {
     }
   }
 
-  void _scrollAlFinalConReintento([int intentos = 5]) {
-    if (intentos == 0 || !_scrollController.hasClients) return;
+  void _scrollAlFinalConReintento([int intentos = 50000]) {
+    if (!_scrollController.hasClients) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 100));
-      if (_scrollController.hasClients) {
-        final maxScroll = _scrollController.position.maxScrollExtent;
-        final current = _scrollController.offset;
+      await Future.delayed(const Duration(milliseconds: 1000)); // más tiempo para que la imagen se renderice
 
-        if ((maxScroll - current).abs() > 50) {
-          _scrollController.animateTo(
-            maxScroll,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
+      if (!_scrollController.hasClients) return;
+
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      final current = _scrollController.offset;
+
+      if ((maxScroll - current).abs() > 50) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+
+        // Reintenta solo si aún no llegó al fondo
+        if (intentos > 0) {
           _scrollAlFinalConReintento(intentos - 1);
         }
       }
@@ -345,7 +418,33 @@ class _ChatAdminPersonalScreenState extends State<ChatAdminPersonalScreen> {
             ),
             const SizedBox(width: 6),
             IconButton(icon: const Icon(Icons.attach_file), onPressed: () {}),
-            IconButton(icon: const Icon(Icons.camera_alt), onPressed: () {}),
+            GestureDetector(
+              onTap: () async {
+                // Capturar imagen
+                final picker = ImagePicker();
+                final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+                if (pickedFile != null) {
+                  final file = File(pickedFile.path);
+                  context.read<FileAdminBloc>().add(
+                    UploadFileEvent(file: file, tipo: 'IMAGEN'),
+                  );
+                }
+              },
+              onLongPress: () async {
+                // Grabar video
+                final picker = ImagePicker();
+                final pickedFile = await picker.pickVideo(source: ImageSource.camera);
+
+                if (pickedFile != null) {
+                  final file = File(pickedFile.path);
+                  context.read<FileAdminBloc>().add(
+                    UploadFileEvent(file: file, tipo: 'VIDEO'), // Notar tipo VIDEO
+                  );
+                }
+              },
+              child: const Icon(Icons.camera_alt),
+            ),
             IconButton(icon: const Icon(Icons.mic), onPressed: () {}),
             CircleAvatar(
               backgroundColor: myMessageColor,
@@ -464,6 +563,21 @@ class _ChatAdminPersonalScreenState extends State<ChatAdminPersonalScreen> {
                 final mensajesOrdenados = mensajeMap.values.toList()
                   ..sort((a, b) => a.fecha!.compareTo(b.fecha!));
 
+                // Desplazar hacia abajo si el último mensaje es del receptor
+                if (mensajesOrdenados.isNotEmpty) {
+                  final ultimo = mensajesOrdenados.last;
+
+                  if (ultimo.emisor != emisor) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (_scrollController.hasClients) {
+                        _scrollController.jumpTo(
+                          _scrollController.position.maxScrollExtent,
+                        );
+                      }
+                    });
+                  }
+                }
+
                 return ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(8),
@@ -490,7 +604,40 @@ class _ChatAdminPersonalScreenState extends State<ChatAdminPersonalScreen> {
                 ],
               ),
             ),
-            _buildInputBar(inputBarColor, inputFieldColor, hintTextColor, backgroundColor, myMessageColor),
+            BlocListener<FileAdminBloc, FileAdminState>(
+              listener: (context, state) {
+                if (state is FileUploadSuccess && emisor != null && widget.username != null) {
+                  final uuid = Uuid();
+
+                  final mensaje = Mensaje(
+                    idTemporal: uuid.v4(),
+                    emisor: emisor!,
+                    receptor: widget.username!,
+                    texto: null,
+                    archivo: state.fileName,
+                    estado: "ENVIADO",
+                    tipo: state.tipoArchivo, // <-- tipo dinámico
+                    fecha: DateTime.now(),
+                  );
+
+                  context.read<ChatBloc>().add(EnviarMensajeEvent(mensaje));
+                  _scrollAlFinalConReintento();
+                }
+
+                if (state is FileAdminError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al subir archivo: ${state.message}')),
+                  );
+                }
+              },
+              child: _buildInputBar(
+                inputBarColor,
+                inputFieldColor,
+                hintTextColor,
+                backgroundColor,
+                myMessageColor,
+              ),
+            ),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:turismo_flutter/features/admin/data/datasources/remote/crud/file_admin_api_client.dart';
@@ -32,13 +33,12 @@ class FileAdminRepositoryImpl implements FileAdminRepository {
   }
 
   @override
-  Future<List<int>> downloadFile({
+  Future<Uint8List> downloadFile({
     required String tipo,
     required String filename,
   }) async {
     try {
-      final response = await apiClient.downloadFile(tipo, filename);
-      return response.data;
+      return await apiClient.downloadFile(tipo, filename); // <- directo
     } catch (e) {
       throw Exception("Error al descargar archivo: $e");
     }

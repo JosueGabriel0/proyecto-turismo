@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:retrofit/dio.dart';
@@ -20,7 +21,7 @@ abstract class FileAdminApiClient {
 
   @GET("/admin/file/{tipo}/{filename}")
   @DioResponseType(ResponseType.bytes) // para obtener el archivo como bytes
-  Future<HttpResponse<List<int>>> downloadFile(
+  Future<Uint8List> downloadFile(
       @Path("tipo") String tipo,
       @Path("filename") String filename,
       );

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 abstract class FileAdminRepository {
   /// Sube un archivo al servidor y devuelve el nombre generado.
@@ -8,7 +9,7 @@ abstract class FileAdminRepository {
   });
 
   /// Descarga un archivo como lista de bytes.
-  Future<List<int>> downloadFile({
+  Future<Uint8List> downloadFile({
     required String tipo,
     required String filename,
   });
